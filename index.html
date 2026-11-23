@@ -1727,6 +1727,7 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
   if(!paused)update(dt);else{time+=dt;skyMat.uniforms.time.value=time;camYaw+=dt*.15;const fx=Math.sin(camYaw),fz=Math.cos(camYaw);{const a=P.x-fx*16,b=P.z-fz*16;cam.position.set(WX(a,b),P.y+8,WZ(a,b));cam.lookAt(WX(P.x,P.z),P.y+3,WZ(P.x,P.z));}sky.position.copy(cam.position);sun.position.set(P.x+SUN.x*150,SUN.y*150,P.z+SUN.z*150);sun.target.position.set(P.x,0,P.z);}
   R.render(scene,cam);}
 requestAnimationFrame(loop);
+if(/[?&]debug=bcb/.test(location.search))window.__bcb={P,cam,get inCar(){return inCar},get inHeli(){return inHeli},WX,WZ,BASE,scene,R,get AQ(){return AQ},get camDist(){return camDist}};
 // ---- keep it smooth: lower quality automatically on slower devices ----
 function applyAQ(){R.setPixelRatio(Math.min(window.devicePixelRatio||1,HIGH?PR[AQ]:Math.min(1,PR[AQ])));resize();
   if(AQ>=1&&sun.shadow.mapSize.x>1024){sun.shadow.mapSize.set(1024,1024);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null;}}
