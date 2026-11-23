@@ -1405,7 +1405,7 @@ const WEV=(function(){
       W.t-=dt;if(W.t<=0){const r=Math.random();setWeather(W.type!=='clear'?'clear':r<.45?'rain':r<.7?'storm':'fog');}
       const k=Math.min(1,dt*.25);W.wf+=(W.tw-W.wf)*k;W.rain+=(W.tr-W.rain)*k;W.fog+=(W.tf-W.fog)*k;W.storm+=(W.ts-W.storm)*k;
       const u=skyMat.uniforms;gray.setRGB(.32,.35,.4);u.top.value.lerp(gray,W.wf*.75);c2.setRGB(.5,.53,.57);u.hor.value.lerp(c2,W.wf*.7);scene.fog.color.copy(u.hor.value);
-      sun.intensity*=1-.65*W.wf;hemi.intensity*=1+.4*W.wf;R.toneMappingExposure*=1-.12*W.wf;scene.fog.near=80-30*W.fog-10*W.rain;scene.fog.far=(AQ>=2?330:380)-110*W.fog-60*W.rain;if(W.fog>.01){c2.setRGB(.42,.47,.55);scene.fog.color.lerp(c2,W.fog*.6);}
+      sun.intensity*=1-.65*W.wf;hemi.intensity*=1+.4*W.wf;R.toneMappingExposure*=1-.12*W.wf;scene.fog.near=(AQ>=3?55:80)-30*W.fog-10*W.rain;scene.fog.far=(AQ>=3?230:AQ>=2?330:380)-(AQ>=3?60:110)*W.fog-(AQ>=3?40:60)*W.rain;if(W.fog>.01){c2.setRGB(.42,.47,.55);scene.fog.color.lerp(c2,W.fog*.6);}
       roadMat.roughness=.92-.6*W.rain;roadMat.metalness=.25*W.rain;
       rain.visible=W.rain>.02;if(rain.visible){rg.setDrawRange(0,AQ>=2?rainN:rainN*2);rainM.opacity=.55*W.rain;const cx=cam.position.x,cz=cam.position.z,cy=cam.position.y;rain.position.set(cx,Math.max(0,cy-20),cz);
         for(let i=0;i<rainN;i++){let y=rainPos[i*6+1]-dt*38;if(y<0)y+=40;rainPos[i*6+1]=y;rainPos[i*6+4]=y-.9;}rg.attributes.position.needsUpdate=true;}
@@ -1570,7 +1570,7 @@ function update(dt){
       if(!clear&&c.stuck<=0){c.waitT=(c.waitT||0)+dt;if(c.waitT>3){c.ghost=1.5;c.waitT=0;}}else c.waitT=0;
       driveTraffic(c,dt,clear);
     }else if(Math.abs(c.v)>.1){const f=carFwd(c);c.v*=1-2*dt;const nx=c.x+f[0]*c.v*dt,nz=c.z+f[1]*c.v*dt;if(!blocked(nx,nz,1.1)){c.x=nx;c.z=nz;}else c.v=0;}
-    c.g.position.set(c.x,0,c.z);c.g.rotation.y=c.h;}
+    c.g.position.set(c.x,0,c.z);c.g.rotation.y=c.h;c.g.visible=AQ<2||c===inCar||Math.abs(c.x-P.x)+Math.abs(c.z-P.z)<(AQ>=3?110:170);}
 
   // wanted level & spawning (gentler)
   heatT+=dt;if(heatT>7&&heat>0){heat=Math.max(0,heat-1);heatT=4;}
@@ -1746,7 +1746,7 @@ if(/[?&]debug=bcb/.test(location.search))window.__bcb={P,cam,get inCar(){return 
 // ---- keep it smooth: lower quality automatically on slower devices ----
 function applyAQ(){R.setPixelRatio(Math.min(window.devicePixelRatio||1,HIGH?PR[AQ]:Math.min(1,PR[AQ])));resize();
   if(AQ>=1&&sun.shadow.mapSize.x>1024){sun.shadow.mapSize.set(1024,1024);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null;}}
-  cam.far=AQ>=2?360:430;cam.updateProjectionMatrix();sky.scale.setScalar((cam.far-25)/600);if(AQ>=2)sun.castShadow=false;}
+  cam.far=AQ>=3?250:AQ>=2?360:430;cam.updateProjectionMatrix();sky.scale.setScalar((cam.far-25)/600);if(AQ>=2)sun.castShadow=false;}
 applyAQ();
 {let fr=0,ft=0,cool=8;const tick=(dt)=>{if(paused||document.hidden)return;fr++;ft+=dt;cool-=dt;if(ft>=4){const fps=fr/ft;fr=0;ft=0;if(cool<=0&&fps<38&&AQ<3){AQ++;S.aq=AQ;save();applyAQ();cool=6;}}};
   let lt=performance.now();(function fl(now){requestAnimationFrame(fl);const d=Math.min(.25,(now-lt)/1000);lt=now;if(started)tick(d);})(lt);}
