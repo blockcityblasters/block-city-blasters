@@ -567,18 +567,28 @@ function pointInBox(x,y,z){const L=near(x,z,0);for(let i=0;i<L.length;i++){const
 const xs=[0],zs=[0];for(let i=0;i<N;i++){xs.push(xs[i]+Math.round(32+srand()*22));zs.push(zs[i]+Math.round(32+srand()*22));}
 const MAXX=xs[N],MAXZ=zs[N],MCX=MAXX/2,MCZ=MAXZ/2;
 function cellC(i,j){return{x:(xs[i]+xs[i+1])/2,z:(zs[j]+zs[j+1])/2};}
-const CT=[];for(let i=0;i<N;i++){CT.push([]);for(let j=0;j<N;j++){const c=cellC(i,j),a=Math.atan2(c.z-MCZ,c.x-MCX),d=Math.hypot(c.x-MCX,c.z-MCZ);
-  const rl=Math.min(MAXX,MAXZ)*.4+24*Math.sin(3*a+1)+16*Math.sin(5*a+2.3)+10*Math.sin(7*a+.4);CT[i].push(d<rl?'land':'sea');}}
+// ---------- Jacksonville-style layout: St. Johns River snakes through town, ocean to the east ----------
+const RIVER=[[1.05,.13],[.86,.17],[.74,.24],[.66,.33],[.63,.44],[.61,.55],[.57,.62],[.47,.655],[.36,.66],[.29,.70],[.25,.79],[.22,.90],[.2,1.05]];
+function riverInfo(u,v){let bd=1e9,dir=[0,1];for(let k=0;k<RIVER.length-1;k++){const a=RIVER[k],b=RIVER[k+1],dx=b[0]-a[0],dy=b[1]-a[1],l2=dx*dx+dy*dy;let t=((u-a[0])*dx+(v-a[1])*dy)/l2;t=Math.max(0,Math.min(1,t));const px=a[0]+dx*t,py=a[1]+dy*t,d=Math.hypot(u-px,v-py);if(d<bd){bd=d;const l=Math.sqrt(l2);dir=[dx/l,dy/l];}}return{d:bd,dir};}
+const DISTRICTS=[['DOWNTOWN',.5,.5],['URBAN CORE',.36,.44],['NORTHSIDE',.42,.13],['NORTH SHORE',.16,.28],['WESTSIDE',.12,.64],['SAN MARCO',.46,.8],['SOUTHSIDE',.76,.86],['ARLINGTON',.84,.56],['JU / EAST BANK',.73,.34],['CHARTER POINT',.86,.17]];
+function districtAt(x,z){const u=x/MAXX,v=z/MAXZ;let b=null,bd=1e9;for(const d of DISTRICTS){const q=Math.hypot(u-d[1],v-d[2]);if(q<bd){bd=q;b=d[0];}}return b;}
+const CT=[],RDIR=[];for(let i=0;i<N;i++){CT.push([]);RDIR.push([]);for(let j=0;j<N;j++){const c=cellC(i,j),u=c.x/MAXX,v=c.z/MAXZ;
+  const a=Math.atan2(v-.5,u-.5);const edge=Math.max(Math.abs(u-.5),Math.abs(v-.5))+.012*Math.sin(5*a+1)+.008*Math.sin(9*a+2);
+  let t=edge<.455?'land':'sea';const ri=riverInfo(u,v);const W=.038+(v>.62&&u<.5?.008:0);if(t==='land'&&ri.d<W)t='river';if(ri.d<W*1.6&&u>.9)t='sea';
+  CT[i].push(t);RDIR[i].push(ri.dir);}}
 CT[HQI][HQI]='land';
-const riverX=z=>MCX+155+40*Math.sin(z/85+.6)+16*Math.sin(z/37);
-for(let j=0;j<N;j++){const zc=(zs[j]+zs[j+1])/2,rx=riverX(zc);let bi=0,bd=1e9;for(let i=0;i<N;i++){const d=Math.abs(cellC(i,j).x-rx);if(d<bd){bd=d;bi=i;}}if(CT[bi][j]==='land'&&!(bi===HQI&&j===HQI))CT[bi][j]='river';}
 const cellT=(i,j)=>(i<0||j<0||i>=N||j>=N)?'sea':CT[i][j];
 const NODE=[],EH=[],EV=[];for(let i=0;i<=N;i++){NODE.push([]);EH.push([]);EV.push([]);for(let j=0;j<=N;j++){
   NODE[i].push(cellT(i-1,j-1)==='land'||cellT(i,j-1)==='land'||cellT(i-1,j)==='land'||cellT(i,j)==='land');EH[i].push(false);EV[i].push(false);}}
-function edgeOK(c1,c2){if(c1==='land'||c2==='land')return true;return c1==='river'&&c2==='river';}
+function edgeOK(c1,c2){return c1==='land'||c2==='land';}
 for(let i=0;i<=N;i++)for(let j=0;j<=N;j++){
-  if(i<N&&NODE[i][j]&&NODE[i+1][j])EH[i][j]=edgeOK(cellT(i,j-1),cellT(i,j));
-  if(j<N&&NODE[i][j]&&NODE[i][j+1])EV[i][j]=edgeOK(cellT(i-1,j),cellT(i,j));}
+  if(i<N&&NODE[i][j]&&NODE[i+1][j])EH[i][j]=edgeOK(cellT(i,j-1),cellT(i,j),true,j,i,Math.min(N-1,j));
+  if(j<N&&NODE[i][j]&&NODE[i][j+1])EV[i][j]=edgeOK(cellT(i-1,j),cellT(i,j),false,i,Math.min(N-1,i),j);}
+(function(){const B=[];
+  for(let j=1;j<N;j+=2){let i=0;while(i<N){if(cellT(i,j-1)==='river'&&cellT(i,j)==='river'){let k=i;while(k<N&&cellT(k,j-1)==='river'&&cellT(k,j)==='river')k++;if(k-i<=3&&NODE[i][j]&&NODE[k][j])B.push(['h',i,k,j]);i=k;}else i++;}}
+  for(let i=1;i<N;i+=2){let j=0;while(j<N){if(cellT(i-1,j)==='river'&&cellT(i,j)==='river'){let k=j;while(k<N&&cellT(i-1,k)==='river'&&cellT(i,k)==='river')k++;if(k-j<=3&&NODE[i][j]&&NODE[i][k])B.push(['v',j,k,i]);j=k;}else j++;}}
+  B.forEach(b=>{if(b[0]==='h'){for(let i=b[1];i<b[2];i++){EH[i][b[3]]=true;NODE[i+1][b[3]]=true;}}else{for(let j=b[1];j<b[2];j++){EV[b[3]][j]=true;NODE[b[3]][j+1]=true;}}});})();
+for(let i=0;i<=N;i++)for(let j=0;j<=N;j++){if(!NODE[i][j])continue;const q4=[cellT(i-1,j-1),cellT(i,j-1),cellT(i-1,j),cellT(i,j)];if(q4.indexOf('land')>=0)continue;const deg=(i<N&&EH[i][j])||(j<N&&EV[i][j])||(i>0&&EH[i-1][j])||(j>0&&EV[i][j-1]);if(!deg)NODE[i][j]=false;}
 function idxOf(a,v){if(v<a[0]-6||v>=a[N]+6)return -2;if(v<a[0])return -1;if(v>=a[N])return N;let lo=0,hi=N;while(hi-lo>1){const m=(lo+hi)>>1;if(a[m]<=v)lo=m;else hi=m;}return lo;}
 function isGridLand(x,z){const i=idxOf(xs,x),j=idxOf(zs,z);if(i===-2||j===-2)return false;const RW=6;
   const vi=i===-1?0:i===N?N:(x-xs[i]<RW?i:xs[i+1]-x<RW?i+1:-1),hj=j===-1?0:j===N?N:(z-zs[j]<RW?j:zs[j+1]-z<RW?j+1:-1);
@@ -875,6 +885,7 @@ function placeBlock(gx,gz,ci,silent){const st=stackOf(gx,gz);if(st.length>=8)ret
   if(!silent){S.built.push([gx,gz,ci]);if(S.built.length>500)S.built.shift();save();}return true;}
 function breakBlock(gx,gz){const st=stackOf(gx,gz);if(!st.length)return false;const b=st.pop();scene.remove(b.m);removeBox(b);
   for(let i=S.built.length-1;i>=0;i--){if(S.built[i][0]===gx&&S.built[i][1]===gz){S.built.splice(i,1);break;}}save();return true;}
+if(S.mapv2!==6){S.built=[];S.homeAt=null;S.mapv2=6;}
 {if(S.mapv!==4){const oh={3:300,2:220}[S.mapv]||140;S.built=S.built.map(b=>[b[0]+Math.round((BASE.x-oh)/2)*2,b[1]+Math.round((BASE.z-oh)/2)*2,b[2]]);S.mapv=4;}}
 S.built=S.built.filter(b=>!near(b[0],b[1],1).some(o=>o.kind!=='blk'&&b[0]+.95>o.x0&&b[0]-.95<o.x1&&b[1]+.95>o.z0&&b[1]-.95<o.z1));
 S.built.slice().forEach(b=>placeBlock(b[0],b[1],b[2],true));save();
@@ -1445,7 +1456,8 @@ const mapBg=document.createElement('canvas');mapBg.width=mapBg.height=600;(funct
   parks.forEach(p=>{x.fillStyle=p.beach?'#e6d29a':'#4caf50';x.fillRect(W(p.x0),W(p.z0),(p.x1-p.x0)*MS,(p.z1-p.z0)*MS);});
   boxes.forEach(b=>{if(b.kind==='bld'){x.fillStyle='#c9b48f';x.fillRect(W(b.x0),W(b.z0),(b.x1-b.x0)*MS,(b.z1-b.z0)*MS);}});
   blds.forEach(B=>{x.fillStyle='#e8954a';x.fillRect(W(B.x0),W(B.z0),(B.x1-B.x0)*MS,(B.z1-B.z0)*MS);x.fillStyle='#ffd400';x.fillRect(W(B.cx-2),W(B.z0-1),4*MS,2.5*MS);});
-  x.fillStyle='#3a6fd8';x.fillRect(W(BASE.x-14),W(BASE.z-14),28*MS,28*MS);})();
+  x.fillStyle='#3a6fd8';x.fillRect(W(BASE.x-14),W(BASE.z-14),28*MS,28*MS);
+  x.font='bold 15px sans-serif';x.textAlign='center';x.lineWidth=4;x.strokeStyle='#000a';x.fillStyle='#fff';DISTRICTS.forEach(d=>{const px=W(d[1]*MAXX),pz=W(d[2]*MAXZ);x.strokeText(d[0],px,pz);x.fillText(d[0],px,pz);});x.fillStyle='#bfe6ff';x.font='italic bold 14px sans-serif';{const p=RIVER[5];x.strokeText('St. Johns River',W(p[0]*MAXX)+30,W(p[1]*MAXZ));x.fillText('St. Johns River',W(p[0]*MAXX)+30,W(p[1]*MAXZ));}})();
 function drawMini(){const m=mctx;const px0=inCar?inCar.x:P.x,pz0=inCar?inCar.z:P.z,VR=170;const sw=VR*2*MS;m.fillStyle='#1f5f8b';m.fillRect(0,0,220,220);
   m.drawImage(mapBg,(px0-VR+MO)*MS,(pz0-VR+MO)*MS,sw,sw,0,0,220,220);const X=v=>(v-(px0-VR))/(VR*2)*220,Z=v=>(v-(pz0-VR))/(VR*2)*220;const cl=v=>Math.max(4,Math.min(216,v));
   m.fillStyle='#2ecc40';packs.forEach(p=>m.fillRect(X(p.x)-3,Z(p.z)-3,6,6));
@@ -1788,7 +1800,8 @@ const FUN=(function(){
   function updPlane(dt){if(!PL.g||PL.on)return;if(PL.falling){PL.y=Math.max(0,PL.y-14*dt);PL.g.position.y=PL.y;if(PL.y<=0){PL.falling=false;setTimeout(()=>{if(PL.on)return;PL.x=PL.home.x;PL.z=PL.home.z;PL.y=0;PL.h=0;PL.v=0;PL.g.position.set(PL.x,0,PL.z);PL.g.rotation.set(0,0,0);},8000);}}}
   let rideBtn=null;function updRides(){if(!rideBtn){rideBtn=document.createElement('button');rideBtn.className='btn';rideBtn.style.cssText='display:none;position:fixed;left:50%;bottom:150px;transform:translateX(-50%);z-index:9;font-size:24px;padding:14px 28px;background:linear-gradient(#ff80ab,#c2185b)';document.body.appendChild(rideBtn);}
     const k=nearRide();if(k){rideBtn.style.display='block';rideBtn.textContent=k==='wheel'?'🎡 RIDE THE WHEEL':'🎠 RIDE THE CAROUSEL';rideBtn.onclick=()=>{audioInit();rideBtn.style.display='none';startRide(k);};}else rideBtn.style.display='none';}
-  F.update=function(dt){updTro(dt);updMusic();updPlane(dt);updRides();updHouses(dt);updPet(dt);updGP(dt);updSoccer(dt);updSea(dt);updSeason(dt);updHome(dt);updSpecial(dt);updSpots(dt);};
+  let curD=null,dT=0;function updDistrict(dt){dT-=dt;if(dT>0)return;dT=1;const d=districtAt(inCar?inCar.x:P.x,inCar?inCar.z:P.z);if(d!==curD){const first=curD===null;curD=d;if(!first){showBanner('📍 '+d);speak(d.replace('JU / EAST BANK','East bank').toLowerCase());}}}
+  F.update=function(dt){updDistrict(dt);updTro(dt);updMusic();updPlane(dt);updRides();updHouses(dt);updPet(dt);updGP(dt);updSoccer(dt);updSea(dt);updSeason(dt);updHome(dt);updSpecial(dt);updSpots(dt);};
   F.icons=function(){const row=document.createElement('div');row.id='iconRow';const mk=(img,alt,fn)=>{const b=document.createElement('button');b.title=alt;b.innerHTML='<img src="/ui/'+img+'.png" alt="'+alt+'" onerror="this.parentNode.textContent=\''+alt+'\'">';b.onclick=()=>{audioInit();fn();};row.appendChild(b);};
     mk('settings','⚙',()=>{openMenu();tab='set';renderMenu();});mk('trophy','🏆',()=>openBoard());mk('friends','👥',()=>openFriends());mk('shop','🛒',()=>openMenu());
     document.body.appendChild(row);const mb=$('menuBtn');if(mb)mb.style.display='none';};
@@ -2175,6 +2188,7 @@ function applyAQ(){R.setPixelRatio(Math.min(window.devicePixelRatio||1,HIGH?PR[A
   if(AQ>=1&&sun.shadow.mapSize.x>1024){sun.shadow.mapSize.set(1024,1024);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null;}}
   cam.far=AQ>=3?250:AQ>=2?360:430;cam.updateProjectionMatrix();sky.scale.setScalar((cam.far-25)/600);if(AQ>=2)sun.castShadow=false;}
 applyAQ();
+if(AQ<2)cv.style.filter='saturate(.86) contrast(1.05)'; // a little grittier, more like a classic city game
 {let fr=0,ft=0,cool=8;const tick=(dt)=>{if(paused||document.hidden)return;fr++;ft+=dt;cool-=dt;if(ft>=4){const fps=fr/ft;fr=0;ft=0;if(cool<=0&&fps<38&&AQ<3){AQ++;S.aq=AQ;save();applyAQ();cool=6;}}};
   let lt=performance.now();(function fl(now){requestAnimationFrame(fl);const d=Math.min(.25,(now-lt)/1000);lt=now;if(started)tick(d);})(lt);}
 cv.addEventListener('webglcontextlost',e=>{e.preventDefault();try{S.aq=Math.min(3,AQ+1);save();}catch(_){}const m=document.createElement('div');m.style.cssText='position:fixed;inset:0;z-index:200;background:#0b1638;color:#fff;display:flex;align-items:center;justify-content:center;font:bold 26px system-ui';m.textContent='🔄 Fixing the screen…';document.body.appendChild(m);setTimeout(()=>location.reload(),1200);});
