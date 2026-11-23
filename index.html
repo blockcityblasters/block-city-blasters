@@ -206,7 +206,7 @@ kbd{background:#fff;color:#222;border-radius:5px;padding:1px 6px;border-bottom:3
       <tr><td>✈ Airstrike</td><td>Killstreak! Beat 12 enemies in a row without getting zapped (zombies count as half) and a jet bombs the closest enemies. Getting zapped resets your streak.</td></tr>
       <tr><td>🤝 Buddy</td><td>Turns the nearest robot into your friend for 90 seconds. Recharges every 4 enemies (max 3).</td></tr>
       <tr><td>🚗🚁 In/Out</td><td>Get in or out of a car or the helicopter. Cars stop when you walk up. Jumping out of the chopper up high opens a parachute 🪂.</td></tr>
-      <tr><td>🚁 Helicopter</td><td>Parked at HQ (the yellow H on the map). Stick: forward/turn. Hold ⬆ Jump to go UP, hold ⬇ Down to go down.</td></tr>
+      <tr><td>🚁 Helicopter</td><td>Parked at HQ (the yellow H on the map). Stick: forward/turn. Hold ⬆ Jump to go UP, hold ⬇ Down to go down. Planes: speed up on the ground, hold ⬆ Jump to take off, hold ⬇ Down to land (or Shift/Z).</td></tr>
       <tr><td>🏃 Run</td><td>Push the stick all the way out, or tap 🏃 Run (stays on until you tap it again). On a computer hold Shift. The cyan bar under your health is stamina — when it runs out, you have to catch your breath. Sprint Shoes in the Shop let you run faster and longer.</td></tr>
       <tr><td>⬆ Jump</td><td>Jump. In a car with Nitro: speed blast! With Rocket Boots: hold in the air to fly.</td></tr>
       <tr><td>🧱 Build</td><td>FIRE becomes PLACE. 🎨 changes color, 🔨 breaks a block.</td></tr>
@@ -495,7 +495,8 @@ const DIFF={easy:{name:'Easy',z:6,base:5,per:2.1,cd:[2.3,3.4],dmg:10.5,spd:16.5,
 const D=()=>DIFF[S.diff]||DIFF.easy;
 if(S.xp===undefined)S.xp=(S.done||0)*10;
 const LV=()=>1+Math.floor((S.xp||0)/20);
-const RAMP=()=>Math.min(1,Math.max(0,(LV()-1)/12)); // 0 at level 1 → 1 at level 8
+const RAMP=()=>Math.min(1,Math.max(0,(LV()-1)/12)); // 0 at level 1 → 1 at level 13
+const OVER=()=>Math.max(0,LV()-50); // levels past 50 keep making it harder
 
 let seed=1337;function srand(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}
 const rnd=(a,b)=>a+Math.random()*(b-a),pick=a=>a[Math.floor(Math.random()*a.length)],spick=a=>a[Math.floor(srand()*a.length)];
@@ -1139,7 +1140,8 @@ function spawnBot(kind,at){const boss=kind==='boss',rr={boss:1.6,tank:1,zombie:.
     ok=inRegion(x,z,3)&&!blocked(x,z,rr,at&&at.y?at.y:undefined)&&(at&&at.y?true:!nearHQ(x,z,28));}
   if(!ok)return null;const m=makeBot(kind);const L=LV();
   const hp={gold:10+L*2,bot:3+Math.floor((L-1)/2),fast:2+Math.floor((L-1)/3),tank:8+L,boss:80+40*(L-1),zombie:2+Math.floor((L-1)/3)}[kind];
-  const b={g:m.g,mat:m.mat,s:m.s,x,z,y:(at&&at.y)||0,vy:0,hp,max:hp,boss,kind,zombie:kind==='zombie',cool:rnd(1.5,3),r:boss?.85*m.s:rr,flash:0,wander:0,wa:0,stuckT:0,alert:0,friend:false};
+  const hpO=Math.round(hp*(1+OVER()*.03));
+  const b={g:m.g,mat:m.mat,s:m.s,x,z,y:(at&&at.y)||0,vy:0,hp:hpO,max:hpO,boss,kind,zombie:kind==='zombie',cool:rnd(1.5,3),r:boss?.85*m.s:rr,flash:0,wander:0,wa:0,stuckT:0,alert:0,friend:false};
   b.g.position.set(x,0,z);bots.push(b);if(!b.zombie)try{FUN.hatBot(b);}catch(e){}return b;}
 const enemies=()=>bots.filter(b=>!b.friend);
 function removeBot(b){scene.remove(b.g);const i=bots.indexOf(b);if(i>=0)bots.splice(i,1);}
@@ -1339,7 +1341,7 @@ function holdBtn(id,on,off){const b=$(id);b.addEventListener('pointerdown',e=>{e
 let runOn=false;holdBtn('runBtn',()=>{runOn=!runOn;$('runBtn').classList.toggle('on',runOn);snd(runOn?600:400,.06,'square',.04);});
 holdBtn('fire',()=>{firing=true;if(building_)doPlace();},()=>{firing=false;});
 holdBtn('jump',()=>{doJump();jumpHeld=true;},()=>{jumpHeld=false;});
-holdBtn('car',toggleCar);holdBtn('build',()=>{if(inHeli)heliDown=true;else toggleBuild();},()=>{heliDown=false;});holdBtn('gun',cycleGun);holdBtn('streak',airstrike);updGunBtn();holdBtn('bcolor',cycleColor);holdBtn('bbreak',doBreak);holdBtn('buddy',useBuddy);
+holdBtn('car',toggleCar);holdBtn('build',()=>{if(inHeli||FUN.flying())heliDown=true;else toggleBuild();},()=>{heliDown=false;});holdBtn('gun',cycleGun);holdBtn('streak',airstrike);updGunBtn();holdBtn('bcolor',cycleColor);holdBtn('bbreak',doBreak);holdBtn('buddy',useBuddy);
 $('menuBtn').addEventListener('click',()=>{audioInit();openMenu();});
 
 // ---------- actions ----------
@@ -1433,7 +1435,7 @@ function vehBoom(v){const isH=v===heli,x=v.x,y=isH?v.y+1.5:1,z=v.z;const inside=
 function updBurning(dt){[heli].concat(cars).forEach(v=>{if(!v.burning)return;v.burnT-=dt;const inside=v===heli?inHeli:inCar===v;
   if(inside){v.beep=(v.beep||0)-dt;if(v.beep<=0){v.beep=v.burnT<2?.2:.45;snd(1200,.08,'square',.05);}}
   if(v.burnT<=0)vehBoom(v);});}
-function hurt(dmg,fx,fz){if(P.dead||(P.shieldT||0)>0||(P.downT||0)>0)return;dmg*=1+.3*nightAmt;dmg*=.5+.5*RAMP();
+function hurt(dmg,fx,fz){if(P.dead||(P.shieldT||0)>0||(P.downT||0)>0)return;dmg*=1+.3*nightAmt;dmg*=.5+.5*RAMP();dmg*=1+OVER()*.025;
   if(inHeli){vehDamage(heli,dmg*.3,fx,fz);return;}
   if(inCar){vehDamage(inCar,dmg*.8,fx,fz);return;}
   if(P.ap>0){const a=Math.min(P.ap,dmg*.85);P.ap-=a;dmg-=a;}
@@ -1520,6 +1522,7 @@ function drawMini(){const m=mctx;const px0=inCar?inCar.x:P.x,pz0=inCar?inCar.z:P
   m.drawImage(mapBg,(px0-VR+MO)*MS,(pz0-VR+MO)*MS,sw,sw,0,0,220,220);const X=v=>(v-(px0-VR))/(VR*2)*220,Z=v=>(v-(pz0-VR))/(VR*2)*220;const cl=v=>Math.max(4,Math.min(216,v));
   m.fillStyle='#2ecc40';packs.forEach(p=>m.fillRect(X(p.x)-3,Z(p.z)-3,6,6));
   bots.forEach(b=>{m.fillStyle=b.friend?'#3ff2e0':b.zombie?'#7fff5a':'#ff1744';m.beginPath();m.arc(X(b.x),Z(b.z),b.boss?6:3.5,0,7);m.fill();});
+  try{FUN.bbMini(m,X,Z,cl);}catch(e){}
   if(FUN.tripT){m.fillStyle='#e040fb';m.beginPath();m.arc(cl(X(FUN.tripT.x)),cl(Z(FUN.tripT.z)),7,0,7);m.fill();m.strokeStyle='#fff';m.stroke();}
   if(mission&&mission.target){m.fillStyle='#ffd400';m.beginPath();m.arc(cl(X(mission.target.x)),cl(Z(mission.target.z)),6,0,7);m.fill();m.strokeStyle='#000';m.stroke();}
   m.fillStyle='#ff9800';ammos.forEach(a=>m.fillRect(X(a.x)-2.5,Z(a.z)-2.5,5,5));
@@ -1866,7 +1869,7 @@ const FUN=(function(){
     const wrap=document.createElement('div');wrap.style.cssText='position:relative';d.appendChild(wrap);const c=document.createElement('canvas');c.width=c.height=600;c.style.cssText='width:'+sz+'px;height:'+sz+'px;border:3px solid #fff;border-radius:14px;touch-action:none';wrap.appendChild(c);
     const zb=document.createElement('div');zb.style.cssText='position:absolute;right:8px;top:8px;display:flex;flex-direction:column;gap:6px';zb.innerHTML='<button class="btn" data-z="in" style="width:52px;height:52px;font-size:26px;padding:0">➕</button><button class="btn" data-z="out" style="width:52px;height:52px;font-size:26px;padding:0">➖</button><button class="btn" data-z="me" style="width:52px;height:52px;font-size:24px;padding:0">📍</button>';wrap.appendChild(zb);
     const W=v=>(v+MO)*MS;const POI=[];try{EXTRA.stations().forEach(st=>POI.push([st.x,st.z,'💾','save station']));}catch(e){}ACTS.forEach(a=>{if(a.i==='🧳'||a.i==='🏟'||a.i==='👾')POI.push([a.x,a.z,a.i,a.i==='🧳'?'trip board':a.i==='🏟'?'arena':'weekly boss']);});try{(B2.isP||[]).forEach(o=>{if(o.lab!=='HQ')POI.push([o.x,o.z,'🌀','portal to '+o.lab.toLowerCase()]);});}catch(e){}
-    PRS.forEach(r=>POI.push([r.x,r.z,S.props&&S.props[r.P0.k]?'⭐':'🏷',r.P0.n.toLowerCase()]));if(HOME.x!==undefined)POI.push([HOME.x,HOME.z,'🏠','your house']);PLANES.forEach(p=>POI.push([p.x,p.z,'🛩','plane']));LMS.forEach(l=>POI.push([l.x,l.z,{stadium:'🏟',airport:'✈',park:'🎡',lighthouse:'🗼'}[l.t]||'⭐',l.t]));if(GPS.on)POI.push([GPS.tx,GPS.tz,'🏁','GPS spot']);
+    PRS.forEach(r=>POI.push([r.x,r.z,S.props&&S.props[r.P0.k]?'⭐':'🏷',r.P0.n.toLowerCase()]));if(HOME.x!==undefined)POI.push([HOME.x,HOME.z,'🏠','your house']);PLANES.forEach(p=>POI.push([p.x,p.z,'🛩','plane']));LMS.forEach(l=>POI.push([l.x,l.z,{stadium:'🏟',airport:'✈',park:'🎡',lighthouse:'🗼'}[l.t]||'⭐',l.t]));if(GPS.on)POI.push([GPS.tx,GPS.tz,'🏁','GPS spot']);try{F.bbPOI().forEach(q=>POI.push(q));}catch(e){}
     const V={z:3.5,cx:inCar?inCar.x:P.x,cz:inCar?inCar.z:P.z};const x=c.getContext('2d');
     const toS=(wx,wz)=>[(W(wx)-W(V.cx))*V.z+300,(W(wz)-W(V.cz))*V.z+300];const toW=(sx,sy)=>[((sx-300)/V.z+W(V.cx))/MS-MO,((sy-300)/V.z+W(V.cz))/MS-MO];
     function draw(){x.setTransform(1,0,0,1,0,0);x.fillStyle='#1f5f8b';x.fillRect(0,0,600,600);x.setTransform(V.z,0,0,V.z,300-W(V.cx)*V.z,300-W(V.cz)*V.z);x.imageSmoothingEnabled=V.z<2.5;x.drawImage(mapBg,0,0);x.setTransform(1,0,0,1,0,0);
@@ -1987,7 +1990,7 @@ const FUN=(function(){
       const sg=new THREE.Mesh(BG(5,1.25,.2),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c)}));sg.position.set(r.x,3.2,r.z-7.6);g.add(sg);scene.add(g);fHouses.set(r.uid,{g,key,x:r.x,z:r.z});});}).catch(()=>{});}
   F.friendHouse=uid=>fHouses.get(uid)||null;
   // ---------- 🏆 trophies + shelf in your house ----------
-  const TRO=[['arena','🏟','Arena champion',s=>s.arena>=1],['wboss','👾','Beat a weekly boss',s=>s.wboss>=1],['trip5','🧳','5 trips',s=>s.trip>=5],['defend','🛡','Saved the city',s=>s.defend>=1],['race2','🏁','Family race win',s=>s.rwin>=1],['isles','🌋','Visit 3 far islands',()=>(S.isl||[]).length>=3],['stars','⭐','20 secret stars',()=>(S.sf||[]).length>=20],['boss1','👾','First boss',s=>s.boss>=1],['boss10','👹','10 bosses',s=>s.boss>=10],['heist1','🏦','First heist',s=>s.heist>=1],['heist5','💰','5 heists',s=>s.heist>=5],['race1','🏁','Finish the Grand Prix',s=>s.race>=1],['fast','⚡','Grand Prix under 2:30',()=>S.gpBest&&S.gpBest<150],
+  const TRO=[['bb1','👹','Beat a big boss',s=>s.bigboss>=1],['bb10','👑','Beat 10 big bosses',s=>s.bigboss>=10],['arena','🏟','Arena champion',s=>s.arena>=1],['wboss','👾','Beat a weekly boss',s=>s.wboss>=1],['trip5','🧳','5 trips',s=>s.trip>=5],['defend','🛡','Saved the city',s=>s.defend>=1],['race2','🏁','Family race win',s=>s.rwin>=1],['isles','🌋','Visit 3 far islands',()=>(S.isl||[]).length>=3],['stars','⭐','20 secret stars',()=>(S.sf||[]).length>=20],['boss1','👾','First boss',s=>s.boss>=1],['boss10','👹','10 bosses',s=>s.boss>=10],['heist1','🏦','First heist',s=>s.heist>=1],['heist5','💰','5 heists',s=>s.heist>=5],['race1','🏁','Finish the Grand Prix',s=>s.race>=1],['fast','⚡','Grand Prix under 2:30',()=>S.gpBest&&S.gpBest<150],
     ['goal5','⚽','5 soccer goals',s=>s.goal>=5],['treasure','🏝','Find the treasure',s=>s.treasure>=1],['rex','🦖','Beat Robo-Rex',s=>s.rex>=1],['statues','🗿','10 golden statues',()=>(S.statues|0)>=10],['lv10','⭐','Reach level 10',()=>(S.best|0)>=10||LV()>=10],['lv25','🌟','Reach level 25',()=>(S.best|0)>=25||LV()>=25],
     ['allm','📋','Every mission done',s=>s.allm>=1],['pets3','🐾','3 pets',()=>Object.keys(S.pets||{}).length>=3],['fits3','👮','3 outfits',()=>Object.keys(S.fits||{}).length>=3],['rich','🪙','2000 coins at once',()=>S.coins>=2000],['robots','🤖','500 robots',s=>s.robot>=500],['chall','🎯','10 daily challenges',s=>s.chdone>=10],['prop1','🏢','Buy a property',()=>Object.keys(S.props||{}).length>=1],['prop5','🏙','Own 5 properties',()=>Object.keys(S.props||{}).length>=5]];
   let troT=2,shelfG=null;
@@ -2377,8 +2380,28 @@ const FUN=(function(){
     msCd=30;S.cpxp=S.xp||0;S.cpdone=S.done||0;S.cpAt=[px,pz];save();burst(px,1.5,pz,30,'#3ff2e0');snd(660,.1,'square',.05);setTimeout(()=>snd(990,.2,'square',.05),110);
     showBanner('💾 GAME SAVED!<br><small>LV '+LV()+' · you come back here if you get zapped</small>');speak('Game saved! Level '+LV()+' is safe.');};
   function updSaveNow(dt){msCd-=dt;if(!F._svb){const t=$('tray');if(t){const b=document.createElement('button');b.className='btn';b.textContent='💾 Save game';b.style.background='linear-gradient(#4dd0e1,#00838f)';b.onclick=()=>F.saveNow();t.insertBefore(b,t.firstChild);F._svb=b;}}}
+
+  // ----- 👹 BIG BOSSES roam the city after level 50; more and tougher as you level -----
+  const BB={list:[],t:3,announced:false,resp:[]};
+  const BBT=[['👹','OGRE BOT','#c62828'],['🔥','INFERNO KING','#ff6d00'],['❄️','FROST TITAN','#4fc3f7'],['☠️','SHADOW BEAST','#37474f'],['⚡','STORM LORD','#ffd600'],['🐲','DRAGON MECH','#2e7d32'],['👑','KING CRUSHER','#8e24aa'],['🌋','MAGMA GIANT','#bf360c']];
+  const bbWant=()=>Math.min(8,3+Math.floor(OVER()/10));
+  function bbSpawn(){const used=BB.list.map(o=>o.T[1]);const T=pick(BBT.filter(t=>used.indexOf(t[1])<0))||pick(BBT);
+    for(let k=0;k<300;k++){const x=rnd(30,MAXX-30),z=rnd(30,MAXZ-30);if(!isLand(x,z)||blocked(x,z,3))continue;if(Math.hypot(x-BASE.x,z-BASE.z)<160||Math.hypot(x-P.x,z-P.z)<180)continue;if(BB.list.some(o=>Math.hypot(o.b.x-x,o.b.z-z)<250))continue;
+      const b=spawnBot('boss',{x,z});if(!b)return;const tier=(S.bbk|0);b.hp=Math.round(b.hp*(1.6+OVER()*.06+tier*.06));b.max=b.hp;b.bigB=1;b.mat.color.set(T[2]);if(b.mat.emissive)b.mat.emissive.set(T[2]).multiplyScalar(.25);b.g.scale.multiplyScalar(1.25);b.r*=1.25;b.s*=1.25;
+      const sp=emoS(T[0],4);const ring=new THREE.Mesh(new THREE.RingGeometry(3.5,4.4,28),new THREE.MeshBasicMaterial({color:T[2],transparent:true,opacity:.7,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;scene.add(ring);
+      BB.list.push({b,T,sp,ring,seen:false});return;}}
+  function bbKill(o){scene.remove(o.sp);scene.remove(o.ring);if(o.b.hp>0){BB.resp.push(20);return;}S.bbk=(S.bbk|0)+1;const c=150+OVER()*12,g=2+Math.floor(OVER()/15);S.coins+=c;S.gems=(S.gems|0)+g;F.ev('bigboss');save();
+    showBanner(o.T[0]+' '+o.T[1]+' DEFEATED!<br><small>+'+c+' 🪙 +'+g+' 💎 · bosses beaten: '+S.bbk+'</small>');speak('You beat the '+o.T[1].toLowerCase()+'! The next ones will be even tougher!',1);snd(880,.15,'square',.06);setTimeout(()=>snd(1320,.35,'square',.06),150);BB.resp.push(150+Math.random()*90);}
+  function updBigBoss(dt){if(!started)return;if(LV()<50){return;}
+    if(!BB.announced){BB.announced=true;if(!S.bbIntro){S.bbIntro=1;save();showBanner('👹 BIG BOSSES ARE LOOSE!<br><small>Find them on the map · they get tougher every time</small>');speak('Level fifty! Big bosses are loose in the city! Look for the boss faces on the map!',1);}}
+    for(let i=BB.list.length-1;i>=0;i--){const o=BB.list[i],b=o.b;if(bots.indexOf(b)<0){BB.list.splice(i,1);bbKill(o);continue;}o.sp.position.set(b.x,(b.y||0)+b.s*3.6+2,b.z);o.ring.position.set(b.x,(b.y||0)+.1,b.z);o.ring.rotation.z+=dt;
+      const d=Math.hypot(b.x-P.x,b.z-P.z);if(!o.seen&&d<70){o.seen=true;showBanner(o.T[0]+' '+o.T[1]+'!<br><small>Big boss! Take it down!</small>');speak('Watch out! It is the '+o.T[1].toLowerCase()+'!',1);snd(110,.8,'sawtooth',.08,50);}else if(d>140)o.seen=false;}
+    for(let i=BB.resp.length-1;i>=0;i--){BB.resp[i]-=dt;if(BB.resp[i]<=0)BB.resp.splice(i,1);}
+    BB.t-=dt;if(BB.t<=0){BB.t=4;if(BB.list.length+BB.resp.length<bbWant())bbSpawn();}}
+  F.bbMini=function(m,X,Z,cl){m.font='16px serif';for(const o of BB.list)m.fillText(o.T[0],cl(X(o.b.x)),cl(Z(o.b.z)));};
+  F.bbPOI=function(){return BB.list.map(o=>[o.b.x,o.b.z,o.T[0],o.T[1].toLowerCase()]);};
   F._t={B2,arenaStart,wbStart:()=>wbStart('t1',STAD?STAD.x:P.x,STAD?STAD.z:P.z,false),defStart,raceInvite,openGive,stickerPhoto,callCar,openGarage,openPowers,isl:()=>B2.isP};
-  F.update=function(dt){updPeds(dt);updExplore(dt);updMore(dt);updTrip(dt);updB2(dt);updEasy(dt);updSaveNow(dt);ammoHelp(dt);if((AMMO.blaster||0)<12&&S.gun==='blaster'){F.blT=(F.blT||0)+dt;if(F.blT>1.5){F.blT=0;AMMO.blaster=(AMMO.blaster||0)+1;}}updActs(dt);updArmy(dt);updNavy(dt);updJob(dt);updAttack(dt);updGameDay(dt);updShip(dt);updRamps(dt);updGps(dt);updProps(dt);updDistrict(dt);updTro(dt);updMusic();updPlane(dt);updRides();updHouses(dt);updPet(dt);updGP(dt);updSoccer(dt);updSea(dt);updSeason(dt);updHome(dt);updSpecial(dt);updSpots(dt);};
+  F.update=function(dt){updPeds(dt);updExplore(dt);updMore(dt);updTrip(dt);updB2(dt);updEasy(dt);updSaveNow(dt);updBigBoss(dt);ammoHelp(dt);if((AMMO.blaster||0)<12&&S.gun==='blaster'){F.blT=(F.blT||0)+dt;if(F.blT>1.5){F.blT=0;AMMO.blaster=(AMMO.blaster||0)+1;}}updActs(dt);updArmy(dt);updNavy(dt);updJob(dt);updAttack(dt);updGameDay(dt);updShip(dt);updRamps(dt);updGps(dt);updProps(dt);updDistrict(dt);updTro(dt);updMusic();updPlane(dt);updRides();updHouses(dt);updPet(dt);updGP(dt);updSoccer(dt);updSea(dt);updSeason(dt);updHome(dt);updSpecial(dt);updSpots(dt);};
   F.icons=function(){$('mini').style.cursor='pointer';$('mini').addEventListener('click',()=>{audioInit();F.openMap();});const row=document.createElement('div');row.id='iconRow';const mk=(img,alt,fn)=>{const b=document.createElement('button');b.title=alt;b.innerHTML='<img src="/ui/'+img+'.png" alt="'+alt+'" onerror="this.parentNode.textContent=\''+alt+'\'">';b.onclick=()=>{audioInit();fn();};row.appendChild(b);};
     mk('map','🗺',()=>F.openMap());try{row.children[0].classList.add('mapIco');}catch(e){}mk('settings','⚙',()=>{openMenu();tab='set';renderMenu();});mk('trophy','🏆',()=>openBoard());mk('friends','👥',()=>openFriends());mk('shop','🛒',()=>openMenu());
     const tb=document.createElement('button');tb.title='More';tb.style.cssText='width:52px;height:52px;border-radius:50%;border:3px solid #fff;background:linear-gradient(#90a4ae,#455a64);color:#fff;font:bold 26px system-ui;line-height:1;padding:0';tb.textContent='⋯';row.appendChild(tb);
@@ -2595,13 +2618,14 @@ function update(dt){
   want+=Math.round(2*nightAmt);let zwant=Math.min(12,DF.z+Math.floor((L-1)/2))+Math.round(5*nightAmt);if(mission&&mission.type==='zombies')zwant+=6;
   if(mission&&mission.type==='defend'){want+=3;zwant+=3;}else if(atHQ){want=Math.min(want,3);zwant=Math.min(zwant,3);}
   {const rp=RAMP();want=Math.max(2,Math.round(want*(.5+.5*rp)));zwant=Math.max(2,Math.round(zwant*(.45+.55*rp)));}
+  if(OVER()>0){const h=OVER();want+=Math.min(14,Math.floor(h/4)+1);zwant+=Math.min(12,Math.floor(h/5)+1);}
   if(AQ>=3){want=Math.ceil(want*.65);zwant=Math.ceil(zwant*.55);}
   if(!mission&&stars<2&&!atHQ){if(WAVE.fight){want=Math.ceil(want*1.35)+1;zwant=Math.ceil(zwant*1.25)+1;}else{want=Math.max(1,Math.ceil(want*.4));zwant=Math.max(1,Math.ceil(zwant*.35));}}
   if(inCar&&inCar.kind==='tank'){want=Math.ceil(want*1.7)+2;zwant=Math.ceil(zwant*1.3)+2;}
   let nR=0,nZ=0;for(const b of bots){if(b.friend||b.boss)continue;if(b.zombie)nZ++;else nR++;}
   if(nR<want&&Math.random()<dt*1.5)spawnBot(robotKind());
   if(nZ<zwant&&Math.random()<dt*1.2){const g=spawnBot('zombie');if(g){for(let k=0;k<2&&nZ+k+1<zwant;k++)spawnBot('zombie',{x:g.x,z:g.z});}}
-  if(stars>=5&&!bots.some(b=>b.boss)&&Math.random()<dt*.03)spawnBot('boss');
+  if(stars>=5&&!bots.some(b=>b.boss&&!b.bigB)&&Math.random()<dt*.03)spawnBot('boss');
   const buddies=bots.filter(b=>b.friend);
   // robots
   updBuildings(dt);
@@ -2632,7 +2656,7 @@ function update(dt){
     for(const f of buddies){const dd=Math.hypot(f.x-b.x,f.z-b.z);if(dd<d&&Math.abs(f.y-b.y)<4){d=dd;tx=f.x;tz=f.z;ty=f.y+1.3;tBuddy=f;}}
     let tCore=false;if(mission&&mission.type==='defend'&&!b.flee){const dc=Math.hypot(BASE.x-b.x,BASE.z-b.z);if(dc<d+15){d=dc;tx=BASE.x;tz=BASE.z;ty=2.6;tBuddy=null;tCore=true;}}
     const dx=tx-b.x,dz=tz-b.z;
-    if(Math.hypot(P.x-b.x,P.z-b.z)>100&&!(mission&&mission.boss===b)&&!b.turret&&!b.flee&&!b.titan){removeBot(b);continue;}
+    if(Math.hypot(P.x-b.x,P.z-b.z)>100&&!(mission&&mission.boss===b)&&!b.turret&&!b.flee&&!b.titan&&!b.bigB&&!b.def&&!b.wb&&!b.arena&&!b.trip){removeBot(b);continue;}
     const sp=(DF.move*({boss:1.0,fast:1.6,tank:.65,zombie:.72*(1+.35*nightAmt)}[b.kind]||1)+stars*.25)*(b.rage?1.6:1);let mx=0,mz=0;
     const nav=tBuddy||tCore||P.dead||b.flee?null:navPoint(b);
     if(b.turret){}
@@ -2754,6 +2778,7 @@ function update(dt){
     if(tgt){const ddx=tgt.x-tx,ddz=tgt.z-tz;const rx=ddx*(-fz)+ddz*fx,ry=ddx*fx+ddz*fz;$('arrow').style.transform='rotate('+Math.atan2(rx,ry)+'rad)';$('dist').textContent=Math.round(Math.hypot(ddx,ddz))+'m';$('arrowwrap').style.visibility='visible';}
     else $('arrowwrap').style.visibility='hidden';
     if(mission&&['deliver','stars','rescue','coinrush'].indexOf(mission.type)>=0&&tgt){beam.visible=true;beam.position.x=tgt.x;beam.position.z=tgt.z;}else beam.visible=false;
+    {const fl=inHeli||FUN.flying(),bb=$('build');if(bb&&bb.dataset.fl!==String(fl)){bb.dataset.fl=String(fl);bb.innerHTML=fl?'⬇<br>Down':'🧱 Build';bb.style.background=fl?'linear-gradient(#ffb74d,#e65100)':'';if(!fl)heliDown=false;}}
     const st=inCar?'cout':(inHeli||FUN.flying())?'hout':(nearHeli()||FUN.nearPlane())?'heli':(nearestCar()&&!P.dead?'in':'none');if(st!==carBtnState){carBtnState=st;const cb=$('car');cb.style.visibility=st==='none'?'hidden':'visible';cb.textContent={cout:'🚪 Get out',hout:'🚪 Jump out',heli:'🚁 Fly',in:'🚗 Get in'}[st]||'';$('build').style.visibility=inCar?'hidden':'visible';$('build').textContent=inHeli?'⬇ Down':'🧱 Build';$('jump').textContent=inHeli?'⬆ Up':inCar?(S.up.nitro?'🔥 Nitro':'⬆ Jump'):'⬆ Jump';}
     {let bb=null,bd=110;bots.forEach(b=>{if(b.boss&&!b.friend){const d=Math.hypot(b.x-P.x,b.z-P.z);if(d<bd){bd=d;bb=b;}}});const SH=FUN.shipBar();if(SH&&!bb&&!WEV.ufo()){$('bossbar').classList.remove('hidden');$('bossname').textContent='🚢 BATTLESHIP · '+Math.ceil(Math.max(0,SH.hp))+' HP';$('bossfill').style.width=Math.max(0,SH.hp/SH.max*100)+'%';}else{const U=WEV.ufo();if(U&&!bb){$('bossbar').classList.remove('hidden');$('bossname').textContent='🛸 UFO · '+Math.ceil(Math.max(0,U.hp))+' HP';$('bossfill').style.width=Math.max(0,U.hp/U.max*100)+'%';}else $('bossbar').classList.toggle('hidden',!bb);if(bb){$('bossname').textContent='👾 BOSS · LV '+LV()+' · '+Math.ceil(Math.max(0,bb.hp))+' HP'+(bb.rage?' 😡':'')+(bb.shield?' 🛡':'');$('bossfill').style.width=Math.max(0,bb.hp/bb.max*100)+'%';}}}
     {const n=MP.count();$('online').classList.toggle('hidden',!n);$('online').textContent='👥 '+(n+1)+' playing ▸';$('chatBtn').classList.toggle('hidden',!n||!!window.BCB_CHAT_OFF);if(!n)$('chatPanel').classList.add('hidden');}
