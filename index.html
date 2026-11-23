@@ -234,10 +234,12 @@ kbd{background:#fff;color:#222;border-radius:5px;padding:1px 6px;border-bottom:3
   if(!window.supabase){show('<div class="big">📶</div><h1>Need internet</h1><button class="gb" onclick="location.reload()">Try again</button>');return;}
   const sb=window.supabase.createClient(URL_,KEY);
   let me=null,pollT=null;
+  async function freshUser(){let{data:{session}}=await sb.auth.getSession();if(session){const u=await sb.auth.getUser();if(u.error||!u.data||!u.data.user){try{await sb.auth.signOut({scope:'local'});}catch(e){}session=null;}}
+    if(!session){const r=await sb.auth.signInAnonymously();if(r.error)throw r.error;session=r.data.session;}me=session.user.id;return session;}
   function hook(){const a=document.getElementById('toAdmin');if(a)a.onclick=admin;}
   async function myRow(){const{data}=await sb.from('players').select(COLS).eq('id',me).maybeSingle();return data;}
   async function start(){show('<div class="big">⏳</div><h1>Loading…</h1>');
-    try{const{data:{session}}=await sb.auth.getSession();if(!session)return ask();me=session.user.id;const r=await myRow();
+    try{let{data:{session}}=await sb.auth.getSession();if(!session)return ask();const u=await sb.auth.getUser();if(u.error||!u.data||!u.data.user){try{await sb.auth.signOut({scope:'local'});}catch(e){}return ask();}me=session.user.id;const r=await myRow();
       if(!r)return ask();if(r.status==='pending')return wait();if(r.status==='denied')return denied();return open(r);}
     catch(e){show('<div class="big">📶</div><h1>Can\'t connect</h1><button class="gb" onclick="location.reload()">Try again</button>'+adminBtn);hook();}}
   function ask(){let pic=PICS[0];let saved='';try{saved=(JSON.parse(localStorage.getItem('bcb_save1'))||{}).name||'';}catch(e){}
@@ -246,8 +248,9 @@ kbd{background:#fff;color:#222;border-radius:5px;padding:1px 6px;border-bottom:3
     say('Pick your picture, then tap ask to play. You will get a secret number to give your grown-up.');
     box.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{pic=b.dataset.p;box.querySelectorAll('[data-p]').forEach(x=>x.classList.toggle('on',x===b));});
     document.getElementById('gask').onclick=async()=>{const nick=document.getElementById('gnick').value.trim()||'Player';const m=document.getElementById('gmsg');m.textContent='Sending…';
-      try{let{data:{session}}=await sb.auth.getSession();if(!session){const r=await sb.auth.signInAnonymously();if(r.error)throw r.error;session=r.data.session;}me=session.user.id;
-        const gr=document.getElementById('ggrown').value.trim().slice(0,30)||null;const{error}=await sb.from('players').insert({id:me,nick:nick.slice(0,16),pic,device:devName(),grownup:gr});if(error&&error.code!=='23505')throw error;wait();}
+      try{await freshUser();
+        const gr=document.getElementById('ggrown').value.trim().slice(0,30)||null;const row=()=>({id:me,nick:nick.slice(0,16),pic,device:devName(),grownup:gr});let{error}=await sb.from('players').insert(row());
+        if(error&&error.code==='23503'){try{await sb.auth.signOut({scope:'local'});}catch(e){}await freshUser();({error}=await sb.from('players').insert(row()));}if(error&&error.code!=='23505')throw error;wait();}
       catch(e){m.textContent='Oops, try again ('+(e.message||e)+')';}};}
   async function wait(){let n='',nk='';try{const r=await myRow();if(r){n=String(r.req_no);nk=r.nick;}}catch(e){}
     const spoken=n.split('').join(' ');
@@ -264,7 +267,7 @@ kbd{background:#fff;color:#222;border-radius:5px;padding:1px 6px;border-bottom:3
   function claimScreen(){show('<div class="big">🔑</div><h1>Welcome back!</h1><input id="cnick" maxlength="16" placeholder="Your player name"><div>Tap your 4 secret pictures</div><div id="cpad"></div><div class="msg" id="cmsg"></div><button class="gb gray" id="cback">⬅ Back</button>');
     say('Type your name, then tap your four secret pictures.');document.getElementById('cback').onclick=ask;
     pinPad(document.getElementById('cpad'),async pin=>{const m=document.getElementById('cmsg'),nk=document.getElementById('cnick').value.trim();if(!nk){m.textContent='Type your name first';return;}m.textContent='Checking…';
-      try{let{data:{session}}=await sb.auth.getSession();if(!session){const r=await sb.auth.signInAnonymously();if(r.error)throw r.error;session=r.data.session;}me=session.user.id;
+      try{await freshUser();
         const{data,error}=await sb.rpc('claim',{p_nick:nk,p_pin:pin});if(error)throw error;
         if(data==='ok'){say('Welcome back!');const r=await myRow();return open(r);}
         m.textContent=data==='locked'?'Too many tries. Wait 15 minutes or ask your grown-up.':'That didn\'t match. Try again!';say(data==='locked'?'Too many tries. Ask your grown-up.':'That did not match. Try again.');claimScreen();
