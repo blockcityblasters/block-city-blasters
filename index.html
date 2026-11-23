@@ -142,6 +142,7 @@ kbd{background:#fff;color:#222;border-radius:5px;padding:1px 6px;border-bottom:3
       <tr><td>💥 FIRE</td><td>Shoots your weapon (auto-aims). In a car: car blasters. In the chopper: rockets.</td></tr>
       <tr><td>📦 Ammo</td><td>Ammo is NOT unlimited! The count is on the FIRE button. Find olive-and-yellow ammo crates (orange squares on the map). Robots sometimes drop them, bosses always do, and HQ has a crate that comes back every 45 seconds. Chopper rockets reload when you land at HQ.</td></tr>
       <tr><td>💾 Save + 💖 Lives</td><td>Touch a glowing 💾 save station to save your level — if you get zapped you come back there with that level. Grab floating 💖 hearts for extra lives (up to 3): when your health runs out, a heart is used and you keep playing with everything!</td></tr>
+      <tr><td>🦖 Robo-Rex & more</td><td>Random events now include a giant robot dinosaur! Also: 🏁 Grand Prix (drive through the checkered arch near HQ), ⚽ car soccer in the stadium, 🚤 jet skis on the shore and a hidden 🏝 treasure island, 🏦 Big Heist missions, 🎯 3 daily challenges, 🐶 pets, 🎨 car paint, 📸 photos and your own 🏠 house plot by HQ.</td></tr>
       <tr><td>📋 Missions</td><td>Tap the mission bar at the top (or 📋 Missions on the start screen) to see which missions you've done ✅ and which are left ⬜. Finish all of them for a +200 coin bonus! If you get zapped you keep your coins, but lose upgrades, gun power and mission progress.</td></tr>
       <tr><td>👥 Friends</td><td>Play together! Each person opens this same game on their own phone, tablet or computer at the same time (signed in to Claude, with the game shared to them). You'll see each other run, drive and fly, with name tags, and on the map. Your shots help each other beat robots. Set your name in Shop → Avatar.</td></tr>
       <tr><td>👥 Friends</td><td>Tap "👥 playing ▸" to see who's on, tap 🚀 Go to zoom to them, or 📨 invite a friend. Finish missions near a friend for a 🤝 Team Bonus!</td></tr>
@@ -1046,7 +1047,7 @@ function spawnBot(kind,at){const boss=kind==='boss',rr={boss:1.6,tank:1,zombie:.
   if(!ok)return null;const m=makeBot(kind);const L=LV();
   const hp={gold:10+L*2,bot:3+Math.floor((L-1)/2),fast:2+Math.floor((L-1)/3),tank:8+L,boss:80+40*(L-1),zombie:2+Math.floor((L-1)/3)}[kind];
   const b={g:m.g,mat:m.mat,s:m.s,x,z,y:(at&&at.y)||0,vy:0,hp,max:hp,boss,kind,zombie:kind==='zombie',cool:rnd(1.5,3),r:boss?.85*m.s:rr,flash:0,wander:0,wa:0,stuckT:0,alert:0,friend:false};
-  b.g.position.set(x,0,z);bots.push(b);return b;}
+  b.g.position.set(x,0,z);bots.push(b);if(!b.zombie)try{FUN.hatBot(b);}catch(e){}return b;}
 const enemies=()=>bots.filter(b=>!b.friend);
 function removeBot(b){scene.remove(b.g);const i=bots.indexOf(b);if(i>=0)bots.splice(i,1);}
 function killBot(b){FUN.ev(b.zombie?'zombie':'robot');if(b.boss)FUN.ev('boss');if(Math.random()<(b.boss?1:b.zombie?.1:.18))ammoCrate(b.x+rnd(-1,1),b.z+rnd(-1,1),{drop:true,life:30,y:b.y||0});burst(b.x,(b.y||0)+b.s*2,b.z,b.boss?40:16,b.zombie?'#8bd35a':b.boss?'#ff00ff':'#ff8a1f');if(b.zombie)snd(140,.35,'triangle',.06,50);else snd(160,.3,'sawtooth',.06,40);
@@ -1055,7 +1056,7 @@ function killBot(b){FUN.ev(b.zombie?'zombie':'robot');if(b.boss)FUN.ev('boss');i
   if(mission&&((mission.type==='bots'&&!b.zombie)||(mission.type==='zombies'&&b.zombie))){mission.count++;if(mission.count>=mission.need)completeMission();}
   if(mission&&mission.type==='boss'&&b===mission.boss)completeMission();
   if(mission&&mission.type==='turrets'&&b.turret){mission.count++;showBanner('🎯 Rooftop tank down! '+mission.count+'/'+mission.need);if(mission.count>=mission.need)completeMission();}
-  if(b.titan){for(let k=0;k<20;k++)dropCoin(b.x+rnd(-4,4),b.z+rnd(-4,4),6);showBanner('🦾 THE TITAN IS DOWN!');speak('You beat the giant titan robot! Awesome!');WEV.endEvent();}
+  if(b.titan){for(let k=0;k<(b.dino?30:20);k++)dropCoin(b.x+rnd(-4,4),b.z+rnd(-4,4),6);if(b.dino){S.gems=(S.gems|0)+3;showBanner('🦖 ROBO-REX DEFEATED!<br><small>+3 💎 gems!</small>');speak('You beat Robo Rex! Three gems!');}else{showBanner('🦾 THE TITAN IS DOWN!');speak('You beat the giant titan robot! Awesome!');}WEV.endEvent();}
   if(mission&&mission.type==='gold'&&b===mission.gold){showBanner('✨ You caught the Golden Robot!');completeMission();}}
 function airstrike(){if(!streakReady||P.dead)return;streakReady=false;showBanner('✈ AIRSTRIKE INCOMING!');snd(300,1.6,'sawtooth',.05,60);
   const tg=bots.filter(b=>!b.friend&&Math.hypot(b.x-P.x,b.z-P.z)<75).sort((a,b)=>Math.hypot(a.x-P.x,a.z-P.z)-Math.hypot(b.x-P.x,b.z-P.z)).slice(0,8);
@@ -1451,10 +1452,15 @@ const WEV=(function(){
     const lights=[];for(let k=0;k<10;k++){const a=k/10*Math.PI*2;const l=new THREE.Mesh(new THREE.SphereGeometry(.45,8,6),glow(k%2?'#ff3df0':'#7dff8a'));l.position.set(Math.cos(a)*7,0,Math.sin(a)*7);g.add(l);lights.push(l);}
     const beamU=new THREE.Mesh(new THREE.CylinderGeometry(1.5,5,26,20,1,true),new THREE.MeshBasicMaterial({color:C('#7dff8a'),transparent:true,opacity:.18,side:THREE.DoubleSide,depthWrite:false,toneMapped:false}));beamU.position.y=-13;g.add(beamU);
     g.traverse(o=>{if(o.isMesh)o.castShadow=true;});scene.add(g);return{g,lights,beam:beamU};}
-  function startEvent(){const opts=['ufo','titan','meteor'];const t=pick(opts);EV.active={t,time:t==='meteor'?32:110,spawn:0};snd(600,.6,'sawtooth',.06,300);setTimeout(()=>snd(600,.6,'sawtooth',.06,300),700);
+  function startEvent(){const opts=['ufo','titan','meteor','dino'];const t=pick(opts);EV.active={t,time:t==='meteor'?32:110,spawn:0};snd(600,.6,'sawtooth',.06,300);setTimeout(()=>snd(600,.6,'sawtooth',.06,300),700);
     if(t==='ufo'){const a=rnd(0,6.28);const L=LV();ufo=Object.assign(mkUfo(),{x:P.x+Math.cos(a)*90,z:P.z+Math.sin(a)*90,y:30,hp:90+L*30,max:90+L*30,cool:2,sp:10});ufo.g.position.set(ufo.x,ufo.y,ufo.z);showBanner('🛸 UFO ATTACK!');speak('Alert! A U F O is attacking the city! Shoot it down!');}
     else if(t==='titan'){let b=null;for(let k=0;k<8&&!b;k++){const a=rnd(0,6.28);b=spawnBot('boss',{x:P.x+Math.cos(a)*85,z:P.z+Math.sin(a)*85});}if(!b){EV.active=null;EV.next=60;return;}
       b.titan=true;b.hp*=2.2;b.max=b.hp;const sc=4.6;b.g.scale.set(sc,sc,sc);b.s=sc;b.r=3.6;b.mat.color.copy(C('#5d1a1a'));EV.active.titan=b;showBanner('🦾 GIANT TITAN ROBOT!');speak('Watch out! A giant titan robot is stomping through the city!');}
+    else if(t==='dino'){let b=null;for(let k=0;k<8&&!b;k++){const a=rnd(0,6.28);b=spawnBot('boss',{x:P.x+Math.cos(a)*85,z:P.z+Math.sin(a)*85});}if(!b){EV.active=null;EV.next=60;return;}
+      b.titan=true;b.dino=true;b.hp*=2.8;b.max=b.hp;const sc=4.2;b.g.scale.set(sc,sc,sc);b.s=sc;b.r=3.4;b.mat.color.copy(C('#2e7d32'));
+      const dm=std('#1b5e20',{metalness:.5,roughness:.5}),tm=std('#ffffff'),em=glow('#ff1744');for(let i=0;i<5;i++){const t=box(.5-i*.07,.45-i*.06,.6,dm,0,1.2-i*.1,-.6-i*.55,b.g);t.castShadow=true;}
+      for(let i=0;i<6;i++)box(.12,.35,.2,std('#ffd400'),0,2.3-i*.15,.2-i*.35,b.g);const jaw=box(.9,.25,.9,dm,0,2.05,.75,b.g);for(let i=-1;i<=1;i++)box(.1,.15,.1,tm,i*.25,1.9,1.15,b.g);box(.12,.12,.05,em,-.25,2.5,.62,b.g);box(.12,.12,.05,em,.25,2.5,.62,b.g);
+      EV.active.titan=b;showBanner('🦖 ROBO-REX ATTACK!');speak('Watch out! A giant robot dinosaur! Robo Rex is here! Blast it!');snd(60,1.2,'sawtooth',.12,30);}
     else{showBanner('☄️ METEOR SHOWER!');speak('Meteor shower! Run from the red circles! Grab the space crystals!');}}
   function endEvent(){if(!EV.active)return;if(ufo){const u=ufo;ufo=null;let k=0;const fly=()=>{u.y+=2.5;u.g.position.y=u.y;if(++k<40)setTimeout(fly,30);else scene.remove(u.g);};fly();}EV.active=null;EV.next=170+Math.random()*170;}
   const meteors=[],crystals=[];const crG=new THREE.OctahedronGeometry(.6),crM=std('#3ff2e0',{emissive:C('#0d6d64'),metalness:.4,roughness:.2});
@@ -1624,8 +1630,28 @@ const FUN=(function(){
   function updSea(dt){F.boats.forEach(b=>{if(b!==inCar){b.g.position.y=Math.sin(time*2+b.x)*.12;}else b.g.position.y=Math.sin(time*6)*.08;});
     if(F.chest){F.chest.rotation.y+=dt*.6;const open=S.tiDay===new Date().toDateString();F.chest.children[2].visible=!open;
       if(!open&&!P.dead&&Math.hypot(P.x-TI.x,P.z-TI.z)<2.6&&P.y<3){S.tiDay=new Date().toDateString();S.coins+=300;save();burst(TI.x,1.5,TI.z,60,'#ffd400');showBanner('🏝 TREASURE ISLAND!<br><small>+300 🪙 · comes back tomorrow</small>');speak('You found the treasure! Three hundred coins!');snd(523,.15,'square',.06);setTimeout(()=>snd(659,.15,'square',.06),150);setTimeout(()=>snd(784,.15,'square',.06),300);setTimeout(()=>snd(1046,.4,'square',.06),450);}}}
-  F.mini=function(m,X,Z,cl){m.font='14px serif';F.boats.forEach(b=>{if(b!==inCar)m.fillText('🚤',cl(X(b.x)),cl(Z(b.z)));});m.fillText('🏝',cl(X(TI.x)),cl(Z(TI.z)));if(GP.start)m.fillText('🏁',cl(X(GP.start.x)),cl(Z(GP.start.z)));if(SC.L)m.fillText('⚽',cl(X(SC.L.x)),cl(Z(SC.L.z)));m.font='17px serif';};
-  F.update=function(dt){updPet(dt);updGP(dt);updSoccer(dt);updSea(dt);};
+  F.mini=function(m,X,Z,cl){m.font='14px serif';F.boats.forEach(b=>{if(b!==inCar)m.fillText('🚤',cl(X(b.x)),cl(Z(b.z)));});m.fillText('🏝',cl(X(TI.x)),cl(Z(TI.z)));if(GP.start)m.fillText('🏁',cl(X(GP.start.x)),cl(Z(GP.start.z)));if(SC.L)m.fillText('⚽',cl(X(SC.L.x)),cl(Z(SC.L.z)));if(HOME.x!==undefined)m.fillText('🏠',cl(X(HOME.x)),cl(Z(HOME.z)));m.font='17px serif';};
+  // ---------- 🎃🍂❄️ seasons ----------
+  const MON=new Date().getMonth();let fx=null;
+  (function(){if(MON<9)return;const n=AQ>=3?260:600,pos=new Float32Array(n*3);for(let i=0;i<n;i++){pos[i*3]=rnd(-40,40);pos[i*3+1]=rnd(0,35);pos[i*3+2]=rnd(-40,40);}
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));const snow=MON===11;
+    const pts=new THREE.Points(g,new THREE.PointsMaterial({color:C(snow?'#ffffff':'#ff8f3a'),size:snow?.35:.45,transparent:true,opacity:snow?.9:.85,depthWrite:false}));pts.frustumCulled=false;scene.add(pts);fx={pts,pos,n,snow};
+    if(MON===9){const pm=std('#ff8f00',{roughness:.6}),eg=glow('#ffe082');for(let k=0;k<25;k++){for(let t=0;t<40;t++){const a=Math.random()*6.28,r=20+Math.random()*300,x=BASE.x+Math.cos(a)*r,z=BASE.z+Math.sin(a)*r;if(!isLand(x,z)||blocked(x,z,1))continue;const g2=new THREE.Group();box(1.3,1,1.3,pm,0,.5,0,g2);box(.2,.35,.2,std('#5d4037'),0,1.15,0,g2);box(.25,.2,.05,eg,-.3,.6,.66,g2);box(.25,.2,.05,eg,.3,.6,.66,g2);box(.6,.12,.05,eg,0,.3,.66,g2);g2.position.set(x,0,z);g2.rotation.y=Math.random()*6;scene.add(g2);break;}}}})();
+  F.hatBot=function(b){if(MON!==11||!b||!b.g)return;const h=new THREE.Mesh(new THREE.ConeGeometry(.42,.8,10),std('#d50000'));h.position.y=2.75;h.rotation.z=.25;b.g.add(h);const p=new THREE.Mesh(new THREE.SphereGeometry(.14,8,6),std('#ffffff'));p.position.set(.18,3.1,0);b.g.add(p);};
+  function updSeason(dt){if(!fx)return;const cx=cam.position.x,cz=cam.position.z,cy=Math.max(0,cam.position.y-15);fx.pts.position.set(cx,cy,cz);const P3=fx.pos;for(let i=0;i<fx.n;i++){let y=P3[i*3+1]-dt*(fx.snow?3:4.5);P3[i*3]+=Math.sin(time*(fx.snow?1:2)+i)*dt*(fx.snow?.6:1.5);if(y<0)y+=35;P3[i*3+1]=y;}fx.pts.geometry.attributes.position.needsUpdate=true;}
+  // ---------- 🏠 house plot by HQ (blocks you build there are saved) ----------
+  const HOME={};(function(){for(let t=0;t<300;t++){const a=Math.random()*6.28,r=24+Math.random()*40;const x=Math.round((BASE.x+Math.cos(a)*r)/2)*2,z=Math.round((BASE.z+Math.sin(a)*r)/2)*2;let ok=true;for(let dx=-8;dx<=8&&ok;dx+=2)for(let dz=-8;dz<=8&&ok;dz+=2){if(!isLand(x+dx,z+dz)||blocked(x+dx,z+dz,.9)&&!(blocked(x+dx,z+dz,.9).kind==='blk'))ok=false;}if(ok){HOME.x=x;HOME.z=z;break;}}
+    if(HOME.x===undefined)return;const bm=glow('#ffd400');[[-7,-7],[7,-7],[-7,7],[7,7]].forEach(q=>box(.4,1.6,.4,bm,HOME.x+q[0],.8,HOME.z+q[1]));
+    const c=document.createElement('canvas');c.width=256;c.height=64;const x=c.getContext('2d');x.fillStyle='#2a5fd8';x.fillRect(0,0,256,64);x.fillStyle='#fff';x.font='bold 30px sans-serif';x.textAlign='center';x.fillText('🏠 MY HOUSE',128,43);
+    const sg=new THREE.Mesh(BG(5,1.25,.2),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c)}));sg.position.set(HOME.x,3.2,HOME.z-7.6);scene.add(sg);box(.25,3,.25,std('#795548'),HOME.x,1.5,HOME.z-7.7);})();
+  F.home=HOME;let homeHint=0;
+  F.starterHouse=function(){if(HOME.x===undefined)return;let n=0;const col=[0,6,1];for(let i=-3;i<=3;i++)for(let j=-3;j<=3;j++){if(Math.abs(i)!==3&&Math.abs(j)!==3)continue;const gx=HOME.x+i*2,gz=HOME.z+j*2;if(j===-3&&i===0)continue;
+      for(let lv=0;lv<3;lv++){if(lv===1&&(Math.abs(i)===3)&&j===0)continue;if(stackOf(gx,gz).length>lv)continue;if(placeBlock(gx,gz,lv===2?2:(i+j)%2?0:6,true)){S.built.push([gx,gz,lv===2?2:(i+j)%2?0:6]);n++;}}}
+    save();showBanner('🏠 STARTER HOUSE BUILT!<br><small>Use 🧱 Build to make it your own</small>');speak('Your house is ready! Use the build button to add more!');};
+  function updHome(dt){if(HOME.x===undefined)return;homeHint-=dt;const inPlot=!inCar&&!P.dead&&Math.abs(P.x-HOME.x)<7&&Math.abs(P.z-HOME.z)<7;
+    if(inPlot&&homeHint<=0){homeHint=30;let blocks=0;for(let i=-3;i<=3;i++)for(let j=-3;j<=3;j++)blocks+=stackOf(HOME.x+i*2,HOME.z+j*2).length;
+      if(!blocks){F.starterHouse();}else{showBanner('🏠 Welcome home!');speak('Welcome home!');}}}
+  F.update=function(dt){updPet(dt);updGP(dt);updSoccer(dt);updSea(dt);updSeason(dt);updHome(dt);};
   F.init=function(){chEnsure();if(S.pet===undefined)S.pet='dog';S.pets=S.pets||{dog:1};F.setPet(S.pet);
     const pb=document.createElement('button');pb.className='btn';pb.textContent='📸';pb.title='Take a photo';pb.style.cssText='position:fixed;right:10px;top:272px;z-index:6;width:52px;font-size:22px;padding:6px';pb.onclick=()=>{audioInit();F.photo();};document.body.appendChild(pb);
     const cb=document.createElement('button');cb.className='btn';cb.textContent='🎯';cb.title='Daily challenges';cb.style.cssText='position:fixed;right:68px;top:272px;z-index:6;width:52px;font-size:22px;padding:6px;background:linear-gradient(#ba68c8,#7b1fa2)';cb.onclick=()=>{audioInit();F.openChallenges();};document.body.appendChild(cb);};
