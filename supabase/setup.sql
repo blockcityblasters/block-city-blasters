@@ -31,3 +31,10 @@ drop policy if exists bcb_rt_read on realtime.messages;
 create policy bcb_rt_read on realtime.messages for select to authenticated using (realtime.topic() = 'bcb-family' and public.is_approved());
 drop policy if exists bcb_rt_write on realtime.messages;
 create policy bcb_rt_write on realtime.messages for insert to authenticated with check (realtime.topic() = 'bcb-family' and public.is_approved());
+
+grant usage on schema public to authenticated;
+grant select, insert, update, delete on public.players to authenticated;
+grant select on public.admins to authenticated;
+grant select, update on public.settings to authenticated;
+grant execute on function public.is_admin() to authenticated;
+grant execute on function public.is_approved() to authenticated;
