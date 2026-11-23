@@ -93,6 +93,37 @@ table.keys td{padding:5px;border-bottom:1px solid rgba(255,255,255,.15)}
 table.keys td:first-child{white-space:nowrap;color:#ffd400;font-weight:bold;width:40%}
 kbd{background:#fff;color:#222;border-radius:5px;padding:1px 6px;border-bottom:3px solid #999;font-family:inherit}
 @media (max-height:430px){#runBtn{left:30px;bottom:142px}#joy{width:120px;height:120px;bottom:12px}#knob{left:30px;top:30px}.rb{width:58px;height:58px;font-size:12px}#fire{width:84px;height:84px}#bextra{bottom:170px}}
+
+#use{background:linear-gradient(#b388ff,#6a1b9a);box-shadow:0 4px 0 #38006b;font-size:12px;animation:pulse .7s infinite alternate}
+@media (pointer:fine) and (min-height:561px){#use{position:fixed;right:20px;bottom:250px;width:80px;height:80px}}
+/* ---- phone / tablet layout v2: nothing overlaps ---- */
+@media (pointer:coarse),(max-height:560px){
+#btns{display:block;width:250px;height:215px;right:10px;bottom:10px;pointer-events:none;transform:none!important}
+#btns>button{position:absolute!important;pointer-events:auto;margin:0}
+#fire{right:0;bottom:0;width:92px!important;height:92px!important;font-size:17px}
+#jump{right:102px;bottom:0;width:64px!important;height:64px!important}
+#gun{right:100px;bottom:74px;width:58px!important;height:58px!important}
+#car{right:12px;bottom:104px;width:66px!important;height:66px!important}
+#buddy{right:178px;bottom:4px;width:60px!important;height:60px!important}
+#build{right:168px;bottom:78px;width:54px!important;height:54px!important;font-size:11px}
+#streak{right:82px;bottom:146px;width:62px!important;height:62px!important}
+#use{right:162px;bottom:140px;width:66px!important;height:66px!important}
+#bextra{right:262px!important;bottom:12px!important}
+#joy{transform:none!important}
+#tray{top:auto!important;bottom:10px;right:270px!important;max-height:calc(100vh - 20px);overflow:auto}
+#chatPanel{top:auto!important;bottom:10px;right:270px!important}
+}
+@media (max-height:500px){
+#mini{width:88px;height:88px}
+#iconRow{top:104px!important;gap:4px}
+#iconRow button,#iconRow img{width:40px!important;height:40px!important;font-size:20px!important}
+#iconRow .mapIco{display:none}
+#hud{transform:scale(.8);transform-origin:left top}
+#mission{max-width:42vw}#mtext{font-size:12px;padding:3px 8px}#arrow{width:26px;height:26px}
+#joy{width:118px!important;height:118px!important;left:16px;bottom:12px}#knob{left:29px!important;top:29px!important}
+#runBtn{left:22px!important;bottom:140px!important;transform:none!important}
+}
+@media (max-height:380px){#btns{transform:scale(.85)!important;transform-origin:right bottom}#hud{transform:scale(.7)}}
 </style>
 <link rel="manifest" href="/manifest.webmanifest"><meta name="theme-color" content="#2a5fd8"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="icon" href="/icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Blasters">
 <meta property="og:title" content="Block City Blasters"><meta property="og:description" content="Build • Explore • Play"><meta property="og:image" content="https://block-city-blasters.netlify.app/og.jpg"><meta property="og:type" content="website"><meta name="twitter:card" content="summary_large_image">
@@ -159,6 +190,9 @@ kbd{background:#fff;color:#222;border-radius:5px;padding:1px 6px;border-bottom:3
       <tr><td>💬 Talk</td><td>When friends are playing, tap 💬 Talk and pick a picture (👋 Hi!, 🙌 Follow me!, 🆘 Help me!…). Your friend sees a bubble over your head and hears it read out loud.</td></tr>
       <tr><td>🌦 Surprises</td><td>Random weather (rain makes roads slippery, thunderstorms, fog) and random events: 🛸 UFO attacks, 🦾 a giant Titan robot, ☄️ meteor showers (run from the red circles, grab the space crystals). Find 4 landmarks (stadium, airport, theme park with a Ferris wheel, lighthouse) for +50 coins each, and hunt for 10 hidden 🗿 golden statues (some are on rooftops!) to unlock special hats.</td></tr>
       <tr><td>🎯 Missions</td><td>Missions are glowing beams with a picture on top (also on the map). Walk or drive into one — a talking helper explains it with a moving picture — then press ▶ GO! 13 kinds: Robot Attack, Zombie Horde, Speed Delivery, Star Hunt, Giant Boss, 🏁 Street Race (drive through the gates), 🏢 Rooftop Rescue, 🛡 Defend HQ (protect the core), 💣 Bomb Squad (stand on bombs to defuse), 🪙 Coin Rush, 🚁 Rooftop Tanks, 💥 Demolition Derby and ✨ Golden Robot (it runs away — catch it for lots of coins!).</td></tr>
+      <tr><td>✋ Use button</td><td>Purple button pops up near stuff: 💬 talk to people (some need help finding things!), 🦶 kick trash cans, 🏧 ATMs, 🌭 food, 🥤 soda, 🎣 fishing, 🧳 trips. Key: X</td></tr>
+      <tr><td>🧳 Trips</td><td>Brown trip boards start an adventure: drive somewhere, survive ambushes, beat monsters, zombies or robots for big rewards.</td></tr>
+      <tr><td>🧭 Explore</td><td>⭐ secret stars, 🎁 treasure chests, 🟦 trampolines, 🌀 portals, 🚪 doors into buildings, new places on the map. See your 🧭 Explorer book in the ⋯ menu. Robots come in ⚔️ waves, then 😎 explore time.</td></tr>
       <tr><td>🏢 Buildings</td><td>Orange buildings on the map (yellow door) can be entered! Step on the glowing ⬆ pads to go up floor by floor. Each floor is furnished (lobby, offices, an apartment, storage) and has coins, ammo and enemies. Shoot or blow up the furniture! The ROOF has a 💰 treasure chest (coins + full ammo). Drop through the hole to go down. Enemies can follow you inside!</td></tr>
       <tr><td>🗺 Map</td><td>Block City is an island! A curvy coastal highway loops all the way around it. Downtown skyscrapers in the middle, a river with bridges, houses with yards, an industrial zone and beaches on the coast. The whole map is open — explore it all. Earn XP (yellow bar under your health) from missions and beating enemies to level up (tougher enemies & bosses). Getting zapped sends you back to Level 1 — but you keep your coins and weapons.</td></tr>
       <tr><td>👾 Bosses</td><td>Bigger and tougher every level. LV3+: calls backup robots. LV5+: ground-slam shockwave (jump!). LV6+: gets ENRAGED at half health. LV8+: energy shield 🛡 (wait for it to drop).</td></tr>
@@ -367,7 +401,7 @@ window.__bcbErr=[];(function(){const ce=console.error;console.error=function(...
       else if(p.type==='answer'){const pc=pcs.get(u);if(pc&&pc.signalingState==='have-local-offer')await pc.setRemoteDescription(p.data);}
       else if(p.type==='ice'){const pc=pcs.get(u);if(pc&&pc.remoteDescription)await pc.addIceCandidate(p.data);}}catch(e){}}
     V.attach=(c)=>{ch=c;ch.on('broadcast',{event:'rtc'},({payload})=>onRtc(payload));
-      btn=document.createElement('button');btn.className='btn';btn.style.cssText='position:fixed;right:10px;top:236px;z-index:6;width:110px;background:linear-gradient(#64b5f6,#1565c0);box-shadow:0 4px 0 #0b3a75';setTimeout(()=>{const t=document.getElementById('tray');if(t)t.appendChild(btn);},50);
+      btn=document.createElement('button');btn.className='btn';btn.style.cssText='position:fixed;right:10px;top:236px;z-index:6;width:110px;background:linear-gradient(#64b5f6,#1565c0);box-shadow:0 4px 0 #0b3a75';(function mv(n){const t=document.getElementById('tray');if(t){t.appendChild(btn);}else if(n<120)setTimeout(()=>mv(n+1),250);})(0);
       btn.onclick=()=>{if(!V.allowed){say('Voice is turned off by your grown-up.');return;}if(!mic){muted=false;getMic();return;}muted=!muted;mic.enabled=!muted&&!document.hidden;say(muted?'Muted':'Microphone on');drawBtn();};document.body.appendChild(btn);drawBtn();
       const kick=()=>{ac();auds.forEach(a=>a.play().catch(()=>{}));if(!started){started=true;getMic();}};document.addEventListener('pointerdown',kick);
       document.addEventListener('visibilitychange',()=>{if(mic)mic.enabled=!muted&&!document.hidden;});
@@ -715,7 +749,7 @@ function enterable(x0,x1,z0,z1){const bx0=x0+3,bx1=x1-3,bz0=z0+3,bz1=z1-3,cx=(bx
   blds.push({x0:bx0,x1:bx1,z0:bz0,z1:bz1,cx,cz,F,H,pads,door:{x:cx,zIn:bz0+2.2,zOut:bz0-2.5},chest:{x:cx+3,z:cz,y:H,cd:0,m:cm},lootT:0});furnish(blds[blds.length-1]);}
 
 // ---------- breakable street stuff (one instanced mesh per kind) ----------
-const PROPT={},PROPS=[],flyers=[],geysers=[],brokenProps=[];
+const PROPT={},PROPS=[],flyers=[],geysers=[],brokenProps=[];let WAVE={fight:false,t:70};
 function defProp(name,items,mats,hw,hd,top){PROPT[name]={geo:mergeGeo(items),mats,hw,hd,top,list:[]};}
 {const B=(w,h,d,x,y,z,mi,ry)=>({g:BG(w,h,d),x,y,z,mi,ry});const Cy=(rt,rb,h,y,mi,seg)=>({g:new THREE.CylinderGeometry(rt,rb,h,seg||8),x:0,y,z:0,mi});
  const metal=std('#3a3f44',{metalness:.7,roughness:.4}),bark=std('#6b4528',{roughness:1});
@@ -1280,7 +1314,7 @@ let bannerT=null;function showBanner(h){const b=$('banner');b.innerHTML=h;b.styl
 // ---------- input ----------
 const keys={};
 window.addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(keys[k])return;keys[k]=true;
-  if(k==='h'){openHelp();return;}if(paused)return;if(k===' '){doJump();jumpHeld=true;}if(k==='f')firing=true;if(k==='e')toggleCar();if(k==='b')toggleBuild();if(k==='c')cycleColor();if(k==='g')doBreak();if(k==='q')useBuddy();if(k==='r')cycleGun();if(k==='t')airstrike();if(k==='m')openMenu();});
+  if(k==='h'){openHelp();return;}if(paused)return;if(k===' '){doJump();jumpHeld=true;}if(k==='f')firing=true;if(k==='e')toggleCar();if(k==='b')toggleBuild();if(k==='c')cycleColor();if(k==='g')doBreak();if(k==='q')useBuddy();if(k==='r')cycleGun();if(k==='t')airstrike();if(k==='x'&&FUN.useNow)FUN.useNow();if(k==='m')openMenu();});
 window.addEventListener('keyup',e=>{const k=e.key.toLowerCase();keys[k]=false;if(k==='f')firing=false;if(k===' ')jumpHeld=false;});
 const joy={x:0,y:0,id:null,cx:0,cy:0};const J=$('joy'),K=$('knob');
 function joyMove(e){let dx=e.clientX-joy.cx,dy=e.clientY-joy.cy;const m=J.clientWidth*.42,l=Math.hypot(dx,dy);if(l>m){dx*=m/l;dy*=m/l;}const cv2=v=>{const a=Math.abs(v);return a<.06?0:Math.sign(v)*Math.pow((a-.06)/.94,1.35);};joy.x=cv2(dx/m);joy.y=cv2(dy/m);K.style.transform='translate('+dx+'px,'+dy+'px)';}
@@ -1478,6 +1512,7 @@ function drawMini(){const m=mctx;const px0=inCar?inCar.x:P.x,pz0=inCar?inCar.z:P
   m.drawImage(mapBg,(px0-VR+MO)*MS,(pz0-VR+MO)*MS,sw,sw,0,0,220,220);const X=v=>(v-(px0-VR))/(VR*2)*220,Z=v=>(v-(pz0-VR))/(VR*2)*220;const cl=v=>Math.max(4,Math.min(216,v));
   m.fillStyle='#2ecc40';packs.forEach(p=>m.fillRect(X(p.x)-3,Z(p.z)-3,6,6));
   bots.forEach(b=>{m.fillStyle=b.friend?'#3ff2e0':b.zombie?'#7fff5a':'#ff1744';m.beginPath();m.arc(X(b.x),Z(b.z),b.boss?6:3.5,0,7);m.fill();});
+  if(FUN.tripT){m.fillStyle='#e040fb';m.beginPath();m.arc(cl(X(FUN.tripT.x)),cl(Z(FUN.tripT.z)),7,0,7);m.fill();m.strokeStyle='#fff';m.stroke();}
   if(mission&&mission.target){m.fillStyle='#ffd400';m.beginPath();m.arc(cl(X(mission.target.x)),cl(Z(mission.target.z)),6,0,7);m.fill();m.strokeStyle='#000';m.stroke();}
   m.fillStyle='#ff9800';ammos.forEach(a=>m.fillRect(X(a.x)-2.5,Z(a.z)-2.5,5,5));
   m.font='17px serif';m.textAlign='center';m.textBaseline='middle';WEV.mini(m,X,Z,cl);EXTRA.mini(m,X,Z,cl);FUN.mini(m,X,Z,cl);markers.forEach(mk=>{const mx=cl(X(mk.x)),mz=cl(Z(mk.z));m.fillStyle=MINFO[mk.t].c;m.beginPath();m.arc(mx,mz,10,0,7);m.fill();m.fillStyle='#000';m.fillText(MINFO[mk.t].i,mx,mz+1);});m.textAlign='start';m.textBaseline='alphabetic';
@@ -1861,16 +1896,18 @@ const FUN=(function(){
   function addAct(o){ACTS.push(Object.assign({cd:0},o));}
   function placeOnSide(minD,maxD){for(let t=0;t<300;t++){const a=Math.random()*6.28,d=minD+Math.random()*(maxD-minD),x=BASE.x+Math.cos(a)*d,z=BASE.z+Math.sin(a)*d;if(!isLand(x,z)||blocked(x,z,1.2)||onSeg(x,z))continue;if(ACTS.some(o=>Math.hypot(o.x-x,o.z-z)<25))continue;return[x,z];}return null;}
   function setupActs(){const gray=std('#90a4ae',{metalness:.6,roughness:.4}),grn=std('#2e7d32'),wh=std('#ffffff'),red=std('#e53935'),scr=glow('#00e5ff');
-    for(let k=0;k<8;k++){const p=placeOnSide(15,380);if(!p)break;const g=new THREE.Group();box(1.2,2,.8,gray,0,1,0,g);box(.9,.6,.05,scr,0,1.4,.42,g);box(.9,.25,.05,grn,0,1.85,.42,g);g.position.set(p[0],0,p[1]);g.rotation.y=Math.random()*6.28;scene.add(g);addBox(p[0]-.6,p[0]+.6,p[1]-.6,p[1]+.6,2,{kind:'bld'});
+    for(let k=0;k<12;k++){const p=placeOnSide(15,380);if(!p)break;const g=new THREE.Group();box(1.2,2,.8,gray,0,1,0,g);box(.9,.6,.05,scr,0,1.4,.42,g);box(.9,.25,.05,grn,0,1.85,.42,g);g.position.set(p[0],0,p[1]);g.rotation.y=Math.random()*6.28;scene.add(g);addBox(p[0]-.6,p[0]+.6,p[1]-.6,p[1]+.6,2,{kind:'bld'});
       addAct({x:p[0],z:p[1],i:'🏧',label:'🏧 Use the ATM',cdMax:180,fn:()=>{const c=10+Math.floor(Math.random()*25);S.coins+=c;showBanner('🏧 +'+c+' 🪙');speak('Free money! '+c+' coins!');snd(1200,.08,'square',.05);}});}
-    for(let k=0;k<6;k++){const p=placeOnSide(15,380);if(!p)break;const g=new THREE.Group();box(2.2,1.2,1.2,std('#fafafa'),0,.9,0,g);box(2.4,.15,1.4,red,0,2.6,0,g);box(.1,1.2,.1,gray,-1,2,0,g);box(.1,1.2,.1,gray,1,2,0,g);const hd=box(1,.3,.3,std('#ff7043'),0,1.65,.4,g);g.position.set(p[0],0,p[1]);g.rotation.y=Math.random()*6.28;scene.add(g);addBox(p[0]-1.1,p[0]+1.1,p[1]-.7,p[1]+.7,1.5,{kind:'bld'});
+    for(let k=0;k<10;k++){const p=placeOnSide(15,380);if(!p)break;const g=new THREE.Group();box(2.2,1.2,1.2,std('#fafafa'),0,.9,0,g);box(2.4,.15,1.4,red,0,2.6,0,g);box(.1,1.2,.1,gray,-1,2,0,g);box(.1,1.2,.1,gray,1,2,0,g);const hd=box(1,.3,.3,std('#ff7043'),0,1.65,.4,g);g.position.set(p[0],0,p[1]);g.rotation.y=Math.random()*6.28;scene.add(g);addBox(p[0]-1.1,p[0]+1.1,p[1]-.7,p[1]+.7,1.5,{kind:'bld'});
       addAct({x:p[0],z:p[1],i:'🌭',label:'🌭 Eat a hot dog',cdMax:60,fn:()=>{P.hp=100;showBanner('🌭 Yum! Full health!');speak('Yummy! Full health!');snd(500,.1,'sine',.05,800);}});}
-    for(let k=0;k<8;k++){const p=placeOnSide(15,380);if(!p)break;const g=new THREE.Group();box(1.1,2.1,.9,std('#d32f2f'),0,1.05,0,g);box(.8,1.3,.05,std('#ffeb3b'),0,1.3,.47,g);g.position.set(p[0],0,p[1]);g.rotation.y=Math.random()*6.28;scene.add(g);addBox(p[0]-.55,p[0]+.55,p[1]-.55,p[1]+.55,2.1,{kind:'bld'});
+    for(let k=0;k<12;k++){const p=placeOnSide(15,380);if(!p)break;const g=new THREE.Group();box(1.1,2.1,.9,std('#d32f2f'),0,1.05,0,g);box(.8,1.3,.05,std('#ffeb3b'),0,1.3,.47,g);g.position.set(p[0],0,p[1]);g.rotation.y=Math.random()*6.28;scene.add(g);addBox(p[0]-.55,p[0]+.55,p[1]-.55,p[1]+.55,2.1,{kind:'bld'});
       addAct({x:p[0],z:p[1],i:'🥤',label:'🥤 Grab a soda',cdMax:45,fn:()=>{P.speedT=15;showBanner('🥤 SPEED BOOST!<br><small>15 seconds</small>');speak('Speed boost!');snd(900,.1,'square',.05,1400);}});}
-    for(let k=0;k<5;k++){const p=placeOnSide(20,360);if(!p)break;const g=new THREE.Group();box(.25,4,.25,gray,0,2,0,g);box(1.8,1.2,.1,wh,0,4.2,.2,g);const rim=new THREE.Mesh(new THREE.TorusGeometry(.45,.05,6,16),std('#ff6d00'));rim.rotation.x=Math.PI/2;rim.position.set(0,3.6,.7);g.add(rim);g.position.set(p[0],0,p[1]);g.rotation.y=Math.random()*6.28;scene.add(g);
+    for(let k=0;k<8;k++){const p=placeOnSide(20,360);if(!p)break;const g=new THREE.Group();box(.25,4,.25,gray,0,2,0,g);box(1.8,1.2,.1,wh,0,4.2,.2,g);const rim=new THREE.Mesh(new THREE.TorusGeometry(.45,.05,6,16),std('#ff6d00'));rim.rotation.x=Math.PI/2;rim.position.set(0,3.6,.7);g.add(rim);g.position.set(p[0],0,p[1]);g.rotation.y=Math.random()*6.28;scene.add(g);
       addAct({x:p[0],z:p[1],i:'🏀',label:'🏀 Shoot hoops',cdMax:3,fn:()=>{const sc=Math.random()<.55;if(sc){S.coins+=5;F.ev('hoop');showBanner('🏀 SWISH! +5 🪙');speak('Swish!');snd(880,.12,'square',.05);}else{showBanner('🏀 Missed! Try again');speak('So close!');}burst(p[0],3.6,p[1],sc?14:4,sc?'#ffd400':'#ff6d00');}});}
-    for(let k=0;k<4;k++){const p=placeOnSide(20,360);if(!p)break;const g=new THREE.Group();box(1.2,2.6,1.2,std('#1565c0'),0,1.3,0,g);box(1,1.6,.05,std('#b3e5fc',{metalness:.3,roughness:.1}),0,1.4,.62,g);box(1.25,.3,1.25,red,0,2.7,0,g);g.position.set(p[0],0,p[1]);scene.add(g);addBox(p[0]-.6,p[0]+.6,p[1]-.6,p[1]+.6,2.6,{kind:'bld'});
+    for(let k=0;k<7;k++){const p=placeOnSide(20,360);if(!p)break;const g=new THREE.Group();box(1.2,2.6,1.2,std('#1565c0'),0,1.3,0,g);box(1,1.6,.05,std('#b3e5fc',{metalness:.3,roughness:.1}),0,1.4,.62,g);box(1.25,.3,1.25,red,0,2.7,0,g);g.position.set(p[0],0,p[1]);scene.add(g);addBox(p[0]-.6,p[0]+.6,p[1]-.6,p[1]+.6,2.6,{kind:'bld'});
       addAct({x:p[0],z:p[1],i:'☎️',label:'☎️ Answer the phone',cdMax:60,fn:()=>{if(mission){speak('Finish your mission first!');showBanner('📞 Finish your mission first');return;}missionWait=0;speak('Ring ring! A new mission is ready!');showBanner('☎️ NEW MISSION!');}});}
+    for(let k=0;k<8;k++){const p=placeOnSide(20,380);if(!p)break;const g=new THREE.Group();box(.25,3,.25,gray,-1,1.5,0,g);box(.25,3,.25,gray,1,1.5,0,g);box(2.8,1.8,.2,std('#6d4c41'),0,3,0,g);box(2.4,1.4,.05,std('#ffe082'),0,3,.12,g);g.position.set(p[0],0,p[1]);g.rotation.y=Math.random()*6.28;scene.add(g);
+      addAct({x:p[0],z:p[1],i:'🧳',label:'🧳 Start a trip',cdMax:3,fn:()=>F.startTrip()});}
     const fishSpots=[{x:BEACH.x1+44,z:BEACH.pz}].concat(MARINAS);fishSpots.forEach(f=>addAct({x:f.x,z:f.z,i:'🎣',label:'🎣 Go fishing',cdMax:4,fn:()=>startFish()}));}
   const FISH=[['🐟','a fish',8],['🐠','a tropical fish',15],['🦀','a crab',12],['🐡','a puffer fish',20],['👢','an old boot',1],['🦈','a SHARK',50],['💎','a GEM',0]];
   function startFish(){if(fishing)return;fishing={t:2.5+Math.random()*2};showBanner('🎣 Fishing…');speak('Fishing! Wait for a bite!');}
@@ -1879,7 +1916,7 @@ const FUN=(function(){
   function updActs(dt){if(!actBtn){actBtn=document.createElement('button');actBtn.className='btn';actBtn.style.cssText='display:none;position:fixed;left:50%;bottom:282px;transform:translateX(-50%);z-index:9;font-size:22px;padding:12px 24px;background:linear-gradient(#80deea,#00838f)';document.body.appendChild(actBtn);}
     if(P.speedT>0)P.speedT-=dt;ACTS.forEach(a=>{if(a.cd>0)a.cd-=dt;});updFish(dt);
     let near=null;if(!P.dead&&!inHeli&&!PL.on){if(inCar&&inCar.kind==='fish'&&Math.abs(inCar.v)<1.5)near={label:'🎣 Fish from the boat',fn:startFish,cd:0,cdMax:3,boat:1};else if(!inCar)for(const a of ACTS){if(Math.hypot(a.x-P.x,a.z-P.z)<3.2&&P.y<3){near=a;break;}}}
-    if(!near||fishing){actBtn.style.display='none';return;}actBtn.style.display='block';actBtn.textContent=near.cd>0?near.label+' · ⏳ '+Math.ceil(near.cd)+'s':near.label;actBtn.style.opacity=near.cd>0?.6:1;
+    F.actNear=fishing?null:near;actBtn.style.display='none';return;actBtn.style.display='block';actBtn.textContent=near.cd>0?near.label+' · ⏳ '+Math.ceil(near.cd)+'s':near.label;actBtn.style.opacity=near.cd>0?.6:1;
     actBtn.onclick=()=>{audioInit();if(near.cd>0){speak('Wait a little bit');return;}near.cd=near.cdMax;near.fn();saveT=1;};}
   // ---------- ⬆ property upgrades · 🚀 jobs · 🚨 robot attacks ----------
   const JOBS={pizza:{i:'🍕',n:'Pizza delivery',kind:'deliver'},wash:{i:'🧽',n:'Car wash rings',kind:'rings',car:1},arcade:{i:'🕹',n:'Arcade: blast 12 robots',kind:'kills',need:12},dock:{i:'⚓',n:'Jet ski buoys',kind:'rings',boat:1},taxi:{i:'🚕',n:'Taxi ride',kind:'deliver',taxi:1},hotel:{i:'🏨',n:'Luggage delivery',kind:'deliver'},studio:{i:'🎬',n:'Movie stunts: 2 jumps',kind:'stunts',need:2},tower:{i:'🏙',n:'Sky rings (plane)',kind:'rings',air:1}};
@@ -1989,17 +2026,137 @@ const FUN=(function(){
   function newPed(near){const g=new THREE.Group();const b=new THREE.Mesh(pedGeoB,pick(SHR));b.position.y=1.55;g.add(b);const h=new THREE.Mesh(pedGeoH,pick(SKN));h.position.y=2.45;g.add(h);const l=new THREE.Mesh(pedGeoL,pick(PNT));l.position.y=.5;g.add(l);
     if(Math.random()<.35){const ht=new THREE.Mesh(BG(.66,.18,.66),pick(SHR));ht.position.y=2.85;g.add(ht);}g.scale.setScalar(.85+Math.random()*.25);g.traverse(o=>{if(o.isMesh)o.castShadow=AQ<2;});scene.add(g);const p={g,side:Math.random()<.5?-1:1,sp:1.6+Math.random()*1.2,knock:0};placePed(p,near);PEDS.push(p);}
   function placePed(p,near){for(let k=0;k<30;k++){const e=pick(EDGES);const A=npos(e[0]),B=npos(e[1]);const mx=(A.x+B.x)/2,mz=(A.z+B.z)/2;if(near&&(Math.hypot(mx-P.x,mz-P.z)>140||Math.hypot(mx-P.x,mz-P.z)<35))continue;p.a=e[0];p.b=e[1];p.t=Math.random()*Math.hypot(B.x-A.x,B.z-A.z);return;}const e=pick(EDGES);p.a=e[0];p.b=e[1];p.t=0;}
-  function updPeds(dt){const want=AQ>=3?14:AQ>=2?22:34;if(PEDS.length<want&&EDGES.length)newPed(true);
+  function updPeds(dt){const want=AQ>=3?18:AQ>=2?28:42;if(PEDS.length<want&&EDGES.length)newPed(true);
     for(const p of PEDS){const A=npos(p.a),B=npos(p.b),L=Math.hypot(B.x-A.x,B.z-A.z)||1,dx=(B.x-A.x)/L,dz=(B.z-A.z)/L;
       if(p.knock>0){p.knock-=dt;p.g.rotation.x=-Math.PI/2*Math.min(1,p.knock*2);p.g.position.y=.3;if(p.knock<=0){p.g.rotation.x=0;p.g.position.y=0;}continue;}
+      if(p.quest||p.stop>0){if(p.stop>0)p.stop-=dt;const gx=p.g.position.x,gz=p.g.position.z;p.g.rotation.y=Math.atan2(P.x-gx,P.z-gz);p.g.position.y=Math.abs(Math.sin(time*6))*.15;continue;}
       let scared=false;for(const b of bots){if(!b.friend&&Math.abs(b.x-p.g.position.x)+Math.abs(b.z-p.g.position.z)<16){scared=true;break;}}const sp=p.sp*(scared?2.6:1);
       p.t+=sp*dt;if(p.t>L){p.t=0;const nb=ADJ[p.b].filter(k=>k!==p.a);p.a=p.b;p.b=nb.length?pick(nb):p.a;if(p.b===p.a){const n2=ADJ[p.a];p.b=n2.length?pick(n2):p.a;}continue;}
       const x=A.x+dx*p.t-dz*7.6*p.side,z=A.z+dz*p.t+dx*7.6*p.side;p.g.position.set(x,0,z);p.g.rotation.y=Math.atan2(dx,dz);const sw=Math.sin(time*10*sp/2+p.sp*9)*.12;p.g.children[2].rotation.x=sw;
       if(Math.abs(x-P.x)+Math.abs(z-P.z)>320){placePed(p,true);continue;}
       for(const c of cars){if(Math.abs(c.v)>7&&Math.abs(c.x-x)<2&&Math.abs(c.z-z)<2){p.knock=2.5;burst(x,1.5,z,8,'#ffffff');if(c===inCar){snd(200,.15,'square',.05);showBanner('😵 Watch out for people!');}break;}}}}
-  F.update=function(dt){updPeds(dt);ammoHelp(dt);if((AMMO.blaster||0)<12&&S.gun==='blaster'){F.blT=(F.blT||0)+dt;if(F.blT>1.5){F.blT=0;AMMO.blaster=(AMMO.blaster||0)+1;}}updActs(dt);updArmy(dt);updNavy(dt);updJob(dt);updAttack(dt);updGameDay(dt);updShip(dt);updRamps(dt);updGps(dt);updProps(dt);updDistrict(dt);updTro(dt);updMusic();updPlane(dt);updRides();updHouses(dt);updPet(dt);updGP(dt);updSoccer(dt);updSea(dt);updSeason(dt);updHome(dt);updSpecial(dt);updSpots(dt);};
+
+  // ===== EXPLORE: one USE button, talk to people, little quests, kick stuff, secret stars, calm/fight waves =====
+  const XP={btn:null,cur:null,said:'',sayT:0,scanT:0,prop:null,ped:null,q:null,mk:[],stars:[],hud:null,bub:null,bubT:0};
+  const emoS=(t,sc)=>{const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');x.font='100px serif';x.textAlign='center';x.textBaseline='middle';x.fillText(t,64,70);const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),toneMapped:false,depthTest:false}));sp.renderOrder=6;sp.scale.setScalar(sc||2.4);scene.add(sp);return sp;};
+  const beamGeo=new THREE.CylinderGeometry(.5,.5,40,8,1,true);
+  const beam=(col)=>{const m=new THREE.Mesh(beamGeo,new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.35,depthWrite:false,side:THREE.DoubleSide}));scene.add(m);return m;};
+  const KICK={hydrant:1,trash:1,bench:1,cone:1,mailbox:1};
+  const TIPS=['Find a brown trip board to go on an adventure!','Trips take you far away. Watch out for ambushes!','Yellow doors open! Go inside buildings and ride the glowing pads to the roof!','Jump on a trampoline to fly super high!','Purple portals take you across the city!','Treasure chests are hidden everywhere!','Open the explorer book in the three dots menu!','Every new place you find gives you coins!','Hot dog carts give you full health!','ATMs give you free coins!','Soda makes you run super fast!','Answer a phone booth to get a mission!','There are secret stars hidden all over town. Find them!','Robots come in waves. Explore, then get ready to fight!','Try fishing at the marina!','Tap the little map to see the whole city!','You can kick trash cans and fire hydrants!','Buy a house and decorate it!','The army base has a tank!','Watch out for robots! Stay safe!'];
+  const QK=[['🐈‍⬛','my black cat'],['🐢','my turtle'],['👑','my crown'],['🎒','my backpack'],['🍦','my ice cream'],['🦜','my parrot'],['🐱','my cat'],['🐶','my puppy'],['📦','my package'],['⚽','my soccer ball'],['🧸','my teddy bear'],['🔑','my keys'],['🎈','my balloon']];
+  function landNear(a0,a1){for(let k=0;k<60;k++){const a=Math.random()*6.28,d=a0+Math.random()*(a1-a0),x=P.x+Math.cos(a)*d,z=P.z+Math.sin(a)*d;if(isLand(x,z)&&!blocked(x,z,1.3))return{x,z};}return null;}
+  function setupStars(){let sd=4242;const r=()=>{sd=(sd*16807)%2147483647;return sd/2147483647;};S.sf=S.sf||[];let n=0;
+    for(let k=0;k<6000&&n<40;k++){const a=r()*6.28,d=25+r()*420,x=BASE.x+Math.cos(a)*d,z=BASE.z+Math.sin(a)*d;if(!isLand(x,z)||blocked(x,z,1.2))continue;if(XP.stars.some(o=>Math.hypot(o.x-x,o.z-z)<45))continue;
+      const o={i:n,x,z,sp:null};if(S.sf.indexOf(n)<0){o.sp=emoS('⭐',2.6);o.sp.position.set(x,1.6,z);o.sp.visible=false;}XP.stars.push(o);n++;}}
+  function starHud(){return (S.sf||[]).length+'/'+XP.stars.length;}
+  function setupMarks(){ACTS.slice(XP.mk.length).forEach(a=>{const sp=emoS(a.i||'✋',2.2);sp.position.set(a.x,4.2,a.z);sp.visible=false;XP.mk.push({a,sp});});}
+  function startQuest(p){const k=pick(QK);const at=landNear(35,85);if(!at)return false;const it=emoS(k[0],2.6);it.position.set(at.x,1.6,at.z);const bm=beam('#ffd400');bm.position.set(at.x,20,at.z);const ex=emoS('❗',2.2);
+    p.quest=true;XP.q={p,k,x:at.x,z:at.z,it,bm,ex,got:false,gb:null};showBanner('🙋 '+k[0]+' Find '+k[1]+'!<br><small>Follow the yellow light</small>');speak('Oh no! I lost '+k[1]+'! Can you find it? Look for the yellow light!',1);return true;}
+  function endQuest(win){const q=XP.q;if(!q)return;[q.it,q.bm,q.ex,q.gb].forEach(o=>{if(o)scene.remove(o);});q.p.quest=false;q.p.stop=3;XP.q=null;
+    if(win){const c=20+LV()*4;S.coins+=c;let g='';if(Math.random()<.35){S.gems=(S.gems|0)+1;g=' +1 💎';}S.qN=(S.qN|0)+1;F.ev('quest');save();showBanner('🙏 Thank you!<br><small>+'+c+' 🪙'+g+'</small>');speak('Thank you so much! You are a hero!',1);snd(880,.12,'square',.05);setTimeout(()=>snd(1320,.2,'square',.05),120);burst(q.p.g.position.x,2.5,q.p.g.position.z,20,'#ffd400');}}
+  function talk(p){p.stop=4;if(!XP.bub)XP.bub=emoS('👋',2);XP.bub.position.set(p.g.position.x,4,p.g.position.z);XP.bub.visible=true;XP.bubT=3;
+    if(!XP.q&&Math.random()<.5&&startQuest(p))return;const t=pick(TIPS);showBanner('💬 '+t);speak(t,1);}
+  function kick(pr){const dx=pr.x-P.x,dz=pr.z-P.z,l=Math.hypot(dx,dz)||1;breakProp(pr,dx/l*14,dz/l*14);snd(140,.12,'square',.06,60);if(Math.random()<.3){S.coins+=2;showBanner('🦶 KICK! +2 🪙');}else showBanner('🦶 KICK!');}
+  function useNow(){audioInit();const c=XP.cur;if(!c)return;
+    if(c.t==='act'){const n=c.a;if(n.cd>0){speak('Wait a little bit');return;}n.cd=n.cdMax;n.fn();saveT=1;}
+    else if(c.t==='ped')talk(c.p);else if(c.t==='giver')endQuest(true);else if(c.t==='kick')kick(c.p);}
+  F.useNow=useNow;
+  function setUse(c){XP.cur=c;const b=XP.btn;if(!b)return;if(!c){b.style.display='none';return;}b.style.display='';const lab=c.t==='act'?(c.a.cd>0?'⏳ '+Math.ceil(c.a.cd):c.lab):c.lab;if(b.textContent!==lab)b.textContent=lab;
+    const key=c.t+(c.t==='act'?c.a.label:'');if(key!==XP.said&&XP.sayT<=0){XP.said=key;XP.sayT=4;if(c.say)speak(c.say);}}
+  const ACTW={'🧳':['🧳 Trip','Trip board! Tap to go on an adventure!'],'🏧':['🏧 Use','ATM. Tap use for coins'],'🌭':['🌭 Eat','Hot dog! Tap to eat'],'🥤':['🥤 Drink','Soda! Tap to drink'],'🏀':['🏀 Shoot','Basketball! Tap to shoot'],'☎️':['☎️ Answer','Phone! Tap to answer'],'🎣':['🎣 Fish','Fishing! Tap to fish']};
+  function updExplore(dt){if(!XP.btn){const b=document.createElement('button');b.className='btn rb';b.id='use';b.style.display='none';b.onclick=useNow;const bs=$('btns');(bs||document.body).appendChild(b);XP.btn=b;
+      const h=document.createElement('div');h.id='wavec';h.style.cssText='font-size:15px;font-weight:bold;text-shadow:0 2px 3px #000';const hud=$('hud');if(hud)hud.appendChild(h);XP.hud=h;setupStars();}if(XP.mk.length<ACTS.length)setupMarks();
+    XP.sayT-=dt;if(XP.bubT>0){XP.bubT-=dt;if(XP.bubT<=0&&XP.bub)XP.bub.visible=false;}
+    // waves
+    if(started&&!P.dead){WAVE.t-=dt;if(WAVE.t<=0){WAVE.fight=!WAVE.fight;if(WAVE.fight){WAVE.t=35+Math.random()*10;showBanner('🤖 ROBOT WAVE!<br><small>Fight!</small>');speak('Robot wave! Get ready to fight!');snd(600,.3,'sawtooth',.04,300);}
+      else{WAVE.t=60+Math.random()*25;const c=8+LV()*2;S.coins+=c;showBanner('😎 Wave over! +'+c+' 🪙<br><small>Explore time</small>');speak('You survived the wave! Time to explore!');}}}
+    if(XP.hud){const m=Math.max(0,Math.ceil(WAVE.t)),tx=(WAVE.fight?'⚔️ '+m+'s':'😎 '+m+'s')+' · ⭐ '+starHud();XP.hud.textContent=tx;XP.hud.style.color=WAVE.fight?'#ff6b6b':'#7dff8a';}
+    // stars + markers (cheap distance checks)
+    const px=P.x,pz=P.z,t=time;
+    for(const o of XP.stars){if(!o.sp)continue;const d=Math.abs(o.x-px)+Math.abs(o.z-pz);o.sp.visible=d<110;if(!o.sp.visible)continue;o.sp.position.y=1.6+Math.sin(t*3+o.i)*.3;
+      if(d<3&&P.y<4&&!inCar){scene.remove(o.sp);o.sp=null;S.sf.push(o.i);const n=S.sf.length;let c=15,g='';if(n%5===0){S.gems=(S.gems|0)+1;g=' +1 💎';}S.coins+=c;save();F.ev('star');burst(o.x,1.6,o.z,24,'#ffd400');snd(1200,.1,'square',.05);setTimeout(()=>snd(1600,.15,'square',.05),100);
+        showBanner('⭐ SECRET STAR '+n+'/'+XP.stars.length+'!<br><small>+'+c+' 🪙'+g+'</small>');speak(n===XP.stars.length?'You found every secret star! Amazing!':'Secret star! You found '+n+'!',1);}}
+    for(const m of XP.mk){const d=Math.abs(m.a.x-px)+Math.abs(m.a.z-pz);m.sp.visible=d<70&&d>4;if(m.sp.visible)m.sp.position.y=4.2+Math.sin(t*2.5+m.a.x)*.3;}
+    // quest
+    const q=XP.q;if(q){const g=q.p.g.position;q.ex.position.set(g.x,4.3+Math.sin(t*4)*.2,g.z);if(!q.got){q.it.position.y=1.6+Math.sin(t*3)*.3;if(Math.hypot(q.x-px,q.z-pz)<3&&!inCar){q.got=true;scene.remove(q.it);scene.remove(q.bm);q.it=q.bm=null;q.gb=beam('#7dff8a');showBanner(q.k[0]+' Got it!<br><small>Bring it back to the green light</small>');speak('You found it! Bring it back! Follow the green light!',1);snd(1000,.12,'square',.05);}}
+      if(q.gb)q.gb.position.set(g.x,20,g.z);if(Math.hypot(g.x-px,g.z-pz)>500)endQuest(false);}
+    // pick what USE does
+    if(P.dead||inHeli||PL.on){setUse(null);return;}
+    if(inCar){const a=F.actNear;setUse(a&&a.boat?{t:'act',a,lab:'🎣 Fish',say:'Tap to fish!'}:null);return;}
+    XP.scanT-=dt;if(XP.scanT<=0){XP.scanT=.2;XP.ped=null;XP.prop=null;
+      if(q&&q.got&&Math.hypot(q.p.g.position.x-px,q.p.g.position.z-pz)<4)XP.ped=q.p;else{let bd=3.6;for(const p of PEDS){if(p.knock>0||(q&&p===q.p))continue;const d=Math.hypot(p.g.position.x-px,p.g.position.z-pz);if(d<bd){bd=d;XP.ped=p;}}}
+      if(!XP.ped){let bd=2.8;for(const pr of PROPS){if(!pr.alive||!KICK[pr.name])continue;const dx=pr.x-px;if(dx>3||dx<-3)continue;const d=Math.hypot(dx,pr.z-pz);if(d<bd){bd=d;XP.prop=pr;}}}}
+    const a=F.actNear;
+    if(a&&!a.boat){const w=ACTW[a.i]||['✋ Use','Tap use'];setUse({t:'act',a,lab:w[0],say:w[1]});}
+    else if(XP.ped){if(q&&q.got&&XP.ped===q.p)setUse({t:'giver',lab:'🎁 Give',say:'Tap give!'});else setUse({t:'ped',p:XP.ped,lab:'💬 Talk',say:'Tap talk to say hi!'});}
+    else if(XP.prop&&P.y<2)setUse({t:'kick',p:XP.prop,lab:'🦶 Kick',say:''});
+    else setUse(null);}
+
+  // ----- more to explore: doors, trampolines, portals, treasure chests, new places, explorer book -----
+  const EX={tr:[],po:[],ch:[],doors:[],pcd:0,dT:0,dFirst:true,init:false,book:null};
+  function seeded(seed){let sd=seed;return()=>{sd=(sd*16807)%2147483647;return sd/2147483647;};}
+  function spotSeed(r,min,max,sep,list){for(let k=0;k<800;k++){const a=r()*6.28,d=min+r()*(max-min),x=BASE.x+Math.cos(a)*d,z=BASE.z+Math.sin(a)*d;if(!isLand(x,z)||blocked(x,z,2)||onSeg(x,z))continue;if(list.some(o=>Math.hypot(o.x-x,o.z-z)<sep))continue;if(XP.stars.some(o=>Math.hypot(o.x-x,o.z-z)<10))continue;return{x,z};}return null;}
+  function setupMore(){EX.init=true;const r=seeded(9001);S.chT=S.chT||{};
+    blds.forEach(B=>{const sp=emoS('🚪',2.6);sp.position.set(B.door.x,6,B.door.zOut-1);sp.visible=false;EX.doors.push({x:B.door.x,z:B.door.zOut,sp});});
+    const tm=new THREE.MeshStandardMaterial({color:'#2979ff',emissive:new THREE.Color('#0d2a66')}),rim=new THREE.MeshStandardMaterial({color:'#ffd400'});
+    for(let k=0;k<12;k++){const o=spotSeed(r,20,420,40,EX.tr);if(!o)break;const g=new THREE.Group();const m=new THREE.Mesh(new THREE.CylinderGeometry(2,2,.5,20),tm);m.position.y=.6;g.add(m);const rr=new THREE.Mesh(new THREE.TorusGeometry(2,.18,6,24),rim);rr.rotation.x=Math.PI/2;rr.position.y=.85;g.add(rr);g.position.set(o.x,0,o.z);scene.add(g);o.g=g;EX.tr.push(o);}
+    const pm=new THREE.MeshBasicMaterial({color:'#b388ff',transparent:true,opacity:.75,side:THREE.DoubleSide}),pr=new THREE.MeshStandardMaterial({color:'#7c4dff',emissive:new THREE.Color('#4a148c')});
+    for(let k=0;k<10;k++){const o=spotSeed(r,40,430,90,EX.po);if(!o)break;const g=new THREE.Group();const ring=new THREE.Mesh(new THREE.TorusGeometry(2.2,.35,8,24),pr);ring.position.y=2.6;g.add(ring);const disc=new THREE.Mesh(new THREE.CircleGeometry(2,24),pm);disc.position.y=2.6;g.add(disc);g.position.set(o.x,0,o.z);scene.add(g);o.g=g;o.ring=ring;o.i=k;EX.po.push(o);}
+    const cmat=new THREE.MeshStandardMaterial({color:'#8d5524'}),gm=new THREE.MeshStandardMaterial({color:'#ffc107',metalness:.8,roughness:.3,emissive:new THREE.Color('#4a3300')});
+    for(let k=0;k<25;k++){const o=spotSeed(r,15,440,35,EX.ch.concat(EX.tr,EX.po));if(!o)break;const g=new THREE.Group();const b=new THREE.Mesh(new THREE.BoxGeometry(1.6,1,1.1),cmat);b.position.y=.5;g.add(b);const l=new THREE.Mesh(new THREE.BoxGeometry(1.7,.35,1.2),gm);l.position.y=1.15;g.add(l);g.position.set(o.x,0,o.z);g.rotation.y=r()*6.28;scene.add(g);o.g=g;o.i=k;o.sp=emoS('✨',1.6);o.sp.position.set(o.x,2.3,o.z);EX.ch.push(o);}}
+  function openChest(o){S.chT[o.i]=Date.now();o.g.visible=false;o.sp.visible=false;const r=Math.random();let msg;
+    if(r<.15){S.gems=(S.gems|0)+1;msg='+1 💎';}else if(r<.3){const g=S.gun||'blaster';AMMO[g]=MAXA[g]||AMMO[g];msg='🔫 Full ammo!';}else{const c=15+Math.floor(Math.random()*30)+LV()*2;S.coins+=c;msg='+'+c+' 🪙';}
+    S.chN=(S.chN|0)+1;F.ev('chest');save();burst(o.x,1.5,o.z,26,'#ffd400');snd(700,.1,'square',.05);setTimeout(()=>snd(1050,.12,'square',.05),100);setTimeout(()=>snd(1400,.2,'square',.05),200);showBanner('🎁 TREASURE!<br><small>'+msg+'</small>');speak('Treasure chest!',1);}
+  function openBook(){let d=EX.book;if(!d){d=document.createElement('div');d.className='overlay';d.style.zIndex=60;document.body.appendChild(d);EX.book=d;d.onclick=e=>{if(e.target===d||e.target.dataset.x)d.style.display='none';};}
+    const dv=S.dv||[];let h='<h1 style="font-size:32px">🧭 EXPLORER BOOK</h1><div class="panel"><h3>📍 Places '+dv.length+'/'+DISTRICTS.length+'</h3><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">';
+    DISTRICTS.forEach(x=>{const ok=dv.indexOf(x[0])>=0;h+='<span style="padding:6px 10px;border-radius:10px;font-weight:bold;background:'+(ok?'#2e7d32':'#0006')+'">'+(ok?'✅ '+x[0]:'❓ ???')+'</span>';});
+    h+='</div></div><div class="panel" style="font-size:22px;font-weight:bold;line-height:1.8">⭐ Secret stars: '+starHud()+'<br>🎁 Treasure opened: '+(S.chN|0)+'<br>🙋 People helped: '+(S.qN|0)+'<br>🧳 Trips done: '+(S.trN|0)+'<br>🌀 Portals: '+EX.po.length+' · 🟦 Trampolines: '+EX.tr.length+'</div><button class="btn" data-x="1" style="font-size:22px">✖ Close</button>';
+    d.innerHTML=h;d.style.display='flex';speak('Your explorer book! You found '+dv.length+' places and '+(S.sf||[]).length+' stars!');}
+  F.openBook=openBook;
+  function updMore(dt){if(!EX.init){if(!started)return;setupMore();const t=$('tray');if(t){const b=document.createElement('button');b.className='btn';b.textContent='🧭 Explorer book';b.style.background='linear-gradient(#ffb74d,#e65100)';b.onclick=()=>{audioInit();openBook();};t.insertBefore(b,t.firstChild);}}
+    const px=P.x,pz=P.z,t=time;EX.pcd-=dt;
+    for(const o of EX.doors){const d=Math.abs(o.x-px)+Math.abs(o.z-pz);o.sp.visible=d<90&&d>6&&P.y<3;if(o.sp.visible)o.sp.position.y=6+Math.sin(t*2+o.x)*.3;}
+    if(!inCar&&!inHeli&&!P.dead){
+      for(const o of EX.tr){if(Math.abs(o.x-px)<2.1&&Math.abs(o.z-pz)<2.1&&P.y<1.6&&P.vy<=0){P.vy=34;P.ground=false;snd(250,.25,'sine',.06,900);if(Math.random()<.3)speak('Boing!');}}
+      if(EX.pcd<=0)for(const o of EX.po){if(Math.hypot(o.x-px,o.z-pz)<1.8&&P.y<3){const to=EX.po[(o.i+1+Math.floor(Math.random()*(EX.po.length-1)))%EX.po.length];P.x=to.x+3;P.z=to.z+3;P.y=0;P.vy=0;EX.pcd=3;burst(o.x,2.6,o.z,30,'#b388ff');burst(to.x,2.6,to.z,30,'#b388ff');snd(300,.5,'sine',.06,1500);showBanner('🌀 WHOOSH!');speak('Whoosh! You went through a portal!');break;}}}
+    for(const o of EX.po)o.ring.rotation.z=t*2;
+    const now=Date.now();for(const o of EX.ch){if(!o.g.visible){if(now-(S.chT[o.i]||0)>600000){o.g.visible=true;}else continue;}const d=Math.abs(o.x-px)+Math.abs(o.z-pz);o.sp.visible=d<80;if(o.sp.visible)o.sp.position.y=2.3+Math.sin(t*3+o.i)*.25;
+      if(S.chT[o.i]&&now-S.chT[o.i]<600000){o.g.visible=false;o.sp.visible=false;continue;}if(d<3&&!inCar&&P.y<3)openChest(o);}
+    EX.dT-=dt;if(EX.dT<=0){EX.dT=1;S.dv=S.dv||[];const d=districtAt(inCar?inCar.x:px,inCar?inCar.z:pz);if(d&&S.dv.indexOf(d)<0){S.dv.push(d);if(!EX.dFirst){const c=20;S.coins+=c;save();showBanner('🗺 NEW PLACE!<br><small>'+d+' · +'+c+' 🪙 · '+S.dv.length+'/'+DISTRICTS.length+'</small>');speak('New place discovered!',1);}}EX.dFirst=false;}}
+
+  // ----- TRIPS: travel somewhere, get ambushed, fight at the end -----
+  const TR={on:false};
+  const TRIPS=[
+    {i:'🦖',n:'Monster Hunt',say:'Monster hunt! A giant monster is out there. Drive to it and defeat it!',lv:3,st:[['go',180,300],['boss']]},
+    {i:'🧟',n:'Zombie Camp',say:'Zombie camp! Go to the camp and clear out all the zombies!',lv:1,st:[['go',150,260],['fight','zombie',7]]},
+    {i:'🤖',n:'Robot Base Raid',say:'Robot base raid! Drive to their base and blast every robot!',lv:2,st:[['go',160,280],['fight','robot',6],['fight','tank',1]]},
+    {i:'🏖',n:'Road Trip',say:'Road trip! Grab a car and visit three places. Watch out for ambushes!',lv:1,st:[['go',140,240],['go',140,240],['fight','robot',4],['go',140,240]]},
+    {i:'🙋',n:'Rescue Ride',say:'Rescue ride! Someone needs help. Go get them and bring them back to H Q!',lv:1,st:[['go',160,280],['fight','zombie',4],['home']]},
+    {i:'💰',n:'Treasure Trip',say:'Treasure trip! Find the treasure, beat the guards, and it is yours!',lv:2,st:[['go',180,320],['fight','robot',5],['loot']]},
+    {i:'🛸',n:'Alien Crash Site',say:'An alien ship crashed! Go there and fight the aliens!',lv:2,st:[['go',170,300],['fight','fast',6],['fight','robot',3]]}];
+  function trBeam(x,z,col){if(TR.beam)scene.remove(TR.beam);TR.beam=beam(col||'#e040fb');TR.beam.position.set(x,20,z);}
+  function trEnd(win){const T=TR.trip;if(TR.beam){scene.remove(TR.beam);TR.beam=null;}F.gpsOff&&F.gpsOff();TR.on=false;F.tripT=null;
+    if(win){const c=60+LV()*12;S.coins+=c;const g=1+(Math.random()<.4?1:0);S.gems=(S.gems|0)+g;S.trN=(S.trN|0)+1;F.ev('trip');save();showBanner('🏆 TRIP DONE!<br><small>'+T.i+' '+T.n+' · +'+c+' 🪙 +'+g+' 💎</small>');speak('Trip complete! You are awesome!',1);snd(880,.15,'square',.05);setTimeout(()=>snd(1320,.3,'square',.05),150);}
+    else{showBanner('😢 Trip over<br><small>Try another trip board!</small>');speak('The trip is over. Try again!');}}
+  function trSpawn(kind,n,x,z){const out=[];for(let k=0;k<n;k++){const a=Math.random()*6.28,d=4+Math.random()*10;const b=spawnBot(kind==='robot'?robotKind():kind,{x:x+Math.cos(a)*d,z:z+Math.sin(a)*d});if(b){b.trip=1;out.push(b);}}return out;}
+  function trNext(){TR.i++;const T=TR.trip;if(TR.i>=T.st.length){trEnd(true);return;}const st=T.st[TR.i];TR.st=st;TR.amb=false;
+    if(st[0]==='go'||st[0]==='home'){const pt=st[0]==='home'?{x:BASE.x,z:BASE.z+8}:roadPoint(st[1],st[2]);TR.x=pt.x;TR.z=pt.z;TR.d0=Math.hypot(pt.x-P.x,pt.z-P.z);trBeam(pt.x,pt.z,st[0]==='home'?'#7dff8a':'#e040fb');F.gpsTo(pt.x,pt.z,true);F.tripT={x:pt.x,z:pt.z};
+      if(TR.i>0){showBanner(T.i+(st[0]==='home'?' Head back to HQ!':' Next stop!')+'<br><small>Follow the purple light</small>');speak(st[0]==='home'?'Now bring them back to H Q! Follow the green light!':'Next stop! Follow the purple light!');}}
+    else if(st[0]==='fight'||st[0]==='boss'){const x=TR.x,z=TR.z;TR.bots=st[0]==='boss'?trSpawn('boss',1,x,z):trSpawn(st[1],st[2]+Math.floor(LV()/4),x,z);if(!TR.bots.length){trNext();return;}
+      showBanner(st[0]==='boss'?'🦖 MONSTER!<br><small>Defeat it!</small>':'⚔️ FIGHT!<br><small>Beat them all!</small>');speak(st[0]==='boss'?'There is the monster! Take it down!':'Here they come! Beat them all!',1);snd(500,.4,'sawtooth',.05,200);}
+    else if(st[0]==='loot'){burst(TR.x,2,TR.z,40,'#ffd400');S.coins+=40;showBanner('💰 TREASURE! +40 🪙');trNext();}}
+  F.startTrip=function(){if(TR.on){trEnd(false);return;}const ok=TRIPS.filter(t=>LV()>=t.lv);const T=pick(ok);TR.on=true;TR.trip=T;TR.i=-1;showBanner(T.i+' '+T.n.toUpperCase()+'!<br><small>Grab a car and follow the purple light</small>');speak(T.say,1);trNext();};
+  function updTrip(dt){if(!TR.on)return;if(P.dead){trEnd(false);return;}const st=TR.st,T=TR.trip;const px=inCar?inCar.x:P.x,pz=inCar?inCar.z:P.z;
+    if(st[0]==='go'||st[0]==='home'){const d=Math.hypot(TR.x-px,TR.z-pz);
+      if(!TR.amb&&TR.d0>80&&d<TR.d0*.55&&Math.random()<.5){TR.amb=true;const a=Math.random()*6.28;trSpawn(Math.random()<.5?'zombie':'robot',3,px+Math.cos(a)*30,pz+Math.sin(a)*30);showBanner('⚠️ AMBUSH!');speak('Ambush! Fight or drive away fast!',1);}else if(!TR.amb&&d<TR.d0*.55)TR.amb=true;
+      if(d<11){burst(TR.x,2,TR.z,24,'#e040fb');snd(900,.15,'square',.05);trNext();}
+      if(XP.hud)XP.hud.textContent+=' · '+T.i+' '+Math.round(d)+'m';}
+    else if(st[0]==='fight'||st[0]==='boss'){TR.bots=TR.bots.filter(b=>bots.indexOf(b)>=0&&!b.friend);if(!TR.bots.length){showBanner('✅ Cleared!');trNext();return;}const b=TR.bots[0];F.tripT={x:b.x,z:b.z};if(TR.beam)TR.beam.position.set(b.x,20,b.z);
+      if(XP.hud)XP.hud.textContent+=' · '+T.i+' ⚔️ '+TR.bots.length+' left';}}
+  F.tripActive=()=>TR.on;
+  F.update=function(dt){updPeds(dt);updExplore(dt);updMore(dt);updTrip(dt);ammoHelp(dt);if((AMMO.blaster||0)<12&&S.gun==='blaster'){F.blT=(F.blT||0)+dt;if(F.blT>1.5){F.blT=0;AMMO.blaster=(AMMO.blaster||0)+1;}}updActs(dt);updArmy(dt);updNavy(dt);updJob(dt);updAttack(dt);updGameDay(dt);updShip(dt);updRamps(dt);updGps(dt);updProps(dt);updDistrict(dt);updTro(dt);updMusic();updPlane(dt);updRides();updHouses(dt);updPet(dt);updGP(dt);updSoccer(dt);updSea(dt);updSeason(dt);updHome(dt);updSpecial(dt);updSpots(dt);};
   F.icons=function(){$('mini').style.cursor='pointer';$('mini').addEventListener('click',()=>{audioInit();F.openMap();});const row=document.createElement('div');row.id='iconRow';const mk=(img,alt,fn)=>{const b=document.createElement('button');b.title=alt;b.innerHTML='<img src="/ui/'+img+'.png" alt="'+alt+'" onerror="this.parentNode.textContent=\''+alt+'\'">';b.onclick=()=>{audioInit();fn();};row.appendChild(b);};
-    mk('map','🗺',()=>F.openMap());mk('settings','⚙',()=>{openMenu();tab='set';renderMenu();});mk('trophy','🏆',()=>openBoard());mk('friends','👥',()=>openFriends());mk('shop','🛒',()=>openMenu());
+    mk('map','🗺',()=>F.openMap());try{row.children[0].classList.add('mapIco');}catch(e){}mk('settings','⚙',()=>{openMenu();tab='set';renderMenu();});mk('trophy','🏆',()=>openBoard());mk('friends','👥',()=>openFriends());mk('shop','🛒',()=>openMenu());
     const tb=document.createElement('button');tb.title='More';tb.style.cssText='width:52px;height:52px;border-radius:50%;border:3px solid #fff;background:linear-gradient(#90a4ae,#455a64);color:#fff;font:bold 26px system-ui;line-height:1;padding:0';tb.textContent='⋯';row.appendChild(tb);
     const tray=document.createElement('div');tray.id='tray';document.body.appendChild(tray);tb.onclick=()=>{audioInit();tray.style.display=tray.style.display==='flex'?'none':'flex';};tray.addEventListener('click',()=>setTimeout(()=>{tray.style.display='none';},150));
     ['chatBtn'].forEach(id=>{const b=$(id);if(b){b.textContent='💬 Talk to friends';tray.appendChild(b);}});
@@ -2211,6 +2368,7 @@ function update(dt){
   if(mission&&mission.type==='defend'){want+=3;zwant+=3;}else if(atHQ){want=Math.min(want,3);zwant=Math.min(zwant,3);}
   {const rp=RAMP();want=Math.max(2,Math.round(want*(.5+.5*rp)));zwant=Math.max(2,Math.round(zwant*(.45+.55*rp)));}
   if(AQ>=3){want=Math.ceil(want*.65);zwant=Math.ceil(zwant*.55);}
+  if(!mission&&stars<2&&!atHQ){if(WAVE.fight){want=Math.ceil(want*1.35)+1;zwant=Math.ceil(zwant*1.25)+1;}else{want=Math.max(1,Math.ceil(want*.4));zwant=Math.max(1,Math.ceil(zwant*.35));}}
   if(inCar&&inCar.kind==='tank'){want=Math.ceil(want*1.7)+2;zwant=Math.ceil(zwant*1.3)+2;}
   let nR=0,nZ=0;for(const b of bots){if(b.friend||b.boss)continue;if(b.zombie)nZ++;else nR++;}
   if(nR<want&&Math.random()<dt*1.5)spawnBot(robotKind());
