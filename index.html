@@ -213,12 +213,9 @@ const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 
 // ---------- renderer ----------
 const HIGH=S.gfx!=='low';
-// gentle "curvy city" bend: the game logic uses a grid, the screen shows winding streets
-const WA=11,WX=(x,z)=>x+WA*Math.sin(z/38+.7),WZ=(x,z)=>z+WA*Math.sin(x/41+1.9);
-try{THREE.ShaderChunk.common+='\nvec2 warpOff(vec2 p){return vec2(11.0*sin(p.y/38.0+0.7),11.0*sin(p.x/41.0+1.9));}\n';
-  THREE.ShaderChunk.project_vertex='vec4 mvPosition = vec4( transformed, 1.0 );\n#ifdef USE_INSTANCING\n\tmvPosition = instanceMatrix * mvPosition;\n#endif\nvec4 wwP = modelMatrix * mvPosition;\nwwP.xz += warpOff(wwP.xz);\nmvPosition = viewMatrix * wwP;\ngl_Position = projectionMatrix * mvPosition;\n';
-  THREE.ShaderChunk.worldpos_vertex='#if defined( USE_ENVMAP ) || defined( DISTANCE ) || defined ( USE_SHADOWMAP )\n\tvec4 worldPosition = vec4( transformed, 1.0 );\n\t#ifdef USE_INSTANCING\n\t\tworldPosition = instanceMatrix * worldPosition;\n\t#endif\n\tworldPosition = modelMatrix * worldPosition;\n\tworldPosition.xz += warpOff(worldPosition.xz);\n#endif\n';
-  THREE.ShaderLib.sprite.vertexShader=THREE.ShaderLib.sprite.vertexShader.replace('vec4 mvPosition = modelViewMatrix * vec4( 0.0, 0.0, 0.0, 1.0 );','vec4 spW = modelMatrix * vec4( 0.0, 0.0, 0.0, 1.0 );\n\tspW.xz += warpOff(spW.xz);\n\tvec4 mvPosition = viewMatrix * spW;');}catch(e){}
+// curvy outskirts: downtown stays a straight grid, the edges of town get winding roads
+const WB={x:0,z:0};const wAmp=(x,z)=>{const d=Math.hypot(x-WB.x,z-WB.z);return 12*Math.max(0,Math.min(1,(d-140)/90));};
+const WX=(x,z)=>x+wAmp(x,z)*Math.sin(z/38+.7),WZ=(x,z)=>z+wAmp(x,z)*Math.sin(x/41+1.9);
 const R=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
 R.setPixelRatio(Math.min(window.devicePixelRatio||1,HIGH?2:1));
 R.outputEncoding=THREE.sRGBEncoding;R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=1.0;
@@ -347,7 +344,12 @@ function addSeg(ax,az,bx,bz,w){const sg={ax,az,bx,bz,w:w||6.3};SEGS.push(sg);for
 function onSeg(x,z){const a=SEGG.get(Math.floor(x/SGS)*10000+Math.floor(z/SGS));if(!a)return false;for(const g of a){const dx=g.bx-g.ax,dz=g.bz-g.az,l2=dx*dx+dz*dz||1;let t=((x-g.ax)*dx+(z-g.az)*dz)/l2;t=t<0?0:t>1?1:t;const px=g.ax+dx*t-x,pz=g.az+dz*t-z;if(px*px+pz*pz<g.w*g.w)return true;}return false;}
 function isLand(x,z){return isGridLand(x,z)||onSeg(x,z);}
 function landOK(x,z,r){return isLand(x-r,z-r)&&isLand(x+r,z-r)&&isLand(x-r,z+r)&&isLand(x+r,z+r);}
-const BASE=cellC(HQI,HQI);
+const BASE=cellC(HQI,HQI);WB.x=BASE.x;WB.z=BASE.z;
+try{const bx=BASE.x.toFixed(1),bz=BASE.z.toFixed(1);
+  THREE.ShaderChunk.common+='\nvec2 warpOff(vec2 p){float d=length(p-vec2('+bx+','+bz+'));float a=12.0*clamp((d-140.0)/90.0,0.0,1.0);return vec2(a*sin(p.y/38.0+0.7),a*sin(p.x/41.0+1.9));}\n';
+  THREE.ShaderChunk.project_vertex='vec4 mvPosition = vec4( transformed, 1.0 );\n#ifdef USE_INSTANCING\n\tmvPosition = instanceMatrix * mvPosition;\n#endif\nvec4 wwP = modelMatrix * mvPosition;\nwwP.xz += warpOff(wwP.xz);\nmvPosition = viewMatrix * wwP;\ngl_Position = projectionMatrix * mvPosition;\n';
+  THREE.ShaderChunk.worldpos_vertex='#if defined( USE_ENVMAP ) || defined( DISTANCE ) || defined ( USE_SHADOWMAP )\n\tvec4 worldPosition = vec4( transformed, 1.0 );\n\t#ifdef USE_INSTANCING\n\t\tworldPosition = instanceMatrix * worldPosition;\n\t#endif\n\tworldPosition = modelMatrix * worldPosition;\n\tworldPosition.xz += warpOff(worldPosition.xz);\n#endif\n';
+  THREE.ShaderLib.sprite.vertexShader=THREE.ShaderLib.sprite.vertexShader.replace('vec4 mvPosition = modelViewMatrix * vec4( 0.0, 0.0, 0.0, 1.0 );','vec4 spW = modelMatrix * vec4( 0.0, 0.0, 0.0, 1.0 );\n\tspW.xz += warpOff(spW.xz);\n\tvec4 mvPosition = viewMatrix * spW;');}catch(e){}
 // sea
 const waterN=(function(){const S=256,c=document.createElement('canvas');c.width=c.height=S;const x=c.getContext('2d');const hg=new Float32Array(S*S);
   for(let k=0;k<7;k++){const fx=1+Math.floor(Math.random()*7),fy=1+Math.floor(Math.random()*7),ph=Math.random()*6.283,amp=1/(k+1);for(let j=0;j<S;j++)for(let i=0;i<S;i++)hg[j*S+i]+=amp*Math.sin((i*fx+j*fy*(k%2?1:-1))/S*6.283+ph);}
