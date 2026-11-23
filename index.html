@@ -453,6 +453,7 @@ const DIFF={easy:{name:'Easy',z:6,base:5,per:2.1,cd:[2.3,3.4],dmg:10.5,spd:16.5,
 const D=()=>DIFF[S.diff]||DIFF.easy;
 if(S.xp===undefined)S.xp=(S.done||0)*10;
 const LV=()=>1+Math.floor((S.xp||0)/20);
+const RAMP=()=>Math.min(1,Math.max(0,(LV()-1)/7)); // 0 at level 1 → 1 at level 8
 
 let seed=1337;function srand(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}
 const rnd=(a,b)=>a+Math.random()*(b-a),pick=a=>a[Math.floor(Math.random()*a.length)],spick=a=>a[Math.floor(srand()*a.length)];
@@ -1381,7 +1382,7 @@ function vehBoom(v){const isH=v===heli,x=v.x,y=isH?v.y+1.5:1,z=v.z;const inside=
 function updBurning(dt){[heli].concat(cars).forEach(v=>{if(!v.burning)return;v.burnT-=dt;const inside=v===heli?inHeli:inCar===v;
   if(inside){v.beep=(v.beep||0)-dt;if(v.beep<=0){v.beep=v.burnT<2?.2:.45;snd(1200,.08,'square',.05);}}
   if(v.burnT<=0)vehBoom(v);});}
-function hurt(dmg,fx,fz){if(P.dead||(P.shieldT||0)>0||(P.downT||0)>0)return;dmg*=1+.3*nightAmt;
+function hurt(dmg,fx,fz){if(P.dead||(P.shieldT||0)>0||(P.downT||0)>0)return;dmg*=1+.3*nightAmt;dmg*=.55+.45*RAMP();
   if(inHeli){vehDamage(heli,dmg*.3,fx,fz);return;}
   if(inCar){vehDamage(inCar,dmg*.8,fx,fz);return;}
   if(P.ap>0){const a=Math.min(P.ap,dmg*.85);P.ap-=a;dmg-=a;}
@@ -1546,7 +1547,7 @@ const WEV=(function(){
         if(!P.dead&&Math.abs(P.y-st.y)<2.6&&Math.hypot(st.x-P.x,st.z-P.z)<2.3){scene.remove(st.g);statues.splice(i,1);S.statues=(S.statues||0)+1;FUN.ev('statue');S.coins+=25;save();burst(st.x,st.y+1.5,st.z,30,'#ffd400');
           const unlock=Object.keys(HATS).find(h=>HATS[h].u===S.statues);showBanner('🗿 GOLDEN STATUE! ('+S.statues+')'+(unlock?'<br><small>NEW HAT UNLOCKED: '+HATS[unlock].n+'!</small>':''));speak(unlock?'You found a golden statue, and unlocked a new hat! Check the shop!':'You found a secret golden statue!');snd(988,.15,'square',.06);setTimeout(()=>snd(1318,.35,'square',.06),150);}}
       // events
-      if(!EV.active){EV.next-=dt;if(EV.next<=0&&started&&!P.dead&&!(mission&&mission.type==='boss'))startEvent();}
+      if(!EV.active){EV.next-=dt;if(EV.next<=0&&started&&!P.dead&&!(mission&&mission.type==='boss')){if(LV()<3)EV.next=60;else startEvent();}}
       else{const A=EV.active;A.time-=dt;
         if(A.t==='ufo'&&ufo){const dx=P.x-ufo.x,dz=P.z-ufo.z,d=Math.hypot(dx,dz)||1;const want=d>22?1:-.3;ufo.x+=dx/d*ufo.sp*dt*want;ufo.z+=dz/d*ufo.sp*dt*want;ufo.y=30+Math.sin(time*1.3)*1.5;ufo.g.position.set(ufo.x,ufo.y,ufo.z);ufo.g.rotation.y+=dt*1.2;
           ufo.lights.forEach((l,i)=>l.visible=Math.sin(time*8+i)>0);ufo.cool-=dt;if(ufo.cool<=0&&d<55&&!P.dead){ufo.cool=1.1;const ty=inHeli?P.y+1.2:P.y+1.2;fireBolt(ufo.x,ufo.y-2,ufo.z,P.x-ufo.x,ty-(ufo.y-2),P.z-ufo.z,'e',24,{col:'#7dff8a',big:true});snd(1400,.15,'sawtooth',.04,300);}
@@ -1784,7 +1785,7 @@ const FUN=(function(){
   F.blastShip=function(x,z,r,d){if(SHIP.on&&Math.hypot(x-SHIP.x,z-SHIP.z)<r+20){SHIP.hp-=d;if(SHIP.hp<=0)shipDown();}};
   function shipDown(){SHIP.on=false;SHIP.cd=600;for(let k=0;k<8;k++)setTimeout(()=>{burst(SHIP.x+rnd(-5,5),4,SHIP.z+rnd(-20,20),40,'#ff8a1f');snd(50,.6,'sawtooth',.12,25);},k*220);S.coins+=300;S.gems=(S.gems|0)+3;F.ev('ship');save();showBanner('🚢 BATTLESHIP DEFEATED!<br><small>+300 🪙 · +3 💎</small>');speak('You sank the robot battleship! Three hundred coins and three gems!');}
   function updShip(dt){if(!SHIP.g)return;SHIP.cd-=dt;const d=Math.hypot(P.x-SHIP.x,P.z-SHIP.z);
-    if(!SHIP.on){if(SHIP.cd<=0&&d<130&&!P.dead&&started){SHIP.on=true;SHIP.max=SHIP.hp=260+LV()*30;showBanner('🚢 ROBOT BATTLESHIP!<br><small>Blast it from a boat, the chopper or the shore!</small>');speak('Alert! A robot battleship is attacking! Blast it!');snd(220,1,'sawtooth',.08,110);}return;}
+    if(!SHIP.on){if(SHIP.cd<=0&&d<130&&!P.dead&&started&&LV()>=4){SHIP.on=true;SHIP.max=SHIP.hp=260+LV()*30;showBanner('🚢 ROBOT BATTLESHIP!<br><small>Blast it from a boat, the chopper or the shore!</small>');speak('Alert! A robot battleship is attacking! Blast it!');snd(220,1,'sawtooth',.08,110);}return;}
     if(d>220){SHIP.on=false;SHIP.cd=60;return;}SHIP.fire-=dt;const v=new THREE.Vector3();SHIP.tur.forEach(t=>{t.lookAt(P.x,P.y+1,P.z);});if(SHIP.fire<=0&&d<110&&!P.dead){SHIP.fire=1.3;const t=pick(SHIP.tur);shipWorld(t,v);fireBolt(v.x,v.y+.5,v.z,P.x-v.x,P.y+1.2-v.y,P.z-v.z,'e',30,{col:'#ff5252',big:true});snd(160,.25,'sawtooth',.05,60);}
     if(Math.random()<dt*2)burst(SHIP.x+rnd(-4,4),9,SHIP.z+rnd(-15,15),2,'#ff1744');}
   F.shipBar=()=>SHIP.on?SHIP:null;
@@ -1860,7 +1861,7 @@ const FUN=(function(){
   function updAttack(dt){if(atk){atk.t-=dt;const alive=atk.bots.filter(b=>bots.indexOf(b)>=0&&!b.friend);jEl.style.display=JOB?jEl.style.display:'block';if(!JOB)jEl.textContent='🚨 Save your '+atk.r.P0.n+'! '+alive.length+' robots · ⏰ '+Math.ceil(atk.t)+'s';
       if(!alive.length){const b=incOf(atk.r.P0)*3;S.coins+=b;save();showBanner('🛡 YOU SAVED YOUR '+atk.r.P0.n.toUpperCase()+'!<br><small>+'+b+' 🪙</small>');speak('You saved your '+atk.r.P0.n+'!');atk=null;if(!JOB)jEl.style.display='none';F.gpsOff();}
       else if(atk.t<=0){S.props[atk.r.P0.k].t=Date.now();save();showBanner('😢 Robots took the coins<br><small>from your '+atk.r.P0.n+'</small>');speak('Oh no! The robots took the coins from your '+atk.r.P0.n);atk=null;if(!JOB)jEl.style.display='none';F.gpsOff();}return;}
-    atkT-=dt;if(atkT>0||!started||P.dead||JOB)return;atkT=360+Math.random()*240;const owned=PRS.filter(r=>S.props&&S.props[r.P0.k]);if(!owned.length)return;const r=pick(owned);const bs=[];for(let k=0;k<5;k++){const b=spawnBot(robotKind(),{x:r.x+rnd(-6,6),z:r.z+rnd(-8,2)});if(b)bs.push(b);}if(!bs.length)return;
+    atkT-=dt;if(atkT>0||!started||P.dead||JOB||LV()<3)return;atkT=360+Math.random()*240;const owned=PRS.filter(r=>S.props&&S.props[r.P0.k]);if(!owned.length)return;const r=pick(owned);const bs=[];for(let k=0;k<5;k++){const b=spawnBot(robotKind(),{x:r.x+rnd(-6,6),z:r.z+rnd(-8,2)});if(b)bs.push(b);}if(!bs.length)return;
     atk={r,bots:bs,t:120};F.gpsTo(r.x,r.z,true);showBanner('🚨 ROBOTS ATTACKING YOUR '+r.P0.n.toUpperCase()+'!');speak('Robots are attacking your '+r.P0.n+'! Follow the blue line and stop them!');snd(600,.6,'sawtooth',.06,300);}
   // ---------- 🏈 game day at the stadium ----------
   let GD=null,gdCD=60,fans=null;function updGameDay(dt){if(!SC.L)return;const d=Math.hypot(P.x-SC.L.x,P.z-SC.L.z);
@@ -2136,6 +2137,7 @@ function update(dt){
   const L=LV();let want=Math.round(DF.base+stars*DF.per+Math.min(3,(L-1)*.5));if(mission&&mission.type==='bots')want=Math.max(want,DF.base+3);if(mission&&mission.type==='deliver')want=Math.max(want,DF.base+1);
   want+=Math.round(2*nightAmt);let zwant=Math.min(12,DF.z+Math.floor((L-1)/2))+Math.round(5*nightAmt);if(mission&&mission.type==='zombies')zwant+=6;
   if(mission&&mission.type==='defend'){want+=3;zwant+=3;}else if(atHQ){want=Math.min(want,3);zwant=Math.min(zwant,3);}
+  {const rp=RAMP();want=Math.max(2,Math.round(want*(.5+.5*rp)));zwant=Math.max(2,Math.round(zwant*(.45+.55*rp)));}
   if(AQ>=3){want=Math.ceil(want*.65);zwant=Math.ceil(zwant*.55);}
   if(inCar&&inCar.kind==='tank'){want=Math.ceil(want*1.7)+2;zwant=Math.ceil(zwant*1.3)+2;}
   let nR=0,nZ=0;for(const b of bots){if(b.friend||b.boss)continue;if(b.zombie)nZ++;else nR++;}
