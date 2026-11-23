@@ -253,7 +253,7 @@ window.__bcbErr=[];(function(){const ce=console.error;console.error=function(...
   let resolveNet;window.BCB_NET=new Promise(r=>resolveNet=r);
   const show=h=>{box.innerHTML=h;};
   const adminBtn='<button class="gb gray" id="toAdmin">👑 Grown-ups</button>';
-  if(!window.supabase){show('<div class="big">📶</div><h1>Need internet</h1><button class="gb" onclick="location.reload()">Try again</button>');return;}
+  if(!window.supabase){if(localStorage.getItem('bcb_ok')==='1'){gate.style.display='none';return;}show('<div class="big">📶</div><h1>Need internet</h1><button class="gb" onclick="location.reload()">Try again</button>');return;}
   const sb=window.supabase.createClient(URL_,KEY);
   let me=null,pollT=null;
   async function freshUser(){let{data:{session}}=await sb.auth.getSession();if(session){const u=await sb.auth.getUser();if(u.error||!u.data||!u.data.user){try{await sb.auth.signOut({scope:'local'});}catch(e){}session=null;}}
@@ -262,8 +262,8 @@ window.__bcbErr=[];(function(){const ce=console.error;console.error=function(...
   async function myRow(){const{data}=await sb.from('players').select(COLS).eq('id',me).maybeSingle();return data;}
   async function start(){show('<div class="big">⏳</div><h1>Loading…</h1>');
     try{let{data:{session}}=await sb.auth.getSession();if(!session)return ask();const u=await sb.auth.getUser();if(u.error||!u.data||!u.data.user){try{await sb.auth.signOut({scope:'local'});}catch(e){}return ask();}me=session.user.id;const r=await myRow();
-      if(!r)return ask();if(r.status==='pending')return wait();if(r.status==='denied')return denied();return open(r);}
-    catch(e){show('<div class="big">📶</div><h1>Can\'t connect</h1><button class="gb" onclick="location.reload()">Try again</button>'+adminBtn);hook();}}
+      if(!r||r.status!=='approved')localStorage.removeItem('bcb_ok');if(!r)return ask();if(r.status==='pending')return wait();if(r.status==='denied')return denied();localStorage.setItem('bcb_ok','1');return open(r);}
+    catch(e){if(localStorage.getItem('bcb_ok')==='1'){gate.style.display='none';say('No internet. You can still play by yourself!');return;}show('<div class="big">📶</div><h1>Can\'t connect</h1><button class="gb" onclick="location.reload()">Try again</button>'+adminBtn);hook();}}
   function ask(){let pic=PICS[0];let saved='';try{saved=(JSON.parse(localStorage.getItem('bcb_save1'))||{}).name||'';}catch(e){}
     show('<div class="big">🎮</div><h1>Ask to play!</h1><div>Pick your picture</div><div class="pics">'+PICS.map((p,i)=>'<button data-p="'+p+'" class="'+(i?'':'on')+'">'+p+'</button>').join('')+'</div>'+
       '<input id="gnick" maxlength="16" placeholder="Your name" value="'+esc(saved)+'"><input id="ggrown" maxlength="30" placeholder="Your grown-up\'s name (optional)"><div style="font-size:14px;opacity:.9">After you ask, you get a secret number. Give it to your grown-up so they can say yes.</div><div class="msg" id="gmsg"></div><button class="gb" id="gask">🙋 ASK TO PLAY</button><br><button class="gb gray" id="gold">🔑 I already play (new device)</button>'+adminBtn);hook();document.getElementById('gold').onclick=claimScreen;
@@ -296,7 +296,7 @@ window.__bcbErr=[];(function(){const ce=console.error;console.error=function(...
         setTimeout(()=>{const mm=document.getElementById('cmsg');if(mm)mm.textContent=data==='locked'?'Too many tries. Wait 15 minutes or ask your grown-up.':'That didn\'t match. Try again!';const ci=document.getElementById('cnick');if(ci)ci.value=nk;},0);}
       catch(e){m.textContent='Oops ('+(e.message||e)+')';}});}
   function denied(){show('<div class="big">🚫</div><h1>Not allowed</h1><div>Ask your grown-up for help.</div><br>'+adminBtn);hook();}
-  async function open(r){gate.style.display='none';showAdminLink();window.BCB_DIAG=info=>{try{sb.from('diag').insert({info}).then(()=>{},()=>{});}catch(e){}};
+  async function open(r){try{localStorage.setItem('bcb_ok','1');}catch(e){}gate.style.display='none';showAdminLink();window.BCB_DIAG=info=>{try{sb.from('diag').insert({info}).then(()=>{},()=>{});}catch(e){}};
     try{const{data}=await sb.from('settings').select('chat,voice').eq('id',1).maybeSingle();window.BCB_CHAT_OFF=data&&data.chat===false;VOICE.allowed=!(data&&data.voice===false)&&r.voice!==false;}catch(e){}
     try{const s=JSON.parse(localStorage.getItem('bcb_save1'))||{};if(s.name!==r.nick){s.name=r.nick;localStorage.setItem('bcb_save1',JSON.stringify(s));}}catch(e){}
     setInterval(async()=>{try{const x=await myRow();if(!x||x.status!=='approved')location.reload();const{data:st}=await sb.from('settings').select('voice').eq('id',1).maybeSingle();VOICE.setAllowed(x.voice!==false&&!(st&&st.voice===false));}catch(e){}},30000);
