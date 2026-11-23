@@ -217,6 +217,7 @@ kbd{background:#fff;color:#222;border-radius:5px;padding:1px 6px;border-bottom:3
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
+#view{background:#0b1638}
 #gate{position:fixed;inset:0;z-index:99;background:radial-gradient(circle at 50% 30%,#2a5fd8,#0b1638);color:#fff;font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;overflow:auto}
 #gate .gbox{background:rgba(0,0,0,.35);border:3px solid #fff;border-radius:22px;padding:18px;max-width:560px;width:92%;text-align:center}
 #gate h1{margin:4px 0 10px;font-size:28px}#gate .big{font-size:60px;line-height:1.1}
@@ -1358,7 +1359,7 @@ const WEV=(function(){
   const rain=new THREE.LineSegments(rg,rainM);rain.frustumCulled=false;rain.visible=false;scene.add(rain);
   const flashEl=document.createElement('div');flashEl.style.cssText='position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:3;transition:opacity .25s';document.body.appendChild(flashEl);
   const gray=new THREE.Color(),c2=new THREE.Color();
-  function setWeather(tp){W.type=tp;W.t=tp==='clear'?160+Math.random()*160:70+Math.random()*80;W.tw=tp==='rain'?.55:tp==='storm'?.85:tp==='fog'?.35:0;W.tr=tp==='rain'||tp==='storm'?1:0;W.tf=tp==='fog'?1:0;W.ts=tp==='storm'?1:0;
+  function setWeather(tp){W.type=tp;W.t=tp==='clear'?160+Math.random()*160:70+Math.random()*80;W.tw=tp==='rain'?.45:tp==='storm'?.7:tp==='fog'?.2:0;W.tr=tp==='rain'||tp==='storm'?1:0;W.tf=tp==='fog'?1:0;W.ts=tp==='storm'?1:0;
     const msg={rain:['🌧 RAIN!','It is starting to rain! The roads are slippery!'],storm:['⛈ THUNDERSTORM!','Thunderstorm! Watch out for lightning!'],fog:['🌫 FOG!','Foggy! It is hard to see, be careful!'],clear:['☀️ CLEAR SKIES','The sun is back!']}[tp];
     if(started){showBanner(msg[0]);speak(msg[1]);}}
   function rainSound(on){if(!AC)return;try{if(on&&!W.snd){const len=AC.sampleRate*2,buf=AC.createBuffer(1,len,AC.sampleRate),d=buf.getChannelData(0);for(let i=0;i<len;i++)d[i]=Math.random()*2-1;
@@ -1400,7 +1401,7 @@ const WEV=(function(){
       W.t-=dt;if(W.t<=0){const r=Math.random();setWeather(W.type!=='clear'?'clear':r<.45?'rain':r<.7?'storm':'fog');}
       const k=Math.min(1,dt*.25);W.wf+=(W.tw-W.wf)*k;W.rain+=(W.tr-W.rain)*k;W.fog+=(W.tf-W.fog)*k;W.storm+=(W.ts-W.storm)*k;
       const u=skyMat.uniforms;gray.setRGB(.32,.35,.4);u.top.value.lerp(gray,W.wf*.75);c2.setRGB(.5,.53,.57);u.hor.value.lerp(c2,W.wf*.7);scene.fog.color.copy(u.hor.value);
-      sun.intensity*=1-.65*W.wf;hemi.intensity*=1+.4*W.wf;R.toneMappingExposure*=1-.12*W.wf;scene.fog.near=80-40*W.fog-15*W.rain;scene.fog.far=(AQ>=2?330:380)-170*W.fog-80*W.rain;
+      sun.intensity*=1-.65*W.wf;hemi.intensity*=1+.4*W.wf;R.toneMappingExposure*=1-.12*W.wf;scene.fog.near=80-30*W.fog-10*W.rain;scene.fog.far=(AQ>=2?330:380)-110*W.fog-60*W.rain;if(W.fog>.01){c2.setRGB(.42,.47,.55);scene.fog.color.lerp(c2,W.fog*.6);}
       roadMat.roughness=.92-.6*W.rain;roadMat.metalness=.25*W.rain;
       rain.visible=W.rain>.02;if(rain.visible){rg.setDrawRange(0,AQ>=2?rainN:rainN*2);rainM.opacity=.55*W.rain;const cx=cam.position.x,cz=cam.position.z,cy=cam.position.y;rain.position.set(cx,Math.max(0,cy-20),cz);
         for(let i=0;i<rainN;i++){let y=rainPos[i*6+1]-dt*38;if(y<0)y+=40;rainPos[i*6+1]=y;rainPos[i*6+4]=y-.9;}rg.attributes.position.needsUpdate=true;}
