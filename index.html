@@ -288,8 +288,8 @@ window.__bcbErr=[];(function(){const ce=console.error;console.error=function(...
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 #view{background:#0b1638}
-#gate{position:fixed;inset:0;z-index:99;background:radial-gradient(circle at 50% 30%,#2a5fd8,#0b1638);color:#fff;font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;overflow:auto}
-#gate .gbox{background:rgba(0,0,0,.35);border:3px solid #fff;border-radius:22px;padding:18px;max-width:560px;width:92%;text-align:center}
+#gate{position:fixed;inset:0;z-index:99;background:radial-gradient(circle at 50% 30%,#2a5fd8,#0b1638);color:#fff;font-family:system-ui,sans-serif;display:flex;align-items:flex-start;justify-content:center;overflow:auto;-webkit-overflow-scrolling:touch}
+#gate .gbox{margin:auto;background:rgba(0,0,0,.35);border:3px solid #fff;border-radius:22px;padding:18px;max-width:560px;width:92%;text-align:center}
 #gate h1{margin:4px 0 10px;font-size:28px}#gate .big{font-size:60px;line-height:1.1}
 #gate .pics{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:10px 0}
 #gate .pics button{font-size:34px;height:58px;border-radius:14px;border:3px solid transparent;background:#ffffff22;color:#fff}
