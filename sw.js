@@ -1,6 +1,6 @@
 // Block City Blasters service worker: always try the newest game first, fall back to the saved copy when offline
-const C='bcb-v1';
-self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(C).then(c=>c.addAll(['/','/icon-192.png','/icon-512.png','/manifest.webmanifest'])).catch(()=>{}));});
+const C='bcb-v2';
+self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(C).then(c=>c.addAll(['/','/logo.jpg','/icon-192.png','/icon-512.png','/manifest.webmanifest'])).catch(()=>{}));});
 self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));
 self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;const u=new URL(r.url);
   if(r.mode==='navigate'){e.respondWith(fetch(r).then(res=>{const cp=res.clone();caches.open(C).then(c=>c.put('/',cp));return res;}).catch(()=>caches.match('/')));return;}
