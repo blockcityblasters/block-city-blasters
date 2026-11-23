@@ -1380,7 +1380,8 @@ function dailyPrize(){const day=new Date().toDateString();if(S.lastDay===day)ret
     '</div><div style="font-size:20px">Day '+S.streak+': <b>+'+c+' coins!</b><br><small>Come back tomorrow for more!</small></div><button style="margin-top:12px;font:bold 22px system-ui;padding:10px 30px;border-radius:14px;border:0;background:#5cff7a;color:#0b3a17">Yay!</button></div>';
   document.body.appendChild(d);const close=()=>d.remove();d.querySelector('button').onclick=close;setTimeout(close,7000);
   speak('Daily prize! Day '+S.streak+'! '+c+' coins! Come back tomorrow for more!');snd(784,.15,'square',.06);setTimeout(()=>snd(1046,.3,'square',.06),160);}
-$('playBtn').addEventListener('click',()=>{audioInit();setTimeout(dailyPrize,1800);speak('Let\'s go! Walk into a glowing circle to start a mission!');started=true;$('start').classList.add('hidden');paused=false;try{const fs=document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();if(fs&&fs.catch)fs.catch(()=>{});}catch(e){}});
+let sessionCP=false;
+$('playBtn').addEventListener('click',()=>{audioInit();setTimeout(dailyPrize,1800);if(!sessionCP){sessionCP=true;S.cpxp=S.xp||0;S.cpdone=S.done||0;save();}speak('Let\'s go! Walk into a glowing circle to start a mission!');started=true;$('start').classList.add('hidden');paused=false;try{const fs=document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();if(fs&&fs.catch)fs.catch(()=>{});}catch(e){}});
 $('shopBtn2').addEventListener('click',()=>{audioInit();$('start').classList.add('hidden');openMenu();});
 $('helpBtn').addEventListener('click',()=>{$('start').classList.add('hidden');openHelp();});
 
