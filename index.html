@@ -285,9 +285,9 @@ function facade(style,lit){const ec=document.createElement('canvas');ec.width=ec
   else if(style===3){x.fillStyle='#ececea';x.fillRect(0,0,w,h);speckle(x,w,h,3000,.08);
     for(let i=0;i<4;i++)for(let j=0;j<4;j++){win(i*64+18,j*64+6,26,52);}x.fillStyle='#9ea3a8';for(let i=0;i<4;i++)x.fillRect(i*64+4,0,6,h);}
   else{x.fillStyle='#454c55';x.fillRect(0,0,w,h);for(let i=0;i<8;i++)for(let j=0;j<4;j++)win(i*32+4,j*64+10,24,40);x.fillStyle='#2e333a';for(let j=0;j<4;j++)x.fillRect(0,j*64,w,6);}
-},[1/12,1/12]);const et=new THREE.CanvasTexture(ec);et.wrapS=et.wrapT=THREE.RepeatWrapping;et.encoding=THREE.sRGBEncoding;et.repeat.set(1/12,1/12);tt.userData.em=et;return tt;}
+},[1/12,1/12]);const et=new THREE.CanvasTexture(ec);et.wrapS=et.wrapT=THREE.RepeatWrapping;et.encoding=THREE.sRGBEncoding;et.repeat.set(1/12,1/12);tt.emTex=et;return tt;}
 const FAC=[0,1,2,3,4].map(s=>[facade(s,.12),facade(s,.25)]);
-const facMats=FAC.map((p,s)=>p.map(t=>new THREE.MeshStandardMaterial({map:t,roughness:s===1?.15:.85,metalness:s===1?.55:0,emissiveMap:t.userData.em,emissive:new THREE.Color(1,1,1),emissiveIntensity:0})));
+const facMats=FAC.map((p,s)=>p.map(t=>new THREE.MeshStandardMaterial({map:t,roughness:s===1?.15:.85,metalness:s===1?.55:0,emissiveMap:t.emTex,emissive:new THREE.Color(1,1,1),emissiveIntensity:0})));
 let LITMATS=null;
 const roofMat=new THREE.MeshStandardMaterial({map:roofT,roughness:.95});
 [roofT].forEach(t=>t.repeat.set(1/8,1/8));
