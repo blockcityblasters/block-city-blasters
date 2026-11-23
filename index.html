@@ -210,6 +210,9 @@ kbd{background:#fff;color:#222;border-radius:5px;padding:1px 6px;border-bottom:3
 #gate .row .p{font-size:30px}#gate .row .n{flex:1;font-weight:bold}#gate .row small{display:block;font-weight:normal;opacity:.8}
 #gate .row button{font-size:20px;border:0;border-radius:10px;padding:8px 10px;background:#ffffff33;color:#fff}
 #gate .msg{min-height:20px;color:#ffd400;font-weight:bold}
+#gate .pad{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:8px 0}#gate .pad button{font-size:30px;height:54px;border-radius:12px;border:0;background:#ffffff22}
+#gate .dots{font-size:34px;min-height:44px;letter-spacing:6px}#gate .req{font-size:54px;font-weight:900;color:#ffd400;letter-spacing:4px}
+#gate .edit{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:4px 0 8px}#gate .edit input{width:auto;flex:1;font-size:16px;margin:0}
 #adminLink{position:fixed;left:10px;bottom:10px;z-index:100;font-size:13px;padding:6px 10px;border-radius:10px;border:0;background:#0006;color:#fff}
 </style>
 <div id="gate" style="display:none"><div class="gbox" id="gbox"></div></div>
@@ -217,7 +220,11 @@ kbd{background:#fff;color:#222;border-radius:5px;padding:1px 6px;border-bottom:3
 (function(){
   if(window.claude&&typeof window.claude.use==='function')return; // Claude link stays private to the owner
   const URL_='https://tvwycgcbtlyecttiwkkc.supabase.co',KEY='sb_publishable_graJacq0mfQERnaofQ0PKA_rgZQR35K',TOPIC='bcb-family';
-  const PICS=['🦖','🦈','🦁','🐯','🐺','🦊','🐸','🐵','🦅','🐉','🤖','👽'];
+  const PICS=['🦖','🦈','🦁','🐯','🐺','🦊','🐸','🐵','🦅','🐉','🤖','👽'];const PINP=['🍎','🚗','⭐','🐶','⚽','🍕','🚀','🌈','🎈','🐱'];const COLS='id,nick,pic,status,created_at,req_no,device,grownup,has_pin';
+  const devName=()=>{const u=navigator.userAgent;return /iPad/.test(u)||(/Macintosh/.test(u)&&navigator.maxTouchPoints>1)?'iPad':/iPhone/.test(u)?'iPhone':/Android/.test(u)?(/Mobile/.test(u)?'Android phone':'Android tablet'):/CrOS/.test(u)?'Chromebook':/Windows/.test(u)?'Windows computer':/Mac/.test(u)?'Mac computer':'Other device';};
+  function pinPad(el,onDone){let pin='';const draw=()=>{el.querySelector('.dots').textContent=pin.split('').map(d=>PINP[d]).join(' ')||'· · · ·';};
+    el.innerHTML='<div class="dots"></div><div class="pad">'+PINP.map((p,i)=>'<button data-d="'+i+'">'+p+'</button>').join('')+'</div><button class="gb gray" data-clr>↺ Start over</button>';draw();
+    el.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{if(pin.length>=4)return;pin+=b.dataset.d;draw();if(pin.length===4)onDone(pin);});el.querySelector('[data-clr]').onclick=()=>{pin='';draw();};}
   const gate=document.getElementById('gate'),box=document.getElementById('gbox');gate.style.display='flex';
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const say=t=>{try{const u=new SpeechSynthesisUtterance(t);speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}};
@@ -228,22 +235,31 @@ kbd{background:#fff;color:#222;border-radius:5px;padding:1px 6px;border-bottom:3
   const sb=window.supabase.createClient(URL_,KEY);
   let me=null,pollT=null;
   function hook(){const a=document.getElementById('toAdmin');if(a)a.onclick=admin;}
-  async function myRow(){const{data}=await sb.from('players').select('*').eq('id',me).maybeSingle();return data;}
+  async function myRow(){const{data}=await sb.from('players').select(COLS).eq('id',me).maybeSingle();return data;}
   async function start(){show('<div class="big">⏳</div><h1>Loading…</h1>');
     try{const{data:{session}}=await sb.auth.getSession();if(!session)return ask();me=session.user.id;const r=await myRow();
       if(!r)return ask();if(r.status==='pending')return wait();if(r.status==='denied')return denied();return open(r);}
     catch(e){show('<div class="big">📶</div><h1>Can\'t connect</h1><button class="gb" onclick="location.reload()">Try again</button>'+adminBtn);hook();}}
   function ask(){let pic=PICS[0];let saved='';try{saved=(JSON.parse(localStorage.getItem('bcb_save1'))||{}).name||'';}catch(e){}
     show('<div class="big">🎮</div><h1>Ask to play!</h1><div>Pick your picture</div><div class="pics">'+PICS.map((p,i)=>'<button data-p="'+p+'" class="'+(i?'':'on')+'">'+p+'</button>').join('')+'</div>'+
-      '<input id="gnick" maxlength="16" placeholder="Your name" value="'+esc(saved)+'"><div class="msg" id="gmsg"></div><button class="gb" id="gask">🙋 ASK TO PLAY</button><br>'+adminBtn);hook();
+      '<input id="gnick" maxlength="16" placeholder="Your name" value="'+esc(saved)+'"><input id="ggrown" maxlength="30" placeholder="Your grown-up\'s name (optional)"><div class="msg" id="gmsg"></div><button class="gb" id="gask">🙋 ASK TO PLAY</button><br><button class="gb gray" id="gold">🔑 I already play (new device)</button>'+adminBtn);hook();document.getElementById('gold').onclick=claimScreen;
     say('Pick your picture, then tap ask to play.');
     box.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{pic=b.dataset.p;box.querySelectorAll('[data-p]').forEach(x=>x.classList.toggle('on',x===b));});
     document.getElementById('gask').onclick=async()=>{const nick=document.getElementById('gnick').value.trim()||'Player';const m=document.getElementById('gmsg');m.textContent='Sending…';
       try{let{data:{session}}=await sb.auth.getSession();if(!session){const r=await sb.auth.signInAnonymously();if(r.error)throw r.error;session=r.data.session;}me=session.user.id;
-        const{error}=await sb.from('players').insert({id:me,nick:nick.slice(0,16),pic});if(error&&error.code!=='23505')throw error;wait();}
+        const gr=document.getElementById('ggrown').value.trim().slice(0,30)||null;const{error}=await sb.from('players').insert({id:me,nick:nick.slice(0,16),pic,device:devName(),grownup:gr});if(error&&error.code!=='23505')throw error;wait();}
       catch(e){m.textContent='Oops, try again ('+(e.message||e)+')';}};}
-  function wait(){show('<div class="big">⏳</div><h1>Waiting for a grown-up to say yes</h1><div>Ask your grown-up to open 👑 Grown-ups and tap ✅</div><br>'+adminBtn);hook();say('Waiting for a grown-up to say yes.');
+  async function wait(){let n='';try{const r=await myRow();if(r)n=String(r.req_no);}catch(e){}show('<div class="big">⏳</div><h1>Waiting for a grown-up to say yes</h1><div>Your number is</div><div class="req">#'+n+'</div><div>Tell your grown-up this number</div><br>'+adminBtn);hook();say('Waiting for a grown-up to say yes. Your number is '+n.split('').join(' '));
     clearInterval(pollT);pollT=setInterval(async()=>{try{const r=await myRow();if(!r){clearInterval(pollT);ask();}else if(r.status==='approved'){clearInterval(pollT);say('Yay! You can play!');open(r);}else if(r.status==='denied'){clearInterval(pollT);denied();}}catch(e){}},5000);}
+  function claimScreen(){show('<div class="big">🔑</div><h1>Welcome back!</h1><input id="cnick" maxlength="16" placeholder="Your player name"><div>Tap your 4 secret pictures</div><div id="cpad"></div><div class="msg" id="cmsg"></div><button class="gb gray" id="cback">⬅ Back</button>');
+    say('Type your name, then tap your four secret pictures.');document.getElementById('cback').onclick=ask;
+    pinPad(document.getElementById('cpad'),async pin=>{const m=document.getElementById('cmsg'),nk=document.getElementById('cnick').value.trim();if(!nk){m.textContent='Type your name first';return;}m.textContent='Checking…';
+      try{let{data:{session}}=await sb.auth.getSession();if(!session){const r=await sb.auth.signInAnonymously();if(r.error)throw r.error;session=r.data.session;}me=session.user.id;
+        const{data,error}=await sb.rpc('claim',{p_nick:nk,p_pin:pin});if(error)throw error;
+        if(data==='ok'){say('Welcome back!');const r=await myRow();return open(r);}
+        m.textContent=data==='locked'?'Too many tries. Wait 15 minutes or ask your grown-up.':'That didn\'t match. Try again!';say(data==='locked'?'Too many tries. Ask your grown-up.':'That did not match. Try again.');claimScreen();
+        setTimeout(()=>{const mm=document.getElementById('cmsg');if(mm)mm.textContent=data==='locked'?'Too many tries. Wait 15 minutes or ask your grown-up.':'That didn\'t match. Try again!';const ci=document.getElementById('cnick');if(ci)ci.value=nk;},0);}
+      catch(e){m.textContent='Oops ('+(e.message||e)+')';}});}
   function denied(){show('<div class="big">🚫</div><h1>Not allowed</h1><div>Ask your grown-up for help.</div><br>'+adminBtn);hook();}
   async function open(r){gate.style.display='none';showAdminLink();
     try{const{data}=await sb.from('settings').select('chat').eq('id',1).maybeSingle();window.BCB_CHAT_OFF=data&&data.chat===false;}catch(e){}
@@ -277,25 +293,34 @@ kbd{background:#fff;color:#222;border-radius:5px;padding:1px 6px;border-bottom:3
     if(!isA){show('<h1>👑</h1><div>This login is not a grown-up admin.</div><button class="gb gray" id="aout">Sign out</button>'+back);document.getElementById('aout').onclick=async()=>{await ad.auth.signOut();admin();};document.getElementById('gback').onclick=leaveAdmin;return;}
     panel();}
   let panT=null,adCh=null,online=new Set();
-  function watchOnline(){if(adCh)return;ad.realtime.setAuth().then(()=>{adCh=ad.channel(TOPIC,{config:{private:true}});adCh.on('presence',{event:'sync'},()=>{online=new Set(Object.keys(adCh.presenceState()));const d=document.getElementById('onl');if(d)panel();}).subscribe();}).catch(()=>{});}
-  async function panel(){watchOnline();const[{data:pl},{data:st}]=await Promise.all([ad.from('players').select('*').order('created_at',{ascending:false}),ad.from('settings').select('chat').eq('id',1).maybeSingle()]);
+  function watchOnline(){if(adCh)return;ad.realtime.setAuth().then(()=>{adCh=ad.channel(TOPIC,{config:{private:true}});adCh.on('presence',{event:'sync'},()=>{online=new Set(Object.keys(adCh.presenceState()));const d=document.getElementById('onl');if(d&&gate.style.display!=='none'){if(openEd||armDel)d.textContent='🟢 '+online.size+' playing now';else panel();}}).subscribe();}).catch(()=>{});}
+  let openEd=null,armDel=null,msgA='';
+  async function panel(){watchOnline();const[{data:pl},{data:st}]=await Promise.all([ad.from('players').select(COLS).order('created_at',{ascending:false}),ad.from('settings').select('chat').eq('id',1).maybeSingle()]);
     const list=(pl||[]).sort((a,b)=>(a.status==='pending'?0:1)-(b.status==='pending'?0:1));const chatOn=!st||st.chat!==false;
-    const row=p=>'<div class="row"><span class="p">'+esc(p.pic)+'</span><span class="n">'+esc(p.nick)+'<small>'+(p.status==='pending'?'🙋 Wants to play':p.status==='approved'?(online.has(p.id)?'🟢 Playing now':'✅ Can play'):'🚫 Blocked')+' · '+new Date(p.created_at).toLocaleString()+'</small></span>'+
-      (p.status!=='approved'?'<button data-a="ok" data-id="'+p.id+'" title="Approve">✅</button>':'')+(p.status!=='denied'?'<button data-a="no" data-id="'+p.id+'" title="Block">🚫</button>':'')+'<button data-a="ren" data-id="'+p.id+'" title="Rename">✏️</button><button data-a="del" data-id="'+p.id+'" title="Remove">🗑</button></div>';
+    const row=p=>'<div class="row"><span class="p">'+esc(p.pic)+'</span><span class="n">'+esc(p.nick)+' <span style="color:#ffd400">#'+p.req_no+'</span><small>'+(p.status==='pending'?'🙋 Wants to play':p.status==='approved'?(online.has(p.id)?'🟢 Playing now':'✅ Can play'):'🚫 Blocked')+' · 📱 '+esc(p.device||'?')+(p.grownup?' · 👤 '+esc(p.grownup):'')+(p.has_pin?' · 🔑 set':'')+'<br>'+new Date(p.created_at).toLocaleString()+'</small></span>'+
+      (p.status!=='approved'?'<button data-a="ok" data-id="'+p.id+'" title="Approve">✅</button>':'')+(p.status!=='denied'?'<button data-a="no" data-id="'+p.id+'" title="Block">🚫</button>':'')+
+      '<button data-a="ren" data-id="'+p.id+'" title="Rename">✏️</button>'+(p.status==='approved'?'<button data-a="pin" data-id="'+p.id+'" title="Picture password">🔑</button>':'')+'<button data-a="del" data-id="'+p.id+'" title="Remove" style="'+(armDel===p.id?'background:#e53935':'')+'">'+(armDel===p.id?'Sure? 🗑':'🗑')+'</button></div>'+
+      (openEd&&openEd.id===p.id&&openEd.k==='ren'?'<div class="edit"><input id="rn" maxlength="16" value="'+esc(p.nick)+'"><button class="gb gray" data-a="rensave" data-id="'+p.id+'">Save</button><button class="gb gray" data-a="close">Cancel</button></div>':'')+
+      (openEd&&openEd.id===p.id&&openEd.k==='pin'?'<div class="edit" style="display:block"><div>Tap 4 secret pictures for '+esc(p.nick)+':</div><div id="apad"></div><button class="gb gray" data-a="close">Cancel</button></div>':'');
     const pend=list.filter(p=>p.status==='pending').length;
-    show('<h1>👑 Grown-ups</h1><div id="onl">🟢 '+online.size+' playing now</div><div>'+(pend?'<b style="color:#ffd400">'+pend+' waiting for you</b>':'No one waiting')+'</div>'+
+    show('<h1>👑 Grown-ups</h1><div id="onl">🟢 '+online.size+' playing now</div><div>'+(pend?'<b style="color:#ffd400">'+pend+' waiting for you</b> — ask them for their # number to make sure it\'s them':'No one waiting')+'</div>'+(msgA?'<div class="msg">'+msgA+'</div>':'')+
       '<div class="row"><span class="n">💬 Picture chat<small>Players can send picture messages</small></span><button id="chatT">'+(chatOn?'ON':'OFF')+'</button></div>'+
-      (list.length?list.map(row).join(''):'<div>No players yet</div>')+'<small>✅ approve · 🚫 block (can\'t ask again) · ✏️ rename · 🗑 remove (they can ask again)</small><br>'+
+      (list.length?list.map(row).join(''):'<div>No players yet</div>')+'<small>✅ approve · 🚫 block · ✏️ rename · 🔑 set/reset picture password · 🗑 remove (they can ask again)</small><br>'+
       '<button class="gb gray" id="aref">🔄 Refresh</button><button class="gb gray" id="aout">Sign out</button><button class="gb gray" id="gback">⬅ Back</button>');
-    document.getElementById('gback').onclick=leaveAdmin;document.getElementById('aref').onclick=panel;document.getElementById('aout').onclick=async()=>{if(adCh){ad.removeChannel(adCh);adCh=null;}await ad.auth.signOut();admin();};
+    msgA='';
+    document.getElementById('gback').onclick=leaveAdmin;document.getElementById('aref').onclick=()=>{openEd=null;armDel=null;panel();};document.getElementById('aout').onclick=async()=>{if(adCh){ad.removeChannel(adCh);adCh=null;}await ad.auth.signOut();admin();};
     document.getElementById('chatT').onclick=async()=>{await ad.from('settings').update({chat:!chatOn}).eq('id',1);panel();};
-    box.querySelectorAll('[data-a]').forEach(b=>b.onclick=async()=>{const id=b.dataset.id,a=b.dataset.a;
-      if(a==='ok')await ad.from('players').update({status:'approved'}).eq('id',id);
-      else if(a==='no')await ad.from('players').update({status:'denied'}).eq('id',id);
-      else if(a==='del'){if(!confirm('Remove this player?'))return;await ad.from('players').delete().eq('id',id);}
-      else if(a==='ren'){const n=prompt('New name (max 16):');if(!n)return;await ad.from('players').update({nick:n.trim().slice(0,16)}).eq('id',id);}
-      panel();});
-    clearTimeout(panT);panT=setTimeout(()=>{if(gate.style.display!=='none'&&document.getElementById('chatT'))panel();},15000);}
+    const ap=document.getElementById('apad');if(ap){const pid=openEd.id,pn=(list.find(x=>x.id===pid)||{}).nick;pinPad(ap,async pin=>{const{error}=await ad.rpc('set_pin',{pid,pin});openEd=null;msgA=error?'Could not save: '+esc(error.message):'🔑 Picture password for '+esc(pn)+' is: '+pin.split('').map(d=>PINP[d]).join(' ')+' — tell them these 4 pictures!';panel();});}
+    box.querySelectorAll('[data-a]').forEach(b=>b.onclick=async()=>{const id=b.dataset.id,a=b.dataset.a;let err=null;
+      if(a!=='del')armDel=null;
+      if(a==='ok')({error:err}=await ad.from('players').update({status:'approved'}).eq('id',id));
+      else if(a==='no')({error:err}=await ad.from('players').update({status:'denied'}).eq('id',id));
+      else if(a==='del'){if(armDel!==id){armDel=id;return panel();}armDel=null;({error:err}=await ad.from('players').delete().eq('id',id));}
+      else if(a==='ren'||a==='pin'){openEd={id,k:a};}
+      else if(a==='rensave'){const n=(document.getElementById('rn').value||'').trim().slice(0,16);if(!n)return;({error:err}=await ad.from('players').update({nick:n}).eq('id',id));openEd=null;}
+      else if(a==='close')openEd=null;
+      if(err)msgA='Could not save: '+esc(err.message);panel();});
+    clearTimeout(panT);panT=setTimeout(()=>{if(gate.style.display!=='none'&&document.getElementById('chatT')&&!openEd&&!armDel)panel();},15000);}
   function leaveAdmin(){clearTimeout(panT);start();}
   start();
 })();
