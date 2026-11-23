@@ -1064,7 +1064,7 @@ function burst(x,y,z,n,color){const m=partMats[color]||(partMats[color]=glow(col
   const p=new THREE.Mesh(partG,m);p.position.set(x,y,z);scene.add(p);parts.push({m:p,vx:rnd(-7,7),vy:rnd(2,10),vz:rnd(-7,7),life:rnd(.4,.8)});}}
 function dropCoin(x,z,val,y){y=y||0;if(nightAmt>.5)val*=2;const m=shade(new THREE.Mesh(coinG,coinM),1,0);m.rotation.x=Math.PI/2;m.position.set(x,y+1,z);scene.add(m);coins.push({m,x,z,y,val,life:40});}
 const packMat=std('#2ecc40',{roughness:.4}),crossMat=std('#ffffff',{roughness:.4}),apMat=std('#2f7cf6',{roughness:.3,metalness:.4});
-function spawnPack(){for(let k=0;k<20;k++){const s=laneSpot();if(!blocked(s.x,s.z,1)){const ap=Math.random()<.35;const g=new THREE.Group();shade(box(1,1,1,ap?apMat:packMat,0,0,0,g),1,0);box(1.02,.3,.3,crossMat,0,0,0,g);box(.3,.3,1.02,crossMat,0,0,0,g);box(.3,1.02,.3,crossMat,0,0,0,g);g.position.set(s.x,1,s.z);scene.add(g);packs.push({g,x:s.x,z:s.z,ap});return;}}}
+function spawnPack(){for(let k=0;k<20;k++){const s=laneSpot();if(!blocked(s.x,s.z,1)){const ap=Math.random()<.35;const g=new THREE.Group();shade(box(1,1,1,ap?apMat:packMat,0,0,0,g),1,0);box(1.02,.3,.3,crossMat,0,0,0,g);box(.3,.3,1.02,crossMat,0,0,0,g);box(.3,1.02,.3,crossMat,0,0,0,g);if(ap){const q=document.createElement('canvas');q.width=q.height=64;const x=q.getContext('2d');x.fillStyle='#fff';x.font='bold 54px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('?',32,36);const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(q),toneMapped:false}));sp.scale.set(.9,.9,1);sp.position.y=1.15;g.add(sp);}g.position.set(s.x,1,s.z);scene.add(g);packs.push({g,x:s.x,z:s.z,ap});return;}}}
 for(let i=0;i<14;i++)spawnPack();
 // ---------- ammo ----------
 const MAXA={blaster:120,shotgun:24,laser:150,rocket:8,minigun:300},HELI_MAXA=24;const AMMO={};let heliAmmo=HELI_MAXA,noAmmoT=0,ammoT=6;
@@ -1724,7 +1724,11 @@ function update(dt){
   for(let i=coins.length-1;i>=0;i--){const c=coins[i];c.life-=dt;c.m.rotation.z+=dt*4;c.m.position.y=c.y+1+Math.sin(time*4+i)*.2;
     const d=Math.hypot(c.x-P.x,c.z-P.z);if(d<mag&&!P.dead&&Math.abs(P.y-c.y)<2.5){c.x+=(P.x-c.x)*dt*4;c.z+=(P.z-c.z)*dt*4;c.m.position.x=c.x;c.m.position.z=c.z;}
     if(d<pr&&!P.dead&&Math.abs(P.y-c.y)<2.5){S.coins+=c.val;snd(1200,.08,'sine',.05,1800);scene.remove(c.m);coins.splice(i,1);saveT=1;}else if(c.life<=0){scene.remove(c.m);coins.splice(i,1);}}
-  for(let i=packs.length-1;i>=0;i--){const p=packs[i];p.g.rotation.y+=dt*2;if(Math.hypot(p.x-P.x,p.z-P.z)<pr&&P.y<4&&!P.dead&&(p.ap?(S.up.armor&&P.ap<100):P.hp<100)){if(p.ap)P.ap=Math.min(100,P.ap+50);else P.hp=Math.min(100,P.hp+40);snd(700,.2,'sine',.05,1100);scene.remove(p.g);packs.splice(i,1);setTimeout(spawnPack,8000);}}
+  for(let i=packs.length-1;i>=0;i--){const p=packs[i];p.g.rotation.y+=dt*2;if(Math.hypot(p.x-P.x,p.z-P.z)<pr&&P.y<4&&!P.dead){let msg,say2,col;
+      if(!p.ap){if(P.hp<100){const h=Math.min(40,100-P.hp);P.hp=Math.min(100,P.hp+40);msg='❤️ +'+Math.round(h)+' HEALTH';say2='Health!';}else{S.coins+=5;msg='❤️ Health already full<br><small>+5 🪙 instead</small>';say2='Health full. Five coins!';}col='#ff5a6a';}
+      else if(S.up.armor&&P.ap<100){P.ap=Math.min(100,P.ap+50);msg='🛡 +50 ARMOR';say2='Armor!';col='#4fa3ff';}
+      else{const r=Math.random();col='#4fa3ff';if(r<.4){const c=10+Math.floor(Math.random()*25);S.coins+=c;msg='🎁 SURPRISE! +'+c+' 🪙';say2='Surprise! '+c+' coins!';}else if(r<.7){giveAmmo(true);msg='🎁 SURPRISE! 📦 AMMO';say2='Surprise! Ammo!';}else if(r<.9){P.hp=100;msg='🎁 SURPRISE! ❤️ FULL HEALTH';say2='Surprise! Full health!';}else{addXP(5);msg='🎁 SURPRISE! +5 XP';say2='Surprise! Bonus X P!';}}
+      burst(p.x,1.2,p.z,24,col);snd(700,.15,'sine',.05,1100);setTimeout(()=>snd(1050,.2,'sine',.05,1400),110);showBanner(msg);speak(say2);saveT=1;scene.remove(p.g);packs.splice(i,1);setTimeout(spawnPack,8000);}}
   const rd=S.up.medic?2.5:5;if(!P.dead&&P.hp<100&&(atHQ||P.lastHit>rd))P.hp=Math.min(100,P.hp+dt*(atHQ?12:S.up.medic?14:8));
   if(S.up.armor&&atHQ&&P.ap<100)P.ap=Math.min(100,P.ap+dt*30);
   // missions
