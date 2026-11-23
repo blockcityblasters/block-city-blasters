@@ -195,6 +195,112 @@ kbd{background:#fff;color:#222;border-radius:5px;padding:1px 6px;border-bottom:3
   <button class="btn" id="bno" style="font-size:26px;width:64px;height:64px;border-radius:50%;background:linear-gradient(#8a8f99,#4b5059)">✖</button></div></div>
 <div id="dead" class="overlay hidden"><h1>ZAPPED!</h1><p>The robots got you. Respawning at HQ…</p><p id="deadmsg"></p></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+#gate{position:fixed;inset:0;z-index:99;background:radial-gradient(circle at 50% 30%,#2a5fd8,#0b1638);color:#fff;font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;overflow:auto}
+#gate .gbox{background:rgba(0,0,0,.35);border:3px solid #fff;border-radius:22px;padding:18px;max-width:560px;width:92%;text-align:center}
+#gate h1{margin:4px 0 10px;font-size:28px}#gate .big{font-size:60px;line-height:1.1}
+#gate .pics{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:10px 0}
+#gate .pics button{font-size:34px;height:58px;border-radius:14px;border:3px solid transparent;background:#ffffff22;color:#fff}
+#gate .pics button.on{border-color:#ffd400;background:#ffd40044}
+#gate input{font-size:20px;padding:10px;border-radius:12px;border:0;width:80%;text-align:center;margin:6px 0}
+#gate .gb{font-size:22px;font-weight:bold;padding:12px 26px;border-radius:16px;border:0;background:linear-gradient(#5cff7a,#18a83a);color:#fff;box-shadow:0 4px 0 #0b5a1e;margin:8px 4px}
+#gate .gb.gray{background:#ffffff33;box-shadow:none;font-size:15px;padding:8px 14px}
+#gate .row{display:flex;align-items:center;gap:8px;background:#ffffff18;border-radius:12px;padding:8px;margin:6px 0;text-align:left}
+#gate .row .p{font-size:30px}#gate .row .n{flex:1;font-weight:bold}#gate .row small{display:block;font-weight:normal;opacity:.8}
+#gate .row button{font-size:20px;border:0;border-radius:10px;padding:8px 10px;background:#ffffff33;color:#fff}
+#gate .msg{min-height:20px;color:#ffd400;font-weight:bold}
+#adminLink{position:fixed;left:10px;bottom:10px;z-index:100;font-size:13px;padding:6px 10px;border-radius:10px;border:0;background:#0006;color:#fff}
+</style>
+<div id="gate" style="display:none"><div class="gbox" id="gbox"></div></div>
+<script>
+(function(){
+  if(window.claude&&typeof window.claude.use==='function')return; // Claude link stays private to the owner
+  const URL_='https://tvwycgcbtlyecttiwkkc.supabase.co',KEY='sb_publishable_graJacq0mfQERnaofQ0PKA_rgZQR35K',TOPIC='bcb-family';
+  const PICS=['🦖','🦈','🦁','🐯','🐺','🦊','🐸','🐵','🦅','🐉','🤖','👽'];
+  const gate=document.getElementById('gate'),box=document.getElementById('gbox');gate.style.display='flex';
+  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const say=t=>{try{const u=new SpeechSynthesisUtterance(t);speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}};
+  let resolveNet;window.BCB_NET=new Promise(r=>resolveNet=r);
+  const show=h=>{box.innerHTML=h;};
+  const adminBtn='<button class="gb gray" id="toAdmin">👑 Grown-ups</button>';
+  if(!window.supabase){show('<div class="big">📶</div><h1>Need internet</h1><button class="gb" onclick="location.reload()">Try again</button>');return;}
+  const sb=window.supabase.createClient(URL_,KEY);
+  let me=null,pollT=null;
+  function hook(){const a=document.getElementById('toAdmin');if(a)a.onclick=admin;}
+  async function myRow(){const{data}=await sb.from('players').select('*').eq('id',me).maybeSingle();return data;}
+  async function start(){show('<div class="big">⏳</div><h1>Loading…</h1>');
+    try{const{data:{session}}=await sb.auth.getSession();if(!session)return ask();me=session.user.id;const r=await myRow();
+      if(!r)return ask();if(r.status==='pending')return wait();if(r.status==='denied')return denied();return open(r);}
+    catch(e){show('<div class="big">📶</div><h1>Can\'t connect</h1><button class="gb" onclick="location.reload()">Try again</button>'+adminBtn);hook();}}
+  function ask(){let pic=PICS[0];let saved='';try{saved=(JSON.parse(localStorage.getItem('bcb_save1'))||{}).name||'';}catch(e){}
+    show('<div class="big">🎮</div><h1>Ask to play!</h1><div>Pick your picture</div><div class="pics">'+PICS.map((p,i)=>'<button data-p="'+p+'" class="'+(i?'':'on')+'">'+p+'</button>').join('')+'</div>'+
+      '<input id="gnick" maxlength="16" placeholder="Your name" value="'+esc(saved)+'"><div class="msg" id="gmsg"></div><button class="gb" id="gask">🙋 ASK TO PLAY</button><br>'+adminBtn);hook();
+    say('Pick your picture, then tap ask to play.');
+    box.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{pic=b.dataset.p;box.querySelectorAll('[data-p]').forEach(x=>x.classList.toggle('on',x===b));});
+    document.getElementById('gask').onclick=async()=>{const nick=document.getElementById('gnick').value.trim()||'Player';const m=document.getElementById('gmsg');m.textContent='Sending…';
+      try{let{data:{session}}=await sb.auth.getSession();if(!session){const r=await sb.auth.signInAnonymously();if(r.error)throw r.error;session=r.data.session;}me=session.user.id;
+        const{error}=await sb.from('players').insert({id:me,nick:nick.slice(0,16),pic});if(error&&error.code!=='23505')throw error;wait();}
+      catch(e){m.textContent='Oops, try again ('+(e.message||e)+')';}};}
+  function wait(){show('<div class="big">⏳</div><h1>Waiting for a grown-up to say yes</h1><div>Ask your grown-up to open 👑 Grown-ups and tap ✅</div><br>'+adminBtn);hook();say('Waiting for a grown-up to say yes.');
+    clearInterval(pollT);pollT=setInterval(async()=>{try{const r=await myRow();if(!r){clearInterval(pollT);ask();}else if(r.status==='approved'){clearInterval(pollT);say('Yay! You can play!');open(r);}else if(r.status==='denied'){clearInterval(pollT);denied();}}catch(e){}},5000);}
+  function denied(){show('<div class="big">🚫</div><h1>Not allowed</h1><div>Ask your grown-up for help.</div><br>'+adminBtn);hook();}
+  async function open(r){gate.style.display='none';showAdminLink();
+    try{const{data}=await sb.from('settings').select('chat').eq('id',1).maybeSingle();window.BCB_CHAT_OFF=data&&data.chat===false;}catch(e){}
+    try{const s=JSON.parse(localStorage.getItem('bcb_save1'))||{};if(s.name!==r.nick){s.name=r.nick;localStorage.setItem('bcb_save1',JSON.stringify(s));}}catch(e){}
+    setInterval(async()=>{try{const x=await myRow();if(!x||x.status!=='approved')location.reload();}catch(e){}},60000);
+    connect();}
+  // ----- live connection for approved players -----
+  async function connect(){const nicks={};const peers=new Map();let handler=null,closeH=null,ch=null,last=0,lastJ='';
+    try{const{data}=await sb.from('players').select('id,nick').eq('status','approved');(data||[]).forEach(p=>nicks[p.id]=p.nick);}catch(e){}
+    const needNick=async u=>{if(nicks[u]!==undefined)return;nicks[u]='Friend';try{const{data}=await sb.from('players').select('nick').eq('id',u).maybeSingle();if(data)nicks[u]=data.nick;}catch(e){}};
+    await sb.realtime.setAuth();
+    ch=sb.channel(TOPIC,{config:{private:true,broadcast:{self:false},presence:{key:me}}});
+    ch.on('broadcast',{event:'g'},({payload})=>{if(!payload||typeof payload.u!=='string'||payload.u===me||!payload.g||typeof payload.g!=='object')return;const u=payload.u,g=Object.assign({},payload.g);
+      needNick(u);g.n=nicks[u]||'Friend';if(window.BCB_CHAT_OFF){delete g.ck;delete g.ci;}const p={peer:u,presence:{g},kind:'viewer',t:Date.now()};peers.set(u,p);if(handler)handler({left:[],peers:[p]});});
+    ch.on('presence',{event:'leave'},({key})=>{if(peers.has(key)){peers.delete(key);if(handler)handler({left:[{peer:key}],peers:[]});}});
+    setInterval(()=>{const now=Date.now();peers.forEach((p,k)=>{if(now-p.t>8000){peers.delete(k);if(handler)handler({left:[{peer:k}],peers:[]});}});},2000);
+    ch.subscribe(async st=>{if(st==='SUBSCRIBED'){try{await ch.track({on:1});}catch(e){}}});
+    resolveNet({presence({g}){const now=Date.now();const gg=Object.assign({},g);if(window.BCB_CHAT_OFF){delete gg.ck;delete gg.ci;}const j=JSON.stringify(gg);
+        if(now-last<250||(j===lastJ&&now-last<1000))return Promise.resolve();last=now;lastJ=j;try{ch.send({type:'broadcast',event:'g',payload:{u:me,g:gg}});}catch(e){}return Promise.resolve();},
+      onPeers(cb,onClose){handler=cb;closeH=onClose;}});}
+  // ----- grown-ups page -----
+  function showAdminLink(){if(document.getElementById('adminLink'))return;const b=document.createElement('button');b.id='adminLink';b.textContent='👑';b.title='Grown-ups';b.onclick=admin;document.body.appendChild(b);}
+  let ad=null;
+  async function admin(){if(!ad)ad=window.supabase.createClient(URL_,KEY,{auth:{storageKey:'bcb-admin',storage:window.sessionStorage}});
+    gate.style.display='flex';const back='<button class="gb gray" id="gback">⬅ Back</button>';
+    const{data:{session}}=await ad.auth.getSession();
+    if(!session){show('<h1>👑 Grown-ups only</h1><input id="aem" type="email" placeholder="Email" autocomplete="username"><input id="apw" type="password" placeholder="Password" autocomplete="current-password"><div class="msg" id="amsg"></div><button class="gb" id="ain">Sign in</button><br>'+back);
+      document.getElementById('gback').onclick=leaveAdmin;document.getElementById('ain').onclick=async()=>{const m=document.getElementById('amsg');m.textContent='Signing in…';
+        const{error}=await ad.auth.signInWithPassword({email:document.getElementById('aem').value.trim(),password:document.getElementById('apw').value});if(error){m.textContent='Wrong email or password';return;}admin();};return;}
+    const{data:isA}=await ad.from('admins').select('id').eq('id',session.user.id).maybeSingle();
+    if(!isA){show('<h1>👑</h1><div>This login is not a grown-up admin.</div><button class="gb gray" id="aout">Sign out</button>'+back);document.getElementById('aout').onclick=async()=>{await ad.auth.signOut();admin();};document.getElementById('gback').onclick=leaveAdmin;return;}
+    panel();}
+  let panT=null,adCh=null,online=new Set();
+  function watchOnline(){if(adCh)return;ad.realtime.setAuth().then(()=>{adCh=ad.channel(TOPIC,{config:{private:true}});adCh.on('presence',{event:'sync'},()=>{online=new Set(Object.keys(adCh.presenceState()));const d=document.getElementById('onl');if(d)panel();}).subscribe();}).catch(()=>{});}
+  async function panel(){watchOnline();const[{data:pl},{data:st}]=await Promise.all([ad.from('players').select('*').order('created_at',{ascending:false}),ad.from('settings').select('chat').eq('id',1).maybeSingle()]);
+    const list=(pl||[]).sort((a,b)=>(a.status==='pending'?0:1)-(b.status==='pending'?0:1));const chatOn=!st||st.chat!==false;
+    const row=p=>'<div class="row"><span class="p">'+esc(p.pic)+'</span><span class="n">'+esc(p.nick)+'<small>'+(p.status==='pending'?'🙋 Wants to play':p.status==='approved'?(online.has(p.id)?'🟢 Playing now':'✅ Can play'):'🚫 Blocked')+' · '+new Date(p.created_at).toLocaleString()+'</small></span>'+
+      (p.status!=='approved'?'<button data-a="ok" data-id="'+p.id+'" title="Approve">✅</button>':'')+(p.status!=='denied'?'<button data-a="no" data-id="'+p.id+'" title="Block">🚫</button>':'')+'<button data-a="ren" data-id="'+p.id+'" title="Rename">✏️</button><button data-a="del" data-id="'+p.id+'" title="Remove">🗑</button></div>';
+    const pend=list.filter(p=>p.status==='pending').length;
+    show('<h1>👑 Grown-ups</h1><div id="onl">🟢 '+online.size+' playing now</div><div>'+(pend?'<b style="color:#ffd400">'+pend+' waiting for you</b>':'No one waiting')+'</div>'+
+      '<div class="row"><span class="n">💬 Picture chat<small>Players can send picture messages</small></span><button id="chatT">'+(chatOn?'ON':'OFF')+'</button></div>'+
+      (list.length?list.map(row).join(''):'<div>No players yet</div>')+'<small>✅ approve · 🚫 block (can\'t ask again) · ✏️ rename · 🗑 remove (they can ask again)</small><br>'+
+      '<button class="gb gray" id="aref">🔄 Refresh</button><button class="gb gray" id="aout">Sign out</button><button class="gb gray" id="gback">⬅ Back</button>');
+    document.getElementById('gback').onclick=leaveAdmin;document.getElementById('aref').onclick=panel;document.getElementById('aout').onclick=async()=>{if(adCh){ad.removeChannel(adCh);adCh=null;}await ad.auth.signOut();admin();};
+    document.getElementById('chatT').onclick=async()=>{await ad.from('settings').update({chat:!chatOn}).eq('id',1);panel();};
+    box.querySelectorAll('[data-a]').forEach(b=>b.onclick=async()=>{const id=b.dataset.id,a=b.dataset.a;
+      if(a==='ok')await ad.from('players').update({status:'approved'}).eq('id',id);
+      else if(a==='no')await ad.from('players').update({status:'denied'}).eq('id',id);
+      else if(a==='del'){if(!confirm('Remove this player?'))return;await ad.from('players').delete().eq('id',id);}
+      else if(a==='ren'){const n=prompt('New name (max 16):');if(!n)return;await ad.from('players').update({nick:n.trim().slice(0,16)}).eq('id',id);}
+      panel();});
+    clearTimeout(panT);panT=setTimeout(()=>{if(gate.style.display!=='none'&&document.getElementById('chatT'))panel();},15000);}
+  function leaveAdmin(){clearTimeout(panT);start();}
+  start();
+})();
+</script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function(){
@@ -1250,7 +1356,7 @@ const MP=(function(){let room=null,sendT=0,seq=0,lastShot=null,joinedOnce=false,
     if(pr.n&&pr.n!==o.name){o.name=String(pr.n).slice(0,12);o.tag.material.map=tagTex(o.name,o.col);}
     if(Array.isArray(pr.sh)&&(pr.s|0)>o.s){o.s=pr.s|0;const a=pr.sh.map(Number);if(a.length===6&&a.every(isFinite)){const big=!!pr.sb;fireBolt(a[0],a[1],a[2],a[3],a[4],a[5],'p',big?32:50,{col:typeof pr.sc==='string'?pr.sc:'#6ff7ff',dmg:big?4:1,splash:big?5:0,big,life:2});}}
     else if((pr.s|0)>o.s)o.s=pr.s|0;}
-  (async function(){try{if(!window.claude||typeof window.claude.use!=='function')return;const r=await window.claude.use('room');if(!r)return;room=r;
+  (async function(){try{let r=null;if(window.claude&&typeof window.claude.use==='function')r=await window.claude.use('room');else if(window.BCB_NET)r=await window.BCB_NET;if(!r)return;room=r;
     r.onPeers(ch=>{ch.left.forEach(p=>drop(p.peer));ch.peers.forEach(p=>{if(p.sameTab||p.kind!=='viewer')return;sync(p);});},()=>{room=null;others.forEach((o,k)=>drop(k));});}catch(e){room=null;}})();
   return{
     shot(sx,sy,sz,dx,dy,dz,col,big){seq++;lastShot={sh:[+sx.toFixed(2),+sy.toFixed(2),+sz.toFixed(2),+dx.toFixed(3),+dy.toFixed(3),+dz.toFixed(3)],sc:col||'#6ff7ff',sb:big?1:0};},
@@ -1516,7 +1622,7 @@ function update(dt){
     if(mission&&['deliver','stars','rescue','coinrush'].indexOf(mission.type)>=0&&tgt){beam.visible=true;beam.position.x=tgt.x;beam.position.z=tgt.z;}else beam.visible=false;
     const st=inCar?'cout':inHeli?'hout':nearHeli()?'heli':(nearestCar()&&!P.dead?'in':'none');if(st!==carBtnState){carBtnState=st;const cb=$('car');cb.style.visibility=st==='none'?'hidden':'visible';cb.textContent={cout:'🚪 Get out',hout:'🚪 Jump out',heli:'🚁 Fly',in:'🚗 Get in'}[st]||'';$('build').style.visibility=inCar?'hidden':'visible';$('build').textContent=inHeli?'⬇ Down':'🧱 Build';$('jump').textContent=inHeli?'⬆ Up':inCar?(S.up.nitro?'🔥 Nitro':'⬆ Jump'):'⬆ Jump';}
     {let bb=null,bd=110;bots.forEach(b=>{if(b.boss&&!b.friend){const d=Math.hypot(b.x-P.x,b.z-P.z);if(d<bd){bd=d;bb=b;}}});const U=WEV.ufo();if(U&&!bb){$('bossbar').classList.remove('hidden');$('bossname').textContent='🛸 UFO · '+Math.ceil(Math.max(0,U.hp))+' HP';$('bossfill').style.width=Math.max(0,U.hp/U.max*100)+'%';}else $('bossbar').classList.toggle('hidden',!bb);if(bb){$('bossname').textContent='👾 BOSS · LV '+LV()+' · '+Math.ceil(Math.max(0,bb.hp))+' HP'+(bb.rage?' 😡':'')+(bb.shield?' 🛡':'');$('bossfill').style.width=Math.max(0,bb.hp/bb.max*100)+'%';}}
-    {const n=MP.count();$('online').classList.toggle('hidden',!n);$('online').textContent='👥 '+(n+1)+' playing';$('chatBtn').classList.toggle('hidden',!n);if(!n)$('chatPanel').classList.add('hidden');}
+    {const n=MP.count();$('online').classList.toggle('hidden',!n);$('online').textContent='👥 '+(n+1)+' playing';$('chatBtn').classList.toggle('hidden',!n||!!window.BCB_CHAT_OFF);if(!n)$('chatPanel').classList.add('hidden');}
     drawMini();
     if(saveT>0){saveT=0;save();}}
 }
