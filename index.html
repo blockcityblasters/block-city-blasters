@@ -242,14 +242,24 @@ kbd{background:#fff;color:#222;border-radius:5px;padding:1px 6px;border-bottom:3
     catch(e){show('<div class="big">📶</div><h1>Can\'t connect</h1><button class="gb" onclick="location.reload()">Try again</button>'+adminBtn);hook();}}
   function ask(){let pic=PICS[0];let saved='';try{saved=(JSON.parse(localStorage.getItem('bcb_save1'))||{}).name||'';}catch(e){}
     show('<div class="big">🎮</div><h1>Ask to play!</h1><div>Pick your picture</div><div class="pics">'+PICS.map((p,i)=>'<button data-p="'+p+'" class="'+(i?'':'on')+'">'+p+'</button>').join('')+'</div>'+
-      '<input id="gnick" maxlength="16" placeholder="Your name" value="'+esc(saved)+'"><input id="ggrown" maxlength="30" placeholder="Your grown-up\'s name (optional)"><div class="msg" id="gmsg"></div><button class="gb" id="gask">🙋 ASK TO PLAY</button><br><button class="gb gray" id="gold">🔑 I already play (new device)</button>'+adminBtn);hook();document.getElementById('gold').onclick=claimScreen;
-    say('Pick your picture, then tap ask to play.');
+      '<input id="gnick" maxlength="16" placeholder="Your name" value="'+esc(saved)+'"><input id="ggrown" maxlength="30" placeholder="Your grown-up\'s name (optional)"><div style="font-size:14px;opacity:.9">After you ask, you get a secret number. Give it to your grown-up so they can say yes.</div><div class="msg" id="gmsg"></div><button class="gb" id="gask">🙋 ASK TO PLAY</button><br><button class="gb gray" id="gold">🔑 I already play (new device)</button>'+adminBtn);hook();document.getElementById('gold').onclick=claimScreen;
+    say('Pick your picture, then tap ask to play. You will get a secret number to give your grown-up.');
     box.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{pic=b.dataset.p;box.querySelectorAll('[data-p]').forEach(x=>x.classList.toggle('on',x===b));});
     document.getElementById('gask').onclick=async()=>{const nick=document.getElementById('gnick').value.trim()||'Player';const m=document.getElementById('gmsg');m.textContent='Sending…';
       try{let{data:{session}}=await sb.auth.getSession();if(!session){const r=await sb.auth.signInAnonymously();if(r.error)throw r.error;session=r.data.session;}me=session.user.id;
         const gr=document.getElementById('ggrown').value.trim().slice(0,30)||null;const{error}=await sb.from('players').insert({id:me,nick:nick.slice(0,16),pic,device:devName(),grownup:gr});if(error&&error.code!=='23505')throw error;wait();}
       catch(e){m.textContent='Oops, try again ('+(e.message||e)+')';}};}
-  async function wait(){let n='';try{const r=await myRow();if(r)n=String(r.req_no);}catch(e){}show('<div class="big">⏳</div><h1>Waiting for a grown-up to say yes</h1><div>Your number is</div><div class="req">#'+n+'</div><div>Tell your grown-up this number</div><br>'+adminBtn);hook();say('Waiting for a grown-up to say yes. Your number is '+n.split('').join(' '));
+  async function wait(){let n='',nk='';try{const r=await myRow();if(r){n=String(r.req_no);nk=r.nick;}}catch(e){}
+    const spoken=n.split('').join(' ');
+    show('<div class="big">⏳</div><h1>Waiting for a grown-up to say yes</h1><div>Your secret number is</div>'+
+      '<div class="req" style="background:#ffffff22;border:3px dashed #ffd400;border-radius:16px;padding:6px 10px;margin:8px auto;display:inline-block">#'+n+'</div>'+
+      '<div>👉 Give this number to your grown-up.<br>It stays right here until they say yes, even if you close the game.</div>'+
+      '<button class="gb" id="wsend">📤 Send it to my grown-up</button><br><button class="gb gray" id="wsay">🔊 Say my number again</button><div class="msg" id="wmsg"></div>'+adminBtn);hook();
+    const sayNum=()=>say('Your secret number is '+spoken+'. Give it to your grown-up. '+spoken);sayNum();
+    document.getElementById('wsay').onclick=sayNum;
+    document.getElementById('wsend').onclick=async()=>{const txt='Block City Blasters: '+(nk||'I')+' asked to play. My number is #'+n+'. Please approve me! '+location.origin;const m=document.getElementById('wmsg');
+      try{if(navigator.share){await navigator.share({title:'Block City Blasters',text:txt});m.textContent='Sent! ✔';return;}}catch(e){if(e&&e.name==='AbortError')return;}
+      try{await navigator.clipboard.writeText(txt);m.textContent='Copied! Paste it in a text to your grown-up.';}catch(e){m.textContent='Show your grown-up this screen 📸';}};
     clearInterval(pollT);pollT=setInterval(async()=>{try{const r=await myRow();if(!r){clearInterval(pollT);ask();}else if(r.status==='approved'){clearInterval(pollT);say('Yay! You can play!');open(r);}else if(r.status==='denied'){clearInterval(pollT);denied();}}catch(e){}},5000);}
   function claimScreen(){show('<div class="big">🔑</div><h1>Welcome back!</h1><input id="cnick" maxlength="16" placeholder="Your player name"><div>Tap your 4 secret pictures</div><div id="cpad"></div><div class="msg" id="cmsg"></div><button class="gb gray" id="cback">⬅ Back</button>');
     say('Type your name, then tap your four secret pictures.');document.getElementById('cback').onclick=ask;
