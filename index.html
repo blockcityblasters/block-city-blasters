@@ -91,6 +91,7 @@ table.keys td:first-child{white-space:nowrap;color:#ffd400;font-weight:bold;widt
 kbd{background:#fff;color:#222;border-radius:5px;padding:1px 6px;border-bottom:3px solid #999;font-family:inherit}
 @media (max-height:430px){#runBtn{left:30px;bottom:142px}#joy{width:120px;height:120px;bottom:12px}#knob{left:30px;top:30px}.rb{width:58px;height:58px;font-size:12px}#fire{width:84px;height:84px}#bextra{bottom:170px}}
 </style>
+<link rel="manifest" href="/manifest.webmanifest"><meta name="theme-color" content="#2a5fd8"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="icon" href="/icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Blasters">
 </head>
 <body>
 <div id="hud"><div id="hpbar"><div id="hpfill"></div></div><div id="apbar" class="hidden"><div id="apfill"></div></div><div id="hbar" class="hidden"><b id="hicon">🚁</b><span><i id="hfill"></i></span><b id="hwarn" style="color:#ff5a3c"></b></div><div id="coins">🪙 0</div><div id="stars"></div><div id="online" class="hidden" style="font-size:15px;font-weight:bold;color:#7dff8a;text-shadow:0 2px 3px #000"></div><div id="safe" class="hidden">➕ HQ: healing faster</div><div id="xpbar"><i id="xpfill"></i></div><div id="stbar" class="hidden"><i id="stfill"></i></div><div id="streakc"></div></div>
@@ -195,6 +196,25 @@ kbd{background:#fff;color:#222;border-radius:5px;padding:1px 6px;border-bottom:3
   <button class="btn" id="bno" style="font-size:26px;width:64px;height:64px;border-radius:50%;background:linear-gradient(#8a8f99,#4b5059)">✖</button></div></div>
 <div id="dead" class="overlay hidden"><h1>ZAPPED!</h1><p>The robots got you. Respawning at HQ…</p><p id="deadmsg"></p></div>
 
+<style>#dlBtn{position:fixed;left:50%;transform:translateX(-50%);top:8px;z-index:101;font-size:17px;font-weight:bold;padding:9px 18px;border-radius:14px;border:2px solid #fff;background:linear-gradient(#ffb74d,#f57c00);color:#fff;box-shadow:0 4px 0 #8a4200;display:none}
+#dlHelp{position:fixed;inset:0;z-index:102;background:#000c;color:#fff;display:none;align-items:center;justify-content:center;text-align:center;font-family:system-ui,sans-serif}#dlHelp div{background:#2a5fd8;border:3px solid #fff;border-radius:20px;padding:18px;max-width:340px;font-size:19px}#dlHelp b{font-size:40px;display:block}</style>
+<button id="dlBtn">📲 Download game</button><div id="dlHelp"><div><b>📲</b>To download:<br>1. Tap <b style="display:inline;font-size:22px">⬆️</b> Share (bottom of Safari)<br>2. Tap <b style="display:inline;font-size:19px">"Add to Home Screen"</b><br><br><button id="dlOk" style="font-size:20px;padding:8px 22px;border-radius:12px;border:0">OK</button></div></div>
+<script>
+(function(){if(window.claude&&typeof window.claude.use==='function')return;
+  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+  const btn=document.getElementById('dlBtn'),help=document.getElementById('dlHelp');let deferred=null;
+  const installed=()=>matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches||navigator.standalone===true;
+  const ua=navigator.userAgent,iOS=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1);
+  const sayIt=t=>{try{const u=new SpeechSynthesisUtterance(t);speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}};
+  addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;});
+  addEventListener('appinstalled',()=>{deferred=null;try{localStorage.setItem('bcb_installed','1');}catch(e){}sayIt('The game is on your home screen now!');});
+  btn.onclick=async()=>{if(deferred){deferred.prompt();try{await deferred.userChoice;}catch(e){}deferred=null;}else if(iOS){help.style.display='flex';sayIt('Tap the share button, then tap add to home screen.');}};
+  document.getElementById('dlOk').onclick=()=>help.style.display='none';
+  setInterval(()=>{const gate=document.getElementById('gate'),start=document.getElementById('start');
+    const onMenu=(gate&&gate.style.display!=='none')||(start&&!start.classList.contains('hidden'));
+    const can=!installed()&&(deferred||(iOS&&!/CriOS|FxiOS/.test(ua)&&localStorage.getItem('bcb_installed')!=='1'));
+    btn.style.display=can&&onMenu?'block':'none';},700);})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 #gate{position:fixed;inset:0;z-index:99;background:radial-gradient(circle at 50% 30%,#2a5fd8,#0b1638);color:#fff;font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;overflow:auto}
