@@ -195,6 +195,8 @@ kbd{background:#fff;color:#222;border-radius:5px;padding:1px 6px;border-bottom:3
       <tr><td>🌦 Surprises</td><td>Random weather (rain makes roads slippery, thunderstorms, fog) and random events: 🛸 UFO attacks, 🦾 a giant Titan robot, ☄️ meteor showers (run from the red circles, grab the space crystals). Find 4 landmarks (stadium, airport, theme park with a Ferris wheel, lighthouse) for +50 coins each, and hunt for 10 hidden 🗿 golden statues (some are on rooftops!) to unlock special hats.</td></tr>
       <tr><td>🎯 Missions</td><td>Missions are glowing beams with a picture on top (also on the map). Walk or drive into one — a talking helper explains it with a moving picture — then press ▶ GO! 13 kinds: Robot Attack, Zombie Horde, Speed Delivery, Star Hunt, Giant Boss, 🏁 Street Race (drive through the gates), 🏢 Rooftop Rescue, 🛡 Defend HQ (protect the core), 💣 Bomb Squad (stand on bombs to defuse), 🪙 Coin Rush, 🚁 Rooftop Tanks, 💥 Demolition Derby and ✨ Golden Robot (it runs away — catch it for lots of coins!).</td></tr>
       <tr><td>✋ Use button</td><td>Purple button pops up near stuff: 💬 talk to people (some need help finding things!), 🦶 kick trash cans, 🏧 ATMs, 🌭 food, 🥤 soda, 🎣 fishing, 🧳 trips. Key: X</td></tr>
+      <tr><td>🔧 Helpers</td><td>Build up to 3 of your own helpers at the 🔧 Workshop near HQ (or ⋯ menu): pick a body, color, hat and name, then power them up. 💚 Medic Bots heal you. You can still zap robots into buddies too!</td></tr>
+      <tr><td>🐶 Dog</td><td>⋯ → 🐶 Build my dog: colors, ears, tail, size, hats, capes, jetpack, wings, laser eyes and a name.</td></tr>
       <tr><td>🧳 Trips</td><td>Brown trip boards start an adventure: drive somewhere, survive ambushes, beat monsters, zombies or robots for big rewards.</td></tr>
       <tr><td>🧭 Explore</td><td>⭐ secret stars, 🎁 treasure chests, 🟦 trampolines, 🌀 portals, 🚪 doors into buildings, new places on the map. See your 🧭 Explorer book in the ⋯ menu. Robots come in ⚔️ waves, then 😎 explore time.</td></tr>
       <tr><td>🏢 Buildings</td><td>Orange buildings on the map (yellow door) can be entered! Step on the glowing ⬆ pads to go up floor by floor. Each floor is furnished (lobby, offices, an apartment, storage) and has coins, ammo and enemies. Shoot or blow up the furniture! The ROOF has a 💰 treasure chest (coins + full ammo). Drop through the hole to go down. Enemies can follow you inside!</td></tr>
@@ -1167,7 +1169,7 @@ function makeBuddy(b){b.friend=true;b.hp=S.up.b_armor?20:8;b.life=S.up.buddy?180
 let lockTgt=null,lockT=0;const lockSpr=(()=>{const c=document.createElement('canvas');c.width=c.height=96;const x=c.getContext('2d');x.strokeStyle='#ff1744';x.lineWidth=7;x.beginPath();x.arc(48,48,34,0,7);x.stroke();x.beginPath();[[48,4,48,26],[48,70,48,92],[4,48,26,48],[70,48,92,48]].forEach(l=>{x.moveTo(l[0],l[1]);x.lineTo(l[2],l[3]);});x.stroke();
   const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:false,toneMapped:false}));sp.renderOrder=8;sp.visible=false;scene.add(sp);return sp;})();
 function useBuddy(){if(P.dead)return;if(buddyCharges<1){showBanner('🔋 Buddy Ray charging…<br><small>Beat 4 robots to charge</small>');return;}
-  {const mxb=S.up.b_squad?5:3;if(bots.filter(b=>b.friend).length>=mxb){showBanner('You already have '+mxb+' buddies!');return;}}
+  {const mxb=S.up.b_squad?5:3;if(bots.filter(b=>b.friend&&!b.built).length>=mxb){showBanner('You already have '+mxb+' buddies!');return;}}
   const sx=P.x,sz=P.z;let tgt=null,bd=32;for(const b of bots){if(b.friend||b.boss||b.zombie)continue;const d=Math.hypot(b.x-sx,b.z-sz);if(d<bd){bd=d;tgt=b;}}
   if(!tgt){showBanner('No robot close enough!');return;}
   buddyCharges--;const y0=inCar?1.6:P.y+1.5;const a=new THREE.Vector3(sx,y0,sz),bpt=new THREE.Vector3(tgt.x,(tgt.y||0)+1.8,tgt.z);
@@ -1665,7 +1667,7 @@ const FUN=(function(){
   // ---------- pets ----------
   F.PETS={dog:{i:'🐶',n:'Robo-Dog',p:0,c:'#c8a06a'},cat:{i:'🐱',n:'Kitty',p:120,c:'#ff9e40'},bunny:{i:'🐰',n:'Bunny',p:150,c:'#f2f2f2'},robot:{i:'🤖',n:'Mini Bot',p:200,c:'#90a4ae'},dino:{i:'🦖',n:'Tiny Dino',p:250,c:'#7cb342'},dragon:{i:'🐉',n:'Baby Dragon',u:3,c:'#43a047'}};
   let pet=null;
-  function buildPet(k){const P0=F.PETS[k];const g=new THREE.Group();const m=std(P0.c,{roughness:.6}),dk=std('#222222'),wh=std('#ffffff');
+  function buildPet(k){if(k==='dog'&&F.buildDog)return F.buildDog();const P0=F.PETS[k];const g=new THREE.Group();const m=std(P0.c,{roughness:.6}),dk=std('#222222'),wh=std('#ffffff');
     box(.7,.45,1,m,0,.45,0,g);const h=box(.55,.5,.5,m,0,.85,.55,g);box(.09,.09,.04,dk,-.13,.9,.81,g);box(.09,.09,.04,dk,.13,.9,.81,g);
     [[-.25,.3],[.25,.3],[-.25,-.3],[.25,-.3]].forEach(q=>box(.15,.3,.15,m,q[0],.15,q[1],g));
     if(k==='dog'){box(.12,.25,.08,dk,-.2,1.12,.5,g);box(.12,.25,.08,dk,.2,1.12,.5,g);box(.1,.1,.4,m,0,.6,-.6,g);box(.14,.1,.06,dk,0,.78,.83,g);}
@@ -1681,7 +1683,7 @@ const FUN=(function(){
   function updPet(dt){if(!pet)return;const tx=(inCar?inCar.x:inHeli?heli.x:P.x),tz=(inCar?inCar.z:inHeli?heli.z:P.z),ty=inHeli?0:(inCar?0:P.y);
     const fx=Math.sin(camYaw),fz=Math.cos(camYaw);const wx=tx-fx*2.2+fz*1.6,wz=tz-fz*2.2-fx*1.6;const dx=wx-pet.x,dz=wz-pet.z,d=Math.hypot(dx,dz);
     if(d>40){pet.x=wx;pet.z=wz;}else if(d>.4){const sp=Math.min(d*3.2,inCar?40:14);pet.x+=dx/d*sp*dt;pet.z+=dz/d*sp*dt;pet.g.rotation.y=Math.atan2(dx,dz);pet.hop+=dt*14;}
-    pet.y+=(ty-pet.y)*Math.min(1,dt*6);const fly=pet.k==='dragon';pet.g.position.set(pet.x,pet.y+(fly?1.4+Math.sin(time*3)*.3:Math.abs(Math.sin(pet.hop))*.25),pet.z);
+    pet.y+=(ty-pet.y)*Math.min(1,dt*6);const fly=pet.k==='dragon'||!!pet.g.userData.fly;pet.g.position.set(pet.x,pet.y+(fly?1.4+Math.sin(time*3)*.3:Math.abs(Math.sin(pet.hop))*.25),pet.z);
     if(fly&&pet.g.userData.w){const a=Math.sin(time*14)*.5;pet.g.userData.w[0].rotation.z=.4+a;pet.g.userData.w[1].rotation.z=-.4-a;}
     pet.barkT-=dt;pet.zapT-=dt;let near=null,nd=22;for(const b of bots){if(b.friend)continue;const dd=Math.hypot(b.x-pet.x,b.z-pet.z);if(dd<nd){nd=dd;near=b;}}
     if(near&&pet.barkT<=0){pet.barkT=5;snd(pet.k==='cat'?700:pet.k==='dragon'?180:330,.12,'square',.05,pet.k==='cat'?500:200);setTimeout(()=>snd(pet.k==='cat'?650:300,.1,'square',.05),140);}
@@ -2069,7 +2071,7 @@ const FUN=(function(){
   const beamGeo=new THREE.CylinderGeometry(.5,.5,40,8,1,true);
   const beam=(col)=>{const m=new THREE.Mesh(beamGeo,new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.35,depthWrite:false,side:THREE.DoubleSide}));scene.add(m);return m;};
   const KICK={hydrant:1,trash:1,bench:1,cone:1,mailbox:1};
-  const TIPS=['Purple and orange portals near H Q take you to far away islands!','Go to the stadium for the arena and the weekly boss!','Buy superpowers in the three dots menu!','Your pet can dig up coins!','Build your dream car in the garage!','Find a brown trip board to go on an adventure!','Trips take you far away. Watch out for ambushes!','Yellow doors open! Go inside buildings and ride the glowing pads to the roof!','Jump on a trampoline to fly super high!','Purple portals take you across the city!','Treasure chests are hidden everywhere!','Open the explorer book in the three dots menu!','Every new place you find gives you coins!','Hot dog carts give you full health!','ATMs give you free coins!','Soda makes you run super fast!','Answer a phone booth to get a mission!','There are secret stars hidden all over town. Find them!','Robots come in waves. Explore, then get ready to fight!','Try fishing at the marina!','Tap the little map to see the whole city!','You can kick trash cans and fire hydrants!','Buy a house and decorate it!','The army base has a tank!','Watch out for robots! Stay safe!'];
+  const TIPS=['Build your own helpers at the helper workshop near H Q!','You can design your dog in the three dots menu!','Purple and orange portals near H Q take you to far away islands!','Go to the stadium for the arena and the weekly boss!','Buy superpowers in the three dots menu!','Your pet can dig up coins!','Build your dream car in the garage!','Find a brown trip board to go on an adventure!','Trips take you far away. Watch out for ambushes!','Yellow doors open! Go inside buildings and ride the glowing pads to the roof!','Jump on a trampoline to fly super high!','Purple portals take you across the city!','Treasure chests are hidden everywhere!','Open the explorer book in the three dots menu!','Every new place you find gives you coins!','Hot dog carts give you full health!','ATMs give you free coins!','Soda makes you run super fast!','Answer a phone booth to get a mission!','There are secret stars hidden all over town. Find them!','Robots come in waves. Explore, then get ready to fight!','Try fishing at the marina!','Tap the little map to see the whole city!','You can kick trash cans and fire hydrants!','Buy a house and decorate it!','The army base has a tank!','Watch out for robots! Stay safe!'];
   const QK=[['🐈‍⬛','my black cat'],['🐢','my turtle'],['👑','my crown'],['🎒','my backpack'],['🍦','my ice cream'],['🦜','my parrot'],['🐱','my cat'],['🐶','my puppy'],['📦','my package'],['⚽','my soccer ball'],['🧸','my teddy bear'],['🔑','my keys'],['🎈','my balloon']];
   function landNear(a0,a1){for(let k=0;k<60;k++){const a=Math.random()*6.28,d=a0+Math.random()*(a1-a0),x=P.x+Math.cos(a)*d,z=P.z+Math.sin(a)*d;if(isLand(x,z)&&!blocked(x,z,1.3))return{x,z};}return null;}
   function setupStars(){let sd=4242;const r=()=>{sd=(sd*16807)%2147483647;return sd/2147483647;};S.sf=S.sf||[];let n=0;
@@ -2400,8 +2402,111 @@ const FUN=(function(){
     BB.t-=dt;if(BB.t<=0){BB.t=4;if(BB.list.length+BB.resp.length<bbWant())bbSpawn();}}
   F.bbMini=function(m,X,Z,cl){m.font='16px serif';for(const o of BB.list)m.fillText(o.T[0],cl(X(o.b.x)),cl(Z(o.b.z)));};
   F.bbPOI=function(){return BB.list.map(o=>[o.b.x,o.b.z,o.T[0],o.T[1].toLowerCase()]);};
+
+  // ===== 🔧 HELPER WORKSHOP + 🐶 DOG BUILDER =====
+  const HCOL=['#3d7be0','#e53935','#43a047','#ffb300','#8e24aa','#00acc1','#ff6d00','#212121','#ffffff','#ff4fa3'];
+  const HTYPE={bot:{i:'🤖',n:'Blaster Bot',p:150,kind:'bot',hp:16,say:'A strong helper that blasts robots!'},fast:{i:'⚡',n:'Speedy',p:200,kind:'fast',hp:12,say:'Super fast and shoots quick!'},tank:{i:'🛡',n:'Tank Bot',p:350,kind:'tank',hp:45,say:'Super tough! It takes lots of hits!'},medic:{i:'💚',n:'Medic Bot',p:300,kind:'bot',hp:16,say:'It heals you when you get hurt!'}};
+  const HHAT={none:['🚫','Nothing'],ant:['📡','Antenna'],crown:['👑','Crown'],helm:['⛑','Helmet'],horns:['😈','Horns'],cap:['🧢','Cap']};
+  const HNAMES=['Zap','Bolt','Rex','Max','Chomp','Sparky','Turbo','Blaze','Robo','Ace','Buster','Nova'];
+  const HW={live:[],t:0,sel:0};
+  function nameSpr(t,col){const c=document.createElement('canvas');c.width=256;c.height=64;const x=c.getContext('2d');x.font='bold 36px system-ui';x.textAlign='center';x.textBaseline='middle';x.lineWidth=7;x.strokeStyle='#000';x.strokeText(t,128,34);x.fillStyle=col||'#fff';x.fillText(t,128,34);
+    const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:false,toneMapped:false}));sp.renderOrder=7;sp.scale.set(3,.75,1);return sp;}
+  function dressHelper(b,h){const T=HTYPE[h.t];b.g.material=[std(h.c,{metalness:.6,roughness:.35}),botDark,glow(h.t==='medic'?'#69f0ae':'#3ff2e0')];b.mat=b.g.material[0];
+    const s=1/(b.s||1),add=(m,x,y,z)=>{m.position.set(x,y,z);m.scale.multiplyScalar(s);b.g.add(m);return m;},gold=std('#ffd400',{metalness:.9,roughness:.2});
+    if(h.hat==='ant'){add(new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,.8,6),botDark),0,4.9,0);add(new THREE.Mesh(new THREE.SphereGeometry(.18,10,8),glow('#ff1744')),0,5.35,0);}
+    if(h.hat==='crown'){for(let k=0;k<5;k++){const a=k/5*6.28;add(new THREE.Mesh(new THREE.ConeGeometry(.16,.5,4),gold),Math.cos(a)*.5,4.75,Math.sin(a)*.5);}add(new THREE.Mesh(new THREE.TorusGeometry(.55,.1,6,16),gold),0,4.5,0).rotation.x=Math.PI/2;}
+    if(h.hat==='helm'){add(new THREE.Mesh(new THREE.SphereGeometry(.75,14,10,0,6.28,0,1.6),std('#cfd8dc',{metalness:.8})),0,4.3,0);}
+    if(h.hat==='horns'){[-1,1].forEach(sd=>{const c=add(new THREE.Mesh(new THREE.ConeGeometry(.15,.7,6),std('#b71c1c')),sd*.45,4.8,0);c.rotation.z=-sd*.4;});}
+    if(h.hat==='cap'){add(new THREE.Mesh(new THREE.CylinderGeometry(.6,.6,.3,14),std(h.c==='#e53935'?'#1565c0':'#e53935')),0,4.55,0);add(new THREE.Mesh(new THREE.BoxGeometry(.9,.06,.5),std('#222')),0,4.42,.6);}
+    if(h.t==='medic'){const w=std('#ffffff');add(new THREE.Mesh(new THREE.BoxGeometry(.5,.15,.05),glow('#ff1744')),0,2.6,.62);add(new THREE.Mesh(new THREE.BoxGeometry(.15,.5,.05),glow('#ff1744')),0,2.6,.62);}
+    const ns=nameSpr((T.i||'')+' '+h.n,'#7dff8a');ns.position.y=5.9;ns.scale.multiplyScalar(s);b.g.add(ns);
+    const t=new THREE.Mesh(new THREE.TorusGeometry(.9,.06,6,24),glow(h.c));t.rotation.x=Math.PI/2;t.position.y=4.2;t.scale.multiplyScalar(s);b.g.add(t);b.halo=t;}
+  function deployHelper(i){const h=S.hb[i];if(!h||!h.on||h.down&&Date.now()-h.down<60000||HW.live.some(o=>o.i===i))return;const T=HTYPE[h.t];if(P.dead||!started)return;
+    const a=P.face+Math.PI+(i-1)*.7;const b=spawnBot(T.kind,{x:P.x+Math.sin(a)*4,z:P.z+Math.cos(a)*4,y:P.y||0});if(!b)return;b.friend=true;b.built=1;b.life=1e9;b.hp=b.max=T.hp+(h.lv|0)*8;b.cool=.5;b.idx=i;dressHelper(b,h);HW.live.push({i,b});burst(b.x,2,b.z,24,h.c);}
+  function updHelpers(dt){if(!S.hb||!S.hb.length)return;HW.t-=dt;
+    for(let k=HW.live.length-1;k>=0;k--){const o=HW.live[k],h=S.hb[o.i];if(bots.indexOf(o.b)<0){HW.live.splice(k,1);if(h&&(o.b.hp<=0)){h.down=Date.now();save();showBanner('🔧 '+h.n+' needs fixing!<br><small>Back in 1 minute</small>');speak(h.n+' got knocked out! It will be fixed in one minute.');}continue;}
+      if(!h||!h.on){removeBot(o.b);HW.live.splice(k,1);continue;}
+      if(h.t==='medic'&&!P.dead&&Math.hypot(o.b.x-P.x,o.b.z-P.z)<9&&P.hp<100){P.hp=Math.min(100,P.hp+dt*(3+(h.lv|0)));if(Math.random()<dt*2)burst(P.x,1.6,P.z,3,'#69f0ae');}
+      o.b.cool=Math.min(o.b.cool,Math.max(.25,.9-(h.lv|0)*.12)+.0);}
+    if(HW.t<=0){HW.t=2;S.hb.forEach((h,i)=>deployHelper(i));}}
+  F.helperCount=()=>HW.live.length;
+  function hwDraft(){return HW.d||(HW.d={t:'bot',c:HCOL[0],hat:'ant',n:pick(HNAMES)});}
+  function openWorkshop(view){S.hb=S.hb||[];const v=view||'home';let h='<h1 style="font-size:30px">🔧 HELPER WORKSHOP</h1>'+money();
+    const sw=(c,on)=>'<button class="btn" data-a="col:'+c+'" style="width:54px;height:54px;padding:0;margin:4px;border-radius:50%;background:'+c+';'+(on?'outline:5px solid #ffd400;':'')+'"></button>';
+    if(v==='home'){h+='<div class="panel"><b style="font-size:20px">Your helpers ('+S.hb.length+'/3)</b><br>';
+      if(!S.hb.length)h+='<div style="font-size:18px;margin:8px">No helpers yet. Build one! 👇</div>';
+      S.hb.forEach((x,i)=>{const T=HTYPE[x.t],dn=x.down&&Date.now()-x.down<60000;h+='<div style="background:#0004;border-radius:14px;padding:6px;margin:6px;border-left:8px solid '+x.c+'"><span style="font-size:30px">'+T.i+'</span> <b style="font-size:20px">'+x.n+'</b> <small>⭐ Lv '+((x.lv|0)+1)+(dn?' · 🔧 fixing…':'')+'</small><br>'+
+        '<button class="btn" data-a="tog:'+i+'" style="margin:3px;'+(x.on?'background:linear-gradient(#53d769,#239b3a)':'')+'">'+(x.on?'✅ With me':'💤 Resting')+'</button>'+((x.lv|0)<4?'<button class="btn" data-a="up:'+i+'" style="margin:3px;background:linear-gradient(#ffcf3b,#e09a00)">⬆ Power up · '+(100*((x.lv|0)+1))+' 🪙</button>':'<small> MAX POWER!</small>')+
+        (dn?'<button class="btn" data-a="fix:'+i+'" style="margin:3px">🔧 Fix now · 40 🪙</button>':'')+'<button class="btn" data-a="del:'+i+'" style="margin:3px;background:#555">🗑</button></div>';});
+      h+='</div>'+(S.hb.length<3?bigBtn('new','➕ Build a new helper','linear-gradient(#4fc3f7,#0277bd)'):'')+'<div style="font-size:14px;opacity:.85">You can still zap robots into helpers with the 🤝 Buddy button!</div>';}
+    else{const d=hwDraft();h+='<div class="panel"><b>1️⃣ Pick a body</b><br>';for(const k in HTYPE){const T=HTYPE[k];h+='<button class="btn" data-a="type:'+k+'" style="margin:4px;min-width:130px;'+(d.t===k?'outline:5px solid #ffd400;':'')+'"><span style="font-size:30px">'+T.i+'</span><br>'+T.n+'<br><small>'+T.p+' 🪙</small></button>';}
+      h+='<br><b>2️⃣ Pick a color</b><br>'+HCOL.map(c=>sw(c,d.c===c)).join('')+'<br><b>3️⃣ Pick a hat</b><br>';for(const k in HHAT)h+='<button class="btn" data-a="hat:'+k+'" style="margin:4px;width:70px;height:70px;font-size:30px;padding:0;'+(d.hat===k?'outline:5px solid #ffd400;':'')+'">'+HHAT[k][0]+'</button>';
+      h+='<br><b>4️⃣ Pick a name</b><br><b style="font-size:26px">'+d.n+'</b><br>'+bigBtn('name','🎲 New name','')+'</div>'+bigBtn('make','🔨 BUILD IT! · '+HTYPE[d.t].p+' 🪙','linear-gradient(#53d769,#239b3a)')+bigBtn('back','⬅ Back','#555');}
+    panel(h,(a)=>{const[c,k]=a.split(':');const d=hwDraft();
+      if(c==='new'){openWorkshop('make');speak('Build a helper! Pick a body, a color, a hat, and a name!');return;}
+      if(c==='back'){openWorkshop();return;}
+      if(c==='type'){d.t=k;speak(HTYPE[k].n+'! '+HTYPE[k].say);}else if(c==='col')d.c=k;else if(c==='hat'){d.hat=k;speak(HHAT[k][1]);}else if(c==='name'){d.n=pick(HNAMES.filter(n=>n!==d.n));speak(d.n);}
+      else if(c==='make'){if(S.hb.length>=3){speak('You have three helpers already!');return;}if(!pay(HTYPE[d.t].p))return;S.hb.push({t:d.t,c:d.c,hat:d.hat,n:d.n,lv:0,on:true});HW.d=null;save();HW.t=0;showBanner('🔨 '+d.n+' is ready!');speak(d.n+' is built! Your new helper is coming!',1);snd(880,.15,'square',.05);setTimeout(()=>snd(1320,.3,'square',.05),150);openWorkshop();return;}
+      else if(c==='tog'){S.hb[+k].on=!S.hb[+k].on;save();HW.t=0;speak(S.hb[+k].on?S.hb[+k].n+' is coming with you!':S.hb[+k].n+' is resting.');}
+      else if(c==='up'){const x=S.hb[+k];if(!pay(100*((x.lv|0)+1)))return;x.lv=(x.lv|0)+1;save();const o=HW.live.find(o=>o.i===+k);if(o){o.b.max+=8;o.b.hp=o.b.max;}speak(x.n+' powered up!');}
+      else if(c==='fix'){if(!pay(40))return;S.hb[+k].down=0;save();HW.t=0;speak('Fixed!');}
+      else if(c==='del'){const o=HW.live.find(o=>o.i===+k);if(o){removeBot(o.b);}HW.live=HW.live.filter(o=>o.i!==+k).map(o=>o.i>+k?{i:o.i-1,b:o.b}:o);S.hb.splice(+k,1);save();speak('Helper taken apart.');}
+      openWorkshop(c==='type'||c==='col'||c==='hat'||c==='name'?'make':'home');});
+    if(!view)speak('The helper workshop! Build your own helpers with coins!');}
+  F.openWorkshop=openWorkshop;
+  // ---------- 🐶 dog builder ----------
+  const DCOL=['#c8a06a','#5d4037','#212121','#f5f5f5','#ff9800','#90a4ae','#ff80ab','#4fc3f7','#7cb342','#ffd54f'];
+  const DOPT={ears:{floppy:['👂','Floppy'],pointy:['🔺','Pointy'],robot:['📡','Robot']},tail:{wag:['〰️','Wiggly'],fluffy:['☁️','Fluffy'],robot:['⚙️','Robot']},size:{s:['🐁','Small'],m:['🐕','Medium'],l:['🐘','Big']},pat:{none:['⬜','Plain'],spots:['🐾','Spots'],patch:['🏴‍☠️','Eye patch']},
+    hat:{none:['🚫','No hat',0],cap:['🧢','Cap',50],party:['🥳','Party hat',50],cowboy:['🤠','Cowboy hat',80],crown:['👑','Crown',150],helm:['⛑','Helmet',100]},extra:{none:['🚫','Nothing',0],shades:['😎','Sunglasses',60],cape:['🦸','Super cape',120],jet:['🚀','Jetpack',200],wings:['🪽','Wings',250]},eyes:{norm:['👀','Normal',0],laser:['🔴','Laser eyes',100]}};
+  const dogC=()=>S.dogC=Object.assign({col:'#c8a06a',col2:'#212121',ears:'floppy',tail:'wag',size:'m',pat:'none',hat:'none',extra:'none',eyes:'norm',collar:'#e53935',name:'Rex'},S.dogC||{});
+  F.buildDog=function(){const C=dogC(),g=new THREE.Group();const m=std(C.col,{roughness:.6}),m2=std(C.col2,{roughness:.6}),dk=std('#222222'),wh=std('#ffffff');
+    box(.7,.45,1,m,0,.45,0,g);box(.55,.5,.5,m,0,.85,.55,g);box(.3,.22,.3,m,0,.72,.85,g);box(.14,.1,.06,dk,0,.8,1.01,g);
+    const ey=C.eyes==='laser'?glow('#ff1744'):dk;box(.09,.09,.04,ey,-.13,.95,.81,g);box(.09,.09,.04,ey,.13,.95,.81,g);
+    [[-.25,.3],[.25,.3],[-.25,-.3],[.25,-.3]].forEach(q=>box(.15,.3,.15,m,q[0],.15,q[1],g));
+    if(C.pat==='spots'){[[.36,.55,.1],[-.36,.45,-.25],[.36,.4,-.3],[0,.68,-.2]].forEach(q=>box(.06,.18,.2,m2,q[0],q[1],q[2],g));}
+    if(C.pat==='patch')box(.18,.18,.05,m2,.13,.95,.82,g);
+    if(C.ears==='floppy'){box(.12,.28,.08,m2,-.3,.95,.5,g);box(.12,.28,.08,m2,.3,.95,.5,g);}
+    if(C.ears==='pointy'){[-1,1].forEach(sd=>{const e=new THREE.Mesh(new THREE.ConeGeometry(.1,.3,4),m2);e.position.set(sd*.18,1.25,.5);g.add(e);});}
+    if(C.ears==='robot'){[-1,1].forEach(sd=>{box(.04,.35,.04,dk,sd*.18,1.25,.5,g);box(.1,.1,.1,glow('#00e5ff'),sd*.18,1.45,.5,g);});}
+    if(C.tail==='wag'){const t=box(.08,.08,.45,m,0,.65,-.65,g);t.rotation.x=.6;g.userData.tail=t;}
+    if(C.tail==='fluffy'){const t=new THREE.Mesh(new THREE.SphereGeometry(.22,10,8),m2);t.position.set(0,.72,-.6);g.add(t);g.userData.tail=t;}
+    if(C.tail==='robot'){const t=box(.06,.06,.45,dk,0,.65,-.65,g);box(.12,.12,.12,glow('#ffd400'),0,.75,-.88,g);g.userData.tail=t;}
+    box(.58,.08,.53,std(C.collar),0,.64,.55,g);box(.1,.1,.04,std('#ffd400',{metalness:.9}),0,.56,.83,g);
+    if(C.hat==='cap'){box(.5,.15,.5,std('#e53935'),0,1.17,.55,g);box(.5,.04,.25,std('#e53935'),0,1.1,.85,g);}
+    if(C.hat==='party'){const c=new THREE.Mesh(new THREE.ConeGeometry(.2,.5,10),std('#e040fb'));c.position.set(0,1.35,.55);g.add(c);}
+    if(C.hat==='cowboy'){const br=new THREE.Mesh(new THREE.CylinderGeometry(.45,.45,.04,14),std('#6d4c41'));br.position.set(0,1.12,.55);g.add(br);box(.32,.25,.32,std('#6d4c41'),0,1.26,.55,g);}
+    if(C.hat==='crown'){for(let k=0;k<5;k++){const a=k/5*6.28,c=new THREE.Mesh(new THREE.ConeGeometry(.06,.2,4),std('#ffd400',{metalness:.9}));c.position.set(Math.cos(a)*.2,1.25,.55+Math.sin(a)*.2);g.add(c);}}
+    if(C.hat==='helm'){const h=new THREE.Mesh(new THREE.SphereGeometry(.33,12,8,0,6.28,0,1.6),std('#cfd8dc',{metalness:.8}));h.position.set(0,1.05,.55);g.add(h);}
+    if(C.extra==='shades'){box(.5,.1,.04,std('#111'),0,.97,.83,g);}
+    if(C.extra==='cape'){const c=box(.6,.05,.7,std('#d50000'),0,.72,-.25,g);c.rotation.x=-.25;}
+    if(C.extra==='jet'){[-1,1].forEach(sd=>{box(.16,.35,.16,std('#90a4ae',{metalness:.8}),sd*.16,.78,-.35,g);box(.1,.15,.1,glow('#ff6d00'),sd*.16,.52,-.35,g);});}
+    if(C.extra==='wings'){const wg=std('#ffffff');const w1=box(.7,.05,.4,wg,-.55,.75,0,g),w2=box(.7,.05,.4,wg,.55,.75,0,g);w1.rotation.z=.4;w2.rotation.z=-.4;g.userData.w=[w1,w2];g.userData.fly=1;}
+    if(C.extra==='jet')g.userData.fly=1;
+    const ns=nameSpr('🐶 '+C.name,'#ffe082');ns.position.y=1.9;ns.scale.set(2.2,.55,1);g.add(ns);
+    const sc={s:.75,m:1,l:1.35}[C.size]||1;g.scale.setScalar(sc);g.traverse(o=>{if(o.isMesh)o.castShadow=true;});scene.add(g);return g;};
+  const DNAMES=['Rex','Max','Buddy','Rocky','Bolt','Coco','Duke','Biscuit','Zeus','Pepper','Scout','Tank','Rusty','Ziggy'];
+  function openDog(){const C=dogC();S.dogO=S.dogO||{};if(!S.pets||!S.pets.dog){S.pets=S.pets||{};S.pets.dog=1;}if(S.pet!=='dog')F.setPet('dog');
+    const sw=(f,c)=>'<button class="btn" data-a="'+f+':'+c+'" style="width:46px;height:46px;padding:0;margin:3px;border-radius:50%;background:'+c+';'+(C[f]===c?'outline:5px solid #ffd400;':'')+'"></button>';
+    const row=(f,title)=>{let r='<b>'+title+'</b><br>';for(const k in DOPT[f]){const o=DOPT[f][k],cost=o[2]|0,own=!cost||S.dogO[f+k];r+='<button class="btn" data-a="'+f+':'+k+'" style="margin:3px;min-width:74px;padding:4px;'+(C[f]===k?'outline:5px solid #ffd400;':'')+'"><span style="font-size:26px">'+o[0]+'</span><br><small>'+o[1]+(own?'':'<br>'+cost+' 🪙')+'</small></button>';}return r+'<br>';};
+    let h='<div style="font-size:26px;font-weight:bold">🐶 BUILD YOUR DOG</div>'+money()+'<div class="panel" style="text-align:center">'+
+      '<b>🎨 Color</b><br>'+DCOL.map(c=>sw('col',c)).join('')+'<br><b>🎨 Spots & ears color</b><br>'+DCOL.map(c=>sw('col2',c)).join('')+'<br>'+row('ears','👂 Ears')+row('tail','〰️ Tail')+row('size','📏 Size')+row('pat','🐾 Pattern')+
+      '<b>🔴 Collar</b><br>'+['#e53935','#1e88e5','#43a047','#ffd400','#8e24aa','#212121'].map(c=>sw('collar',c)).join('')+'<br>'+row('hat','🎩 Hat')+row('extra','✨ Extra')+row('eyes','👀 Eyes')+
+      '<b>📛 Name: '+C.name+'</b><br>'+bigBtn('name','🎲 New name','')+'</div>';
+    const d=panel(h,a=>{const i=a.indexOf(':'),f=a.slice(0,i),k=a.slice(i+1);
+      if(a==='name'){C.name=pick(DNAMES.filter(n=>n!==C.name));speak(C.name+'!');}
+      else if(DOPT[f]){const o=DOPT[f][k],cost=o[2]|0;if(cost&&!S.dogO[f+k]){if(!pay(cost))return;S.dogO[f+k]=1;speak('You got the '+o[1]+'!');}else speak(o[1]);C[f]=k;}
+      else C[f]=k;
+      S.dogC=C;save();F.setPet('dog');openDog();});
+    d.style.background='linear-gradient(transparent 0,transparent 30%,#000d 42%)';d.style.justifyContent='flex-end';d.style.paddingTop='36vh';
+    if(pet){const fx=Math.sin(camYaw),fz=Math.cos(camYaw);pet.x=P.x+fx*3.5;pet.z=P.z+fz*3.5;pet.g.position.set(pet.x,0,pet.z);pet.g.rotation.y=Math.atan2(-fx,-fz);}
+    if(!openDog.said){openDog.said=1;speak('Build your dog! Pick colors, ears, a hat and more!');}}
+  F.openDog=openDog;
+  function setupHW(){const t=$('tray');if(t&&!HW.btns){HW.btns=1;[['🔧 Helpers','linear-gradient(#78909c,#37474f)',()=>openWorkshop()],['🐶 Build my dog','linear-gradient(#ffcc80,#ef6c00)',openDog]].forEach(q=>{const x=document.createElement('button');x.className='btn';x.textContent=q[0];x.style.background=q[1];x.onclick=()=>{audioInit();q[2]();};t.insertBefore(x,t.children[1]||null);});}
+    if(!HW.ws&&started){HW.ws=1;for(let t2=0;t2<200;t2++){const a=t2*.41+1,d=14+t2*.35,x=BASE.x+Math.cos(a)*d,z=BASE.z+Math.sin(a)*d;if(isLand(x,z)&&!blocked(x,z,3)&&!onSeg(x,z)){const g=new THREE.Group();box(4,3,3,std('#546e7a'),0,1.5,0,g);box(4.4,.4,3.4,std('#ffb300'),0,3.2,0,g);box(1.4,1.8,.1,std('#263238'),0,.9,1.52,g);const sp=emoS('🔧',2.4);sp.position.set(x,5,z);g.position.set(x,0,z);scene.add(g);addBox(x-2,x+2,z-1.5,z+1.5,3,{kind:'bld'});
+      addAct({x,z:z+2.6,i:'🔧',label:'🔧 Helper Workshop',cdMax:1,fn:()=>openWorkshop()});ACTW['🔧']=['🔧 Build','Helper workshop! Tap to build helpers!'];break;}}}}
+  function updHW(dt){setupHW();updHelpers(dt);if(pet&&pet.k==='dog'&&pet.g.userData.tail){pet.g.userData.tail.rotation.y=Math.sin(time*12)*.6;}}
   F._t={B2,arenaStart,wbStart:()=>wbStart('t1',STAD?STAD.x:P.x,STAD?STAD.z:P.z,false),defStart,raceInvite,openGive,stickerPhoto,callCar,openGarage,openPowers,isl:()=>B2.isP};
-  F.update=function(dt){updPeds(dt);updExplore(dt);updMore(dt);updTrip(dt);updB2(dt);updEasy(dt);updSaveNow(dt);updBigBoss(dt);ammoHelp(dt);if((AMMO.blaster||0)<12&&S.gun==='blaster'){F.blT=(F.blT||0)+dt;if(F.blT>1.5){F.blT=0;AMMO.blaster=(AMMO.blaster||0)+1;}}updActs(dt);updArmy(dt);updNavy(dt);updJob(dt);updAttack(dt);updGameDay(dt);updShip(dt);updRamps(dt);updGps(dt);updProps(dt);updDistrict(dt);updTro(dt);updMusic();updPlane(dt);updRides();updHouses(dt);updPet(dt);updGP(dt);updSoccer(dt);updSea(dt);updSeason(dt);updHome(dt);updSpecial(dt);updSpots(dt);};
+  F.update=function(dt){updPeds(dt);updExplore(dt);updMore(dt);updTrip(dt);updB2(dt);updEasy(dt);updSaveNow(dt);updBigBoss(dt);updHW(dt);ammoHelp(dt);if((AMMO.blaster||0)<12&&S.gun==='blaster'){F.blT=(F.blT||0)+dt;if(F.blT>1.5){F.blT=0;AMMO.blaster=(AMMO.blaster||0)+1;}}updActs(dt);updArmy(dt);updNavy(dt);updJob(dt);updAttack(dt);updGameDay(dt);updShip(dt);updRamps(dt);updGps(dt);updProps(dt);updDistrict(dt);updTro(dt);updMusic();updPlane(dt);updRides();updHouses(dt);updPet(dt);updGP(dt);updSoccer(dt);updSea(dt);updSeason(dt);updHome(dt);updSpecial(dt);updSpots(dt);};
   F.icons=function(){$('mini').style.cursor='pointer';$('mini').addEventListener('click',()=>{audioInit();F.openMap();});const row=document.createElement('div');row.id='iconRow';const mk=(img,alt,fn)=>{const b=document.createElement('button');b.title=alt;b.innerHTML='<img src="/ui/'+img+'.png" alt="'+alt+'" onerror="this.parentNode.textContent=\''+alt+'\'">';b.onclick=()=>{audioInit();fn();};row.appendChild(b);};
     mk('map','🗺',()=>F.openMap());try{row.children[0].classList.add('mapIco');}catch(e){}mk('settings','⚙',()=>{openMenu();tab='set';renderMenu();});mk('trophy','🏆',()=>openBoard());mk('friends','👥',()=>openFriends());mk('shop','🛒',()=>openMenu());
     const tb=document.createElement('button');tb.title='More';tb.style.cssText='width:52px;height:52px;border-radius:50%;border:3px solid #fff;background:linear-gradient(#90a4ae,#455a64);color:#fff;font:bold 26px system-ui;line-height:1;padding:0';tb.textContent='⋯';row.appendChild(tb);
@@ -2632,7 +2737,7 @@ function update(dt){
   for(const b of bots.slice()){
     botPhys(b,dt);
     if(b.friend){ // ---- buddy AI ----
-      b.life-=dt;if(b.life<=0||b.hp<=0){burst(b.x,b.y+2,b.z,16,'#3ff2e0');removeBot(b);showBanner('🤖💤 A buddy powered down');continue;}
+      b.life-=dt;if(b.life<=0||b.hp<=0){burst(b.x,b.y+2,b.z,16,'#3ff2e0');removeBot(b);if(!b.built)showBanner('🤖💤 A buddy powered down');continue;}
       if(b.halo)b.halo.rotation.z+=dt*3;
       let tgt=null,bd=26;for(const e of bots){if(e.friend)continue;const d=Math.hypot(e.x-b.x,e.z-b.z);if(d<bd&&Math.abs(e.y-b.y)<4){bd=d;tgt=e;}}
       const k=buddies.indexOf(b),ang=P.face+Math.PI+(k-(buddies.length-1)/2)*.6;const hx=P.x+Math.sin(ang)*4,hz=P.z+Math.cos(ang)*4;const dp=Math.hypot(hx-b.x,hz-b.z);
