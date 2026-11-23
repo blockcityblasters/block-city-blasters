@@ -418,12 +418,12 @@ const rnd=(a,b)=>a+Math.random()*(b-a),pick=a=>a[Math.floor(Math.random()*a.leng
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 
 // ---------- renderer ----------
-const HIGH=S.gfx!=='low';
+const HIGH=S.gfx!=='low';const TOUCH=('ontouchstart' in window)||navigator.maxTouchPoints>0;let AQ=Math.max(+(S.aq||0),TOUCH?1:0); // auto quality level 0 best .. 3 fastest
 // curvy outskirts: downtown stays a straight grid, the edges of town get winding roads
 const WB={x:0,z:0};const wAmp=(x,z)=>{const d=Math.hypot(x-WB.x,z-WB.z);return 12*Math.max(0,Math.min(1,(d-140)/90));};
 const WX=(x,z)=>x+wAmp(x,z)*Math.sin(z/38+.7),WZ=(x,z)=>z+wAmp(x,z)*Math.sin(x/41+1.9);
-const R=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
-R.setPixelRatio(Math.min(window.devicePixelRatio||1,HIGH?2:1));
+const R=new THREE.WebGLRenderer({antialias:!TOUCH,powerPreference:'high-performance'});
+const PR=[2,1,.8,.65];R.setPixelRatio(Math.min(window.devicePixelRatio||1,HIGH?PR[AQ]:Math.min(1,PR[AQ])));
 R.outputEncoding=THREE.sRGBEncoding;R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=1.0;
 R.shadowMap.enabled=HIGH;R.shadowMap.type=THREE.PCFSoftShadowMap;
 R.domElement.id='view';document.body.prepend(R.domElement);
@@ -1400,12 +1400,12 @@ const WEV=(function(){
       W.t-=dt;if(W.t<=0){const r=Math.random();setWeather(W.type!=='clear'?'clear':r<.45?'rain':r<.7?'storm':'fog');}
       const k=Math.min(1,dt*.25);W.wf+=(W.tw-W.wf)*k;W.rain+=(W.tr-W.rain)*k;W.fog+=(W.tf-W.fog)*k;W.storm+=(W.ts-W.storm)*k;
       const u=skyMat.uniforms;gray.setRGB(.32,.35,.4);u.top.value.lerp(gray,W.wf*.75);c2.setRGB(.5,.53,.57);u.hor.value.lerp(c2,W.wf*.7);scene.fog.color.copy(u.hor.value);
-      sun.intensity*=1-.65*W.wf;hemi.intensity*=1+.4*W.wf;R.toneMappingExposure*=1-.12*W.wf;scene.fog.near=80-55*W.fog-20*W.rain;scene.fog.far=380-250*W.fog-120*W.rain;
+      sun.intensity*=1-.65*W.wf;hemi.intensity*=1+.4*W.wf;R.toneMappingExposure*=1-.12*W.wf;scene.fog.near=80-40*W.fog-15*W.rain;scene.fog.far=(AQ>=2?330:380)-170*W.fog-80*W.rain;
       roadMat.roughness=.92-.6*W.rain;roadMat.metalness=.25*W.rain;
-      rain.visible=W.rain>.02;if(rain.visible){rainM.opacity=.55*W.rain;const cx=cam.position.x,cz=cam.position.z,cy=cam.position.y;rain.position.set(cx,Math.max(0,cy-20),cz);
+      rain.visible=W.rain>.02;if(rain.visible){rg.setDrawRange(0,AQ>=2?rainN:rainN*2);rainM.opacity=.55*W.rain;const cx=cam.position.x,cz=cam.position.z,cy=cam.position.y;rain.position.set(cx,Math.max(0,cy-20),cz);
         for(let i=0;i<rainN;i++){let y=rainPos[i*6+1]-dt*38;if(y<0)y+=40;rainPos[i*6+1]=y;rainPos[i*6+4]=y-.9;}rg.attributes.position.needsUpdate=true;}
       rainSound(W.rain>.05);
-      if(W.storm>.5){W.boltT-=dt;if(W.boltT<=0){W.boltT=rnd(4,10);flashEl.style.transition='none';flashEl.style.opacity=.75;setTimeout(()=>{flashEl.style.transition='opacity .4s';flashEl.style.opacity=0;},90);setTimeout(()=>{snd(38,1.6,'sawtooth',.13,18);snd(70,.8,'square',.05,30);},rnd(300,1400));}}
+      if(W.storm>.5){W.boltT-=dt;if(W.boltT<=0){W.boltT=rnd(7,15);flashEl.style.transition='none';flashEl.style.opacity=.28;setTimeout(()=>{flashEl.style.transition='opacity .4s';flashEl.style.opacity=0;},90);setTimeout(()=>{snd(38,1.6,'sawtooth',.13,18);snd(70,.8,'square',.05,30);},rnd(300,1400));}}
       // landmarks
       lmAnim.forEach(f=>f(dt));lmT-=dt;if(lmT<=0){lmT=.5;S.found=S.found||{};for(const L of LMS){if(!S.found[L.t]&&!P.dead&&Math.hypot(L.x-P.x,L.z-P.z)<L.r){S.found[L.t]=1;S.coins+=50;save();showBanner('🗺 YOU FOUND '+L.name.toUpperCase()+'!<br><small>+50 coins</small>');speak('You discovered '+L.name.toLowerCase()+'! Fifty coins!');snd(784,.15,'square',.06);setTimeout(()=>snd(1046,.3,'square',.06),150);}}}
       // statues
@@ -1726,6 +1726,14 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
   if(!paused)update(dt);else{time+=dt;skyMat.uniforms.time.value=time;camYaw+=dt*.15;const fx=Math.sin(camYaw),fz=Math.cos(camYaw);{const a=P.x-fx*16,b=P.z-fz*16;cam.position.set(WX(a,b),P.y+8,WZ(a,b));cam.lookAt(WX(P.x,P.z),P.y+3,WZ(P.x,P.z));}sky.position.copy(cam.position);sun.position.set(P.x+SUN.x*150,SUN.y*150,P.z+SUN.z*150);sun.target.position.set(P.x,0,P.z);}
   R.render(scene,cam);}
 requestAnimationFrame(loop);
+// ---- keep it smooth: lower quality automatically on slower devices ----
+function applyAQ(){R.setPixelRatio(Math.min(window.devicePixelRatio||1,HIGH?PR[AQ]:Math.min(1,PR[AQ])));resize();
+  if(AQ>=1&&sun.shadow.mapSize.x>1024){sun.shadow.mapSize.set(1024,1024);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null;}}
+  cam.far=AQ>=2?360:430;cam.updateProjectionMatrix();sky.scale.setScalar((cam.far-25)/600);if(AQ>=2)sun.castShadow=false;}
+applyAQ();
+{let fr=0,ft=0,cool=8;const tick=(dt)=>{if(paused||document.hidden)return;fr++;ft+=dt;cool-=dt;if(ft>=4){const fps=fr/ft;fr=0;ft=0;if(cool<=0&&fps<38&&AQ<3){AQ++;S.aq=AQ;save();applyAQ();cool=6;}}};
+  let lt=performance.now();(function fl(now){requestAnimationFrame(fl);const d=Math.min(.25,(now-lt)/1000);lt=now;if(started)tick(d);})(lt);}
+cv.addEventListener('webglcontextlost',e=>{e.preventDefault();try{S.aq=Math.min(3,AQ+1);save();}catch(_){}const m=document.createElement('div');m.style.cssText='position:fixed;inset:0;z-index:200;background:#0b1638;color:#fff;display:flex;align-items:center;justify-content:center;font:bold 26px system-ui';m.textContent='🔄 Fixing the screen…';document.body.appendChild(m);setTimeout(()=>location.reload(),1200);});
 setInterval(()=>{if(!paused)save();},15000);
 document.addEventListener('visibilitychange',()=>{if(document.hidden){save();firing=false;}});
 })();
