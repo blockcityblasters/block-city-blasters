@@ -141,6 +141,7 @@ kbd{background:#fff;color:#222;border-radius:5px;padding:1px 6px;border-bottom:3
     <table class="keys">
       <tr><td>💥 FIRE</td><td>Shoots your weapon (auto-aims). In a car: car blasters. In the chopper: rockets.</td></tr>
       <tr><td>📦 Ammo</td><td>Ammo is NOT unlimited! The count is on the FIRE button. Find olive-and-yellow ammo crates (orange squares on the map). Robots sometimes drop them, bosses always do, and HQ has a crate that comes back every 45 seconds. Chopper rockets reload when you land at HQ.</td></tr>
+      <tr><td>📋 Missions</td><td>Tap the mission bar at the top (or 📋 Missions on the start screen) to see which missions you've done ✅ and which are left ⬜. Finish all of them for a +200 coin bonus! If you get zapped you keep your coins, but lose upgrades, gun power and mission progress.</td></tr>
       <tr><td>👥 Friends</td><td>Play together! Each person opens this same game on their own phone, tablet or computer at the same time (signed in to Claude, with the game shared to them). You'll see each other run, drive and fly, with name tags, and on the map. Your shots help each other beat robots. Set your name in Shop → Avatar.</td></tr>
       <tr><td>👥 Friends</td><td>Tap "👥 playing ▸" to see who's on, tap 🚀 Go to zoom to them, or 📨 invite a friend. Finish missions near a friend for a 🤝 Team Bonus!</td></tr>
       <tr><td>🏆 Top Blasters</td><td>Weekly leaderboard of your approved friends (new every Monday). 🎁 Come back every day for a daily prize — day 7 is the big one!</td></tr>
@@ -430,9 +431,9 @@ const DEF={voice:'1',glv:{},guns:{blaster:1},gun:'blaster',coins:25,shirt:'#2f7c
 let S=null;try{S=JSON.parse(localStorage.getItem('bcb_save1'))}catch(e){}
 S=Object.assign(JSON.parse(JSON.stringify(DEF)),S||{});
 let saveT=0;function save(){try{localStorage.setItem('bcb_save1',JSON.stringify(S))}catch(e){}}
-const DIFF={easy:{name:'Easy',z:5,base:4,per:1.8,cd:[2.6,3.8],dmg:9,spd:15,range:26,move:4},
-            normal:{name:'Normal',z:7,base:5,per:2.2,cd:[1.9,2.9],dmg:12,spd:18,range:30,move:4.5},
-            hard:{name:'Hard',z:9,base:6,per:2.6,cd:[1.4,2.2],dmg:16,spd:21,range:34,move:5}};
+const DIFF={easy:{name:'Easy',z:6,base:5,per:2.1,cd:[2.3,3.4],dmg:10.5,spd:16.5,range:28,move:4.3},
+            normal:{name:'Normal',z:8,base:6,per:2.5,cd:[1.7,2.6],dmg:14,spd:19.5,range:32,move:4.8},
+            hard:{name:'Hard',z:10,base:7,per:2.9,cd:[1.25,2.0],dmg:18.5,spd:22.5,range:36,move:5.3}};
 const D=()=>DIFF[S.diff]||DIFF.easy;
 if(S.xp===undefined)S.xp=(S.done||0)*10;
 const LV=()=>1+Math.floor((S.xp||0)/20);
@@ -864,7 +865,7 @@ S.built.slice().forEach(b=>placeBlock(b[0],b[1],b[2],true));save();
 
 // ---------- avatar ----------
 const HATS={none:{n:'No hat',p:0},cap:{n:'Cap',p:0},cone:{n:'Party Hat',p:30},horns:{n:'Viking Helmet',p:40},tophat:{n:'Top Hat',p:60},crown:{n:'Gold Crown',p:150},halo:{n:'Glowing Halo',p:200},goldhelm:{n:'🗿 Golden Helmet',p:0,u:2},pirate:{n:'🗿 Pirate Hat',p:0,u:4},wizard:{n:'🗿 Wizard Hat',p:0,u:6},astro:{n:'🗿 Astronaut Helmet',p:0,u:8},dragon:{n:'🗿 Dragon Horns',p:0,u:10}};
-const UPS={jump:{n:'Super Jump',d:'Jump way higher',p:50},run:{n:'Sprint Shoes',d:'Run faster and much longer',p:80},magnet:{n:'Coin Magnet',d:'Pulls in coins from far away',p:80},turbo:{n:'Turbo Cars',d:'Every car goes faster',p:70},rapid:{n:'Rapid Fire',d:'All weapons shoot faster',p:90},medic:{n:'Medic Training',d:'Health comes back sooner and faster',p:90},nitro:{n:'Nitro Boost',d:'In a car, tap Jump for a speed blast',p:100},armor:{n:'Body Armor',d:'Blue armor bar that takes hits first (refills at HQ + blue packs)',p:120},double:{n:'Double Shot',d:'Two bolts every shot',p:160},buddy:{n:'Buddy Battery',d:'Robo-Buddies last twice as long',p:180},chopper:{n:'Chopper Rocket Pods',d:'Helicopter fires 2 rockets, faster',p:200},jet:{n:'Rocket Boots',d:'Hold Jump in the air to fly up',p:250}};
+const UPS={jump:{n:'Super Jump',d:'Jump way higher',p:50},run:{n:'Sprint Shoes',d:'Run faster and much longer',p:80},magnet:{n:'Coin Magnet',d:'Pulls in coins from far away',p:80},turbo:{n:'Turbo Cars',d:'Every car goes faster',p:70},rapid:{n:'Rapid Fire',d:'All weapons shoot faster',p:90},medic:{n:'Medic Training',d:'Health comes back sooner and faster',p:90},nitro:{n:'Nitro Boost',d:'In a car, tap Jump for a speed blast',p:100},armor:{n:'Body Armor',d:'Blue armor bar that takes hits first (refills at HQ + blue packs)',p:120},aim:{n:'🎯 Auto-Aim Pro',d:'Locks on to enemies all around you — even beside you and up high — and shoots farther',p:140},double:{n:'Double Shot',d:'Two bolts every shot',p:160},buddy:{n:'Buddy Battery',d:'Robo-Buddies last twice as long',p:180},chopper:{n:'Chopper Rocket Pods',d:'Helicopter fires 2 rockets, faster',p:200},jet:{n:'Rocket Boots',d:'Hold Jump in the air to fly up',p:250}};
 const BUPS={b_armor:{n:'Buddy Armor',d:'Buddies have 2.5× more health',p:120},b_charge:{n:'Quick Charge',d:'Buddy Ray recharges twice as fast',p:140},b_blast:{n:'Buddy Blasters',d:'Buddies shoot faster and hit harder',p:150},b_medic:{n:'Medic Buddies',d:'Buddies near you heal you',p:180},b_squad:{n:'Buddy Squad',d:'Have up to 5 buddies at once',p:200},b_rocket:{n:'Buddy Rockets',d:'Buddies sometimes fire exploding rockets',p:220}};
 const ALLUP=Object.assign({},UPS,BUPS);
 const GUNS={blaster:{n:'Blaster',i:'🔫',d:'Trusty laser pistol',cd:.28,dmg:1,spd:48,col:'#6ff7ff',p:0},
@@ -1049,6 +1050,8 @@ function addCharge(){if(buddyCharges<(S.up.b_squad?5:3)){buddyCharges++;snd(1500
 function makeBuddy(b){b.friend=true;b.hp=S.up.b_armor?20:8;b.life=S.up.buddy?180:90;b.cool=.5;b.g.material=[std('#3d7be0',{metalness:.7,roughness:.3}),botDark,visorF];b.mat=b.g.material[0];b.idx=enemies().length;
   const t=new THREE.Mesh(new THREE.TorusGeometry(.9,.06,6,24),glow('#3ff2e0'));t.rotation.x=Math.PI/2;t.position.y=4.6;b.g.add(t);b.halo=t;
   burst(b.x,2,b.z,20,'#3ff2e0');}
+let lockTgt=null,lockT=0;const lockSpr=(()=>{const c=document.createElement('canvas');c.width=c.height=96;const x=c.getContext('2d');x.strokeStyle='#ff1744';x.lineWidth=7;x.beginPath();x.arc(48,48,34,0,7);x.stroke();x.beginPath();[[48,4,48,26],[48,70,48,92],[4,48,26,48],[70,48,92,48]].forEach(l=>{x.moveTo(l[0],l[1]);x.lineTo(l[2],l[3]);});x.stroke();
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:false,toneMapped:false}));sp.renderOrder=8;sp.visible=false;scene.add(sp);return sp;})();
 function useBuddy(){if(P.dead)return;if(buddyCharges<1){showBanner('🔋 Buddy Ray charging…<br><small>Beat 4 robots to charge</small>');return;}
   {const mxb=S.up.b_squad?5:3;if(bots.filter(b=>b.friend).length>=mxb){showBanner('You already have '+mxb+' buddies!');return;}}
   const sx=P.x,sz=P.z;let tgt=null,bd=32;for(const b of bots){if(b.friend||b.boss||b.zombie)continue;const d=Math.hypot(b.x-sx,b.z-sz);if(d<bd){bd=d;tgt=b;}}
@@ -1194,7 +1197,7 @@ function weekKey(){const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()
 function wkCheck(){const k=weekKey();if(S.wk!==k){S.wk=k;S.wkxp=0;S.wkm=0;}}
 let scoreDirty=true;setInterval(()=>{if(!scoreDirty||!window.BCB_SCORE)return;scoreDirty=false;wkCheck();window.BCB_SCORE({wk:S.wk,xp:S.wkxp|0,lv:LV(),missions:S.wkm|0});},45000);
 function addXP(n,delay){wkCheck();S.wkxp=(S.wkxp||0)+n;scoreDirty=true;const l0=LV();S.xp=(S.xp||0)+n;if(LV()>l0){const f=()=>{speak('Level up! Level '+LV());showBanner('⬆ LEVEL '+LV()+'!<br><small>Robots, zombies &amp; bosses got tougher!</small>');snd(523,.15,'square',.06);setTimeout(()=>snd(784,.3,'square',.06),150);};if(delay)setTimeout(f,delay);else f();}}
-function completeMission(){let tm=0;try{MP.each(o=>{if(!o.dead&&Math.hypot(o.x-P.x,o.z-P.z)<60)tm++;});}catch(e){}const tb=tm?Math.round(mission.reward*.5):0;speak(tm?'Mission complete! Team bonus!':'Mission complete! Great job!');S.coins+=mission.reward+tb;wkCheck();S.wkm=(S.wkm||0)+1;if(tb)setTimeout(()=>showBanner('🤝 TEAM BONUS! +'+tb+' 🪙'),2600);S.done++;addXP(10,2400);save();showBanner('MISSION COMPLETE!<br>+'+mission.reward+' 🪙');
+function completeMission(){try{S.mdone=S.mdone||{};S.mdone[mission.type]=(S.mdone[mission.type]||0)+1;if(MTYPES.every(t=>S.mdone[t])){setTimeout(()=>{S.coins+=200;S.mdone={};save();showBanner('🏆 ALL MISSIONS DONE!<br><small>+200 🪙 bonus — starting a new round!</small>');speak('You finished every mission! Two hundred bonus coins!');},5200);}}catch(e){}let tm=0;try{MP.each(o=>{if(!o.dead&&Math.hypot(o.x-P.x,o.z-P.z)<60)tm++;});}catch(e){}const tb=tm?Math.round(mission.reward*.5):0;speak(tm?'Mission complete! Team bonus!':'Mission complete! Great job!');S.coins+=mission.reward+tb;wkCheck();S.wkm=(S.wkm||0)+1;if(tb)setTimeout(()=>showBanner('🤝 TEAM BONUS! +'+tb+' 🪙'),2600);S.done++;addXP(10,2400);save();showBanner('MISSION COMPLETE!<br>+'+mission.reward+' 🪙');
   snd(660,.12,'square',.06);setTimeout(()=>snd(880,.12,'square',.06),120);setTimeout(()=>snd(1320,.25,'square',.06),240);
   collect.forEach(c=>scene.remove(c.m));collect.length=0;clearMission(false);mission=null;missionWait=4;addCharge();}
 function failMission(msg){showBanner(msg);speak('Oh no! Mission failed. Try again!');collect.forEach(c=>scene.remove(c.m));collect.length=0;clearMission(true);mission=null;missionWait=3;}
@@ -1260,8 +1263,9 @@ function shoot(){if(P.dead||fireCool>0)return;
   let sx,sy,sz,fx,fz;
   if(inCar){const f=carFwd(inCar);fx=f[0];fz=f[1];sx=inCar.x+fx*2.6;sy=1.2;sz=inCar.z+fz*2.6;}
   else{fx=Math.sin(camYaw);fz=Math.cos(camYaw);sx=P.x;sy=P.y+1.5;sz=P.z;}
-  let tgt=null,bd=G.splash?50:40;
-  for(const b of bots){if(b.friend||(!b.turret&&Math.abs((b.y||0)-(inCar?0:P.y))>3.5))continue;const dx=b.x-sx,dz=b.z-sz,d=Math.hypot(dx,dz);if(d<bd&&d>0&&(dx*fx+dz*fz)/d>(inCar?.8:.35)){bd=d;tgt=b;}}
+  const AIM=!!S.up.aim;let tgt=null,bd=(G.splash?50:40)*(AIM?1.5:1);
+  for(const b of bots){if(b.friend||(!b.turret&&Math.abs((b.y||0)-(inCar?0:P.y))>(AIM?14:3.5)))continue;const dx=b.x-sx,dz=b.z-sz,d=Math.hypot(dx,dz);if(d<bd&&d>0&&(dx*fx+dz*fz)/d>(inCar?(AIM?.45:.8):(AIM?-.35:.35))){bd=d;tgt=b;}}
+  if(AIM&&tgt){lockTgt=tgt;lockT=.8;}
   let dx,dy,dz;
   const uf=WEV.ufoTarget(sx,sz,fx,fz,70,.3);if(uf&&(!tgt||Math.hypot(uf.x-sx,uf.z-sz)<bd)){dx=uf.x-sx;dz=uf.z-sz;dy=uf.y-sy;}
   else if(tgt){dx=tgt.x-sx;dz=tgt.z-sz;dy=(tgt.y||0)+tgt.s*(G.splash?1:2.1)-sy;}else{dx=fx;dz=fz;dy=0;}
@@ -1316,7 +1320,7 @@ function hurt(dmg,fx,fz){if(P.dead)return;dmg*=1+.3*nightAmt;
   P.hp-=dmg;P.lastHit=0;shake=Math.max(shake,.22+Math.min(.5,dmg*.03));
   if(fx!==undefined){const ddx=fx-P.x,ddz=fz-P.z,cf=Math.sin(camYaw),cz=Math.cos(camYaw);const rx=ddx*(-cz)+ddz*cf,ry=ddx*cf+ddz*cz;const hd=$('hitdir');hd.style.transition='none';hd.style.opacity=1;hd.style.transform='rotate('+Math.atan2(rx,ry)+'rad)';setTimeout(()=>{hd.style.transition='opacity .6s';hd.style.opacity=0;},60);
     if(!inCar&&!inHeli){const d=Math.hypot(ddx,ddz)||1,kx=-ddx/d*.45,kz=-ddz/d*.45;if(!blocked(P.x+kx,P.z+kz,.5,P.y)){P.x+=kx;P.z+=kz;}}}const f=$('flash');f.style.opacity=1;setTimeout(()=>f.style.opacity=0,120);snd(120,.15,'sawtooth',.05,60);
-  if(P.hp<=0){P.hp=0;P.dead=true;streak=0;streakReady=false;const lost=Object.keys(S.up).filter(k=>S.up[k]);S.up={};P.ap=0;refreshAvatar();save();$('deadmsg').innerHTML=lost.length?'You lost your upgrades: <b>'+lost.map(k=>ALLUP[k]?ALLUP[k].n:k).join(', ')+'</b><br>Your 🪙 '+S.coins+' coins are safe — buy them back in the Shop!':'Your 🪙 '+S.coins+' coins are safe.';{const rl=LV();S.best=Math.max(S.best||1,rl);S.done=0;S.xp=0;save();$('deadmsg').innerHTML+='<br>Level reset! You reached <b>LV '+rl+'</b> · Best ever: LV '+S.best;collect.forEach(c=>scene.remove(c.m));collect.length=0;clearMission(true);mission=null;missionWait=4;bots.slice().forEach(b=>{if(b.boss)removeBot(b);});}
+  if(P.hp<=0){P.hp=0;P.dead=true;streak=0;streakReady=false;const lost=Object.keys(S.up).filter(k=>S.up[k]);if(S.glv&&Object.keys(S.glv).some(k=>S.glv[k]>1))lost.push('gunpower');S.up={};S.glv={};S.mdone={};P.ap=0;refreshAvatar();save();$('deadmsg').innerHTML=lost.length?'You lost your upgrades: <b>'+lost.map(k=>k==='gunpower'?'Gun power levels':ALLUP[k]?ALLUP[k].n:k).join(', ')+'</b><br>Your 🪙 '+S.coins+' coins are safe — buy them back in the Shop!':'Your 🪙 '+S.coins+' coins are safe.';{const rl=LV();S.best=Math.max(S.best||1,rl);S.done=0;S.xp=0;save();$('deadmsg').innerHTML+='<br>Level reset! You reached <b>LV '+rl+'</b> · Best ever: LV '+S.best;collect.forEach(c=>scene.remove(c.m));collect.length=0;clearMission(true);mission=null;missionWait=4;bots.slice().forEach(b=>{if(b.boss)removeBot(b);});}
     if(inCar){inCar.v=0;inCar=null;}if(inHeli){inHeli=false;resetHeli();}P.chute=false;chute.visible=false;av.g.visible=false;burst(P.x,P.y+1.5,P.z,20,'#2f7cf6');$('dead').classList.remove('hidden');heat=0;speak('Oh no, you got zapped!');
     if(mission&&mission.type==='deliver')failMission('Delivery failed!');
     setTimeout(()=>{if(heli.crashed||heli.crashing)resetHeli();P.x=BASE.x;P.z=BASE.z+6;P.y=0;P.vy=0;P.hp=100;P.ap=S.up.armor?100:0;P.dead=false;setRegion(1,false);startAmmo();heliAmmo=HELI_MAXA;av.g.visible=true;$('dead').classList.add('hidden');
@@ -1521,6 +1525,13 @@ async function openBoard(){if(!window.BCB_BOARD){showBanner('🏆 Leaderboard ne
     d.querySelector('#bRows').innerHTML=B.rows.length?B.rows.map((r,i)=>'<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;margin:6px 0;border-radius:14px;background:'+(r.uid===B.me?'#fff3':'#0002')+(r.uid===B.me?';border:2px solid #fff':'')+'"><b style="width:34px;font-size:'+(i<3?26:18)+'px">'+(md[i]||(i+1))+'</b><span style="font-size:28px">'+e2(r.pic)+'</span><b style="flex:1;text-align:left;font-size:18px">'+e2(r.nick)+(r.uid===B.me?' (you)':'')+'<small style="display:block;font-weight:normal">LV '+r.lv+' · '+r.missions+' missions</small></b><b style="font-size:18px">'+r.xp+' XP</b></div>').join(''):'Nobody yet this week — go be #1!';
     const myI=B.rows.findIndex(r=>r.uid===B.me);speak(myI===0?'You are number one this week!':myI>0?'You are number '+(myI+1)+' this week!':'Play missions to get on the board!');}
   catch(e){d.querySelector('#bRows').textContent='Could not load right now';}}
+function openMissions(){const old=document.getElementById('mlogP');if(old){old.remove();return;}S.mdone=S.mdone||{};const done=MTYPES.filter(t=>S.mdone[t]).length;
+  const d=document.createElement('div');d.id='mlogP';d.style.cssText='position:fixed;inset:0;z-index:61;background:#0009;display:flex;align-items:center;justify-content:center;font-family:system-ui';
+  d.innerHTML='<div style="background:linear-gradient(#2a5fd8,#14306f);border:3px solid #fff;border-radius:20px;padding:14px;color:#fff;width:min(560px,94vw);max-height:86vh;overflow:auto;text-align:center"><div style="font:900 26px system-ui">📋 MISSIONS</div><div style="margin:4px 0 8px">✅ '+done+' done · ⬜ '+(MTYPES.length-done)+' left — finish them all for <b>+200 🪙</b>!</div>'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px">'+MTYPES.map(t=>{const m=MINFO[t]||{i:'🎯',n:t},c=S.mdone[t]||0,cur=mission&&mission.type===t;return'<div style="border-radius:14px;padding:8px 4px;background:'+(c?'#2e7d32':cur?'#f9a825':'#ffffff1f')+';border:2px solid '+(cur?'#fff':'transparent')+'"><div style="font-size:30px">'+m.i+'</div><div style="font-size:12px;font-weight:bold">'+m.n+'</div><div style="font-size:18px">'+(c?'✅'+(c>1?' ×'+c:''):cur?'▶ NOW':'⬜')+'</div></div>';}).join('')+'</div>'+
+    '<button id="mlClose" style="width:100%;font:bold 20px system-ui;padding:10px;border-radius:14px;border:0;background:#ffffff33;color:#fff;margin-top:10px">Close</button></div>';
+  document.body.appendChild(d);d.querySelector('#mlClose').onclick=()=>d.remove();d.addEventListener('pointerdown',e=>{if(e.target===d)d.remove();});
+  speak('You finished '+done+' missions. '+(MTYPES.length-done)+' to go!');}
 function closeFriends(){const d=document.getElementById('friendsP');if(d)d.remove();}
 function openFriends(){closeFriends();const d=document.createElement('div');d.id='friendsP';d.style.cssText='position:fixed;inset:0;z-index:40;background:#0008;display:flex;align-items:center;justify-content:center;font-family:system-ui';
   const list=[];MP.each(o=>list.push(o));const esc2=t=>String(t).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
@@ -1531,6 +1542,8 @@ function openFriends(){closeFriends();const d=document.createElement('div');d.id
   document.body.appendChild(d);d.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>goToFriend(list[+b.dataset.i]));d.querySelector('#fClose').onclick=closeFriends;const iv=d.querySelector('#fInv');if(iv)iv.onclick=friendInvite;d.querySelector('#fBoard').onclick=()=>{closeFriends();openBoard();};
   d.addEventListener('pointerdown',e=>{if(e.target===d)closeFriends();});speak(list.length?'Tap go to zoom to a friend':'No friends online right now');}
 $('online').addEventListener('click',()=>{audioInit();openFriends();});
+$('mission').style.pointerEvents='auto';$('mission').style.cursor='pointer';$('mission').addEventListener('click',()=>{audioInit();openMissions();});
+{const row=$('playBtn').parentElement;const b=document.createElement('button');b.className='btn';b.style.fontSize='18px';b.textContent='📋 Missions';b.onclick=()=>{audioInit();openMissions();};row.insertBefore(b,row.children[2]||null);}
 if(window.BCB_NET){const row=$('playBtn').parentElement;const b1=document.createElement('button');b1.className='btn';b1.style.fontSize='18px';b1.textContent='🏆 Top Blasters';b1.onclick=()=>{audioInit();openBoard();};row.appendChild(b1);
   const b2=document.createElement('button');b2.className='btn';b2.style.fontSize='18px';b2.textContent='📨 Invite';b2.onclick=friendInvite;row.appendChild(b2);}
 // keep it full screen like an app (Chrome can drop out of full screen)
@@ -1725,7 +1738,7 @@ function update(dt){
     const d=Math.hypot(c.x-P.x,c.z-P.z);if(d<mag&&!P.dead&&Math.abs(P.y-c.y)<2.5){c.x+=(P.x-c.x)*dt*4;c.z+=(P.z-c.z)*dt*4;c.m.position.x=c.x;c.m.position.z=c.z;}
     if(d<pr&&!P.dead&&Math.abs(P.y-c.y)<2.5){S.coins+=c.val;snd(1200,.08,'sine',.05,1800);scene.remove(c.m);coins.splice(i,1);saveT=1;}else if(c.life<=0){scene.remove(c.m);coins.splice(i,1);}}
   for(let i=packs.length-1;i>=0;i--){const p=packs[i];p.g.rotation.y+=dt*2;if(Math.hypot(p.x-P.x,p.z-P.z)<pr&&P.y<4&&!P.dead){let msg,say2,col;
-      if(!p.ap){if(P.hp<100){const h=Math.min(40,100-P.hp);P.hp=Math.min(100,P.hp+40);msg='❤️ +'+Math.round(h)+' HEALTH';say2='Health!';}else{S.coins+=5;msg='❤️ Health already full<br><small>+5 🪙 instead</small>';say2='Health full. Five coins!';}col='#ff5a6a';}
+      if(!p.ap){if(P.hp<100){const h=Math.min(30,100-P.hp);P.hp=Math.min(100,P.hp+30);msg='❤️ +'+Math.round(h)+' HEALTH';say2='Health!';}else{S.coins+=5;msg='❤️ Health already full<br><small>+5 🪙 instead</small>';say2='Health full. Five coins!';}col='#ff5a6a';}
       else if(S.up.armor&&P.ap<100){P.ap=Math.min(100,P.ap+50);msg='🛡 +50 ARMOR';say2='Armor!';col='#4fa3ff';}
       else{const r=Math.random();col='#4fa3ff';if(r<.4){const c=10+Math.floor(Math.random()*25);S.coins+=c;msg='🎁 SURPRISE! +'+c+' 🪙';say2='Surprise! '+c+' coins!';}else if(r<.7){giveAmmo(true);msg='🎁 SURPRISE! 📦 AMMO';say2='Surprise! Ammo!';}else if(r<.9){P.hp=100;msg='🎁 SURPRISE! ❤️ FULL HEALTH';say2='Surprise! Full health!';}else{addXP(5);msg='🎁 SURPRISE! +5 XP';say2='Surprise! Bonus X P!';}}
       burst(p.x,1.2,p.z,24,col);snd(700,.15,'sine',.05,1100);setTimeout(()=>snd(1050,.2,'sine',.05,1400),110);showBanner(msg);speak(say2);saveT=1;scene.remove(p.g);packs.splice(i,1);setTimeout(spawnPack,8000);}}
@@ -1755,6 +1768,7 @@ function update(dt){
     if(mission&&mission.type==='turrets'&&mission.turrets.every(b=>bots.indexOf(b)<0)&&mission.count<mission.need){mission.count=mission.need;completeMission();}
     if(mission&&mission.type==='stars'){for(let i=collect.length-1;i>=0;i--){const c=collect[i];c.m.rotation.y+=dt*3;if(Math.hypot(c.x-P.x,c.z-P.z)<1.8&&Math.abs(c.y-(P.y+1.2))<1.8){scene.remove(c.m);collect.splice(i,1);mission.count++;snd(1000+mission.count*80,.12,'sine',.06);if(mission&&mission.count>=mission.need)completeMission();}}}}
   MP.update(dt);WEV.update(dt);
+  if(lockT>0&&lockTgt&&bots.indexOf(lockTgt)>=0&&!lockTgt.friend){lockT-=dt;lockSpr.visible=true;lockSpr.position.set(lockTgt.x,(lockTgt.y||0)+lockTgt.s*2.6+1,lockTgt.z);const k=1.4+Math.sin(time*12)*.15;lockSpr.scale.set(k,k,1);}else{lockSpr.visible=false;lockT=0;}
   // camera (pulls in if a building is in the way)
   const tx=inCar?inCar.x:P.x,tz=inCar?inCar.z:P.z,ty=inCar?0:P.y;const fx=Math.sin(camYaw),fz=Math.cos(camYaw);const inside=P.inB&&floorOf(P.inB,P.y)<P.inB.F;const want_=inCar?11:inHeli?17:inside?5.5:(P.running?8.5:7.5),hgt=inCar?5:inHeli?6.5:inside?2.5:4;
   let dd=want_;for(let s=.5;s<=want_;s+=.5){if(pointInBox(tx-fx*s,ty+hgt*s/want_+.5,tz-fz*s)){dd=inside?Math.max(2.5,s-.6):Math.max(.4,s-.8);break;}}
