@@ -142,6 +142,8 @@ kbd{background:#fff;color:#222;border-radius:5px;padding:1px 6px;border-bottom:3
       <tr><td>💥 FIRE</td><td>Shoots your weapon (auto-aims). In a car: car blasters. In the chopper: rockets.</td></tr>
       <tr><td>📦 Ammo</td><td>Ammo is NOT unlimited! The count is on the FIRE button. Find olive-and-yellow ammo crates (orange squares on the map). Robots sometimes drop them, bosses always do, and HQ has a crate that comes back every 45 seconds. Chopper rockets reload when you land at HQ.</td></tr>
       <tr><td>👥 Friends</td><td>Play together! Each person opens this same game on their own phone, tablet or computer at the same time (signed in to Claude, with the game shared to them). You'll see each other run, drive and fly, with name tags, and on the map. Your shots help each other beat robots. Set your name in Shop → Avatar.</td></tr>
+      <tr><td>👥 Friends</td><td>Tap "👥 playing ▸" to see who's on, tap 🚀 Go to zoom to them, or 📨 invite a friend. Finish missions near a friend for a 🤝 Team Bonus!</td></tr>
+      <tr><td>🏆 Top Blasters</td><td>Weekly leaderboard of your approved friends (new every Monday). 🎁 Come back every day for a daily prize — day 7 is the big one!</td></tr>
       <tr><td>💬 Talk</td><td>When friends are playing, tap 💬 Talk and pick a picture (👋 Hi!, 🙌 Follow me!, 🆘 Help me!…). Your friend sees a bubble over your head and hears it read out loud.</td></tr>
       <tr><td>🌦 Surprises</td><td>Random weather (rain makes roads slippery, thunderstorms, fog) and random events: 🛸 UFO attacks, 🦾 a giant Titan robot, ☄️ meteor showers (run from the red circles, grab the space crystals). Find 4 landmarks (stadium, airport, theme park with a Ferris wheel, lighthouse) for +50 coins each, and hunt for 10 hidden 🗿 golden statues (some are on rooftops!) to unlock special hats.</td></tr>
       <tr><td>🎯 Missions</td><td>Missions are glowing beams with a picture on top (also on the map). Walk or drive into one — a talking helper explains it with a moving picture — then press ▶ GO! 13 kinds: Robot Attack, Zombie Horde, Speed Delivery, Star Hunt, Giant Boss, 🏁 Street Race (drive through the gates), 🏢 Rooftop Rescue, 🛡 Defend HQ (protect the core), 💣 Bomb Squad (stand on bombs to defuse), 🪙 Coin Rush, 🚁 Rooftop Tanks, 💥 Demolition Derby and ✨ Golden Robot (it runs away — catch it for lots of coins!).</td></tr>
@@ -197,6 +199,20 @@ kbd{background:#fff;color:#222;border-radius:5px;padding:1px 6px;border-bottom:3
   <button class="btn" id="bno" style="font-size:26px;width:64px;height:64px;border-radius:50%;background:linear-gradient(#8a8f99,#4b5059)">✖</button></div></div>
 <div id="dead" class="overlay hidden"><h1>ZAPPED!</h1><p>The robots got you. Respawning at HQ…</p><p id="deadmsg"></p></div>
 
+<style>#intro{position:fixed;inset:0;z-index:150;background:radial-gradient(circle at 50% 40%,#3d8bff,#0b1638 75%);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:opacity .5s}
+#intro img{width:min(640px,88vw);max-height:62vh;object-fit:contain;border-radius:20px;box-shadow:0 10px 40px #000a;animation:inZoom 1.1s cubic-bezier(.2,1.6,.4,1) both}
+#intro .tt{font:900 54px system-ui;color:#ffd400;text-shadow:0 4px 0 #8a4200;text-align:center;animation:inZoom 1.1s cubic-bezier(.2,1.6,.4,1) both}
+#intro .tap{margin-top:18px;font:bold 24px system-ui;color:#fff;background:#ffffff22;border:3px solid #fff;border-radius:40px;padding:10px 28px;animation:pulse 1.1s ease-in-out infinite}
+@keyframes inZoom{0%{transform:scale(.2) rotate(-8deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}@keyframes pulse{50%{transform:scale(1.08)}}</style>
+<div id="intro"><img src="/logo.jpg" alt="Block City Blasters" onerror="this.outerHTML='<div class=tt>BLOCK CITY<br>BLASTERS</div>'"><div class="tap">👆 Tap to start</div></div>
+<script>
+(function(){const el=document.getElementById('intro');let gone=false;
+  function go(){if(gone)return;gone=true;
+    try{const A=new (window.AudioContext||window.webkitAudioContext)();[523,659,784,1046].forEach((f,i)=>{const o=A.createOscillator(),g=A.createGain();o.type='square';o.frequency.value=f;g.gain.setValueAtTime(.06,A.currentTime+i*.12);g.gain.exponentialRampToValueAtTime(.001,A.currentTime+i*.12+.35);o.connect(g);g.connect(A.destination);o.start(A.currentTime+i*.12);o.stop(A.currentTime+i*.12+.4);});}catch(e){}
+    try{const u=new SpeechSynthesisUtterance('Block City Blasters!');u.rate=1.05;u.pitch=1.2;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}
+    el.style.opacity=0;setTimeout(()=>el.remove(),550);}
+  el.addEventListener('pointerdown',go);})();
+</script>
 <style>#dlBtn{position:fixed;left:50%;transform:translateX(-50%);top:8px;z-index:101;font-size:17px;font-weight:bold;padding:9px 18px;border-radius:14px;border:2px solid #fff;background:linear-gradient(#ffb74d,#f57c00);color:#fff;box-shadow:0 4px 0 #8a4200;display:none}
 #dlHelp{position:fixed;inset:0;z-index:102;background:#000c;color:#fff;display:none;align-items:center;justify-content:center;text-align:center;font-family:system-ui,sans-serif}#dlHelp div{background:#2a5fd8;border:3px solid #fff;border-radius:20px;padding:18px;max-width:340px;font-size:19px}#dlHelp b{font-size:40px;display:block}</style>
 <button id="dlBtn">📲 Download game</button><div id="dlHelp"><div><b>📲</b>To download:<br>1. Tap <b style="display:inline;font-size:22px">⬆️</b> Share (bottom of Safari)<br>2. Tap <b style="display:inline;font-size:19px">"Add to Home Screen"</b><br><br><button id="dlOk" style="font-size:20px;padding:8px 22px;border-radius:12px;border:0">OK</button></div></div>
@@ -206,15 +222,17 @@ window.__bcbErr=[];(function(){const ce=console.error;console.error=function(...
   if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
   const btn=document.getElementById('dlBtn'),help=document.getElementById('dlHelp');let deferred=null;
   const installed=()=>matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches||navigator.standalone===true;
-  const ua=navigator.userAgent,iOS=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1);
+  const ua=navigator.userAgent,iOS=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1),ANDR=/Android/.test(ua)||(/Linux/.test(ua)&&navigator.maxTouchPoints>0)||(navigator.userAgentData&&navigator.userAgentData.platform==='Android');
   const sayIt=t=>{try{const u=new SpeechSynthesisUtterance(t);speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}};
   addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;});
   addEventListener('appinstalled',()=>{deferred=null;try{localStorage.setItem('bcb_installed','1');}catch(e){}sayIt('The game is on your home screen now!');});
-  btn.onclick=async()=>{if(deferred){deferred.prompt();try{await deferred.userChoice;}catch(e){}deferred=null;}else if(iOS){help.style.display='flex';sayIt('Tap the share button, then tap add to home screen.');}};
-  document.getElementById('dlOk').onclick=()=>help.style.display='none';
+  btn.onclick=async()=>{if(deferred){deferred.prompt();try{await deferred.userChoice;}catch(e){}deferred=null;}else if(iOS){help.innerHTML=HI;bindOk();help.style.display='flex';sayIt('Tap the share button, then tap add to home screen.');}else{help.innerHTML=HA;bindOk();help.style.display='flex';sayIt('Tap the three dots at the top, then tap add to home screen, or install app.');}};
+  const HI=help.innerHTML,HA='<div><b>📲</b>To download:<br>1. Tap <b style="display:inline;font-size:26px">⋮</b> (top right of Chrome)<br>2. Tap <b style="display:inline;font-size:19px">"Add to Home screen"</b> or <b style="display:inline;font-size:19px">"Install app"</b><br>3. Open the game from the new icon 🎮<br><br><button id="dlOk" style="font-size:20px;padding:8px 22px;border-radius:12px;border:0">OK</button></div>';
+  function bindOk(){const o=document.getElementById('dlOk');if(o)o.onclick=()=>help.style.display='none';}
+  bindOk();
   setInterval(()=>{const gate=document.getElementById('gate'),start=document.getElementById('start');
     const onMenu=(gate&&gate.style.display!=='none')||(start&&!start.classList.contains('hidden'));
-    const can=!installed()&&(deferred||(iOS&&!/CriOS|FxiOS/.test(ua)&&localStorage.getItem('bcb_installed')!=='1'));
+    const can=!installed()&&localStorage.getItem('bcb_installed')!=='1'&&(deferred||(iOS&&!/CriOS|FxiOS/.test(ua))||ANDR);
     btn.style.display=can&&onMenu?'block':'none';},700);})();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -298,6 +316,9 @@ window.__bcbErr=[];(function(){const ce=console.error;console.error=function(...
       catch(e){m.textContent='Oops ('+(e.message||e)+')';}});}
   function denied(){show('<div class="big">🚫</div><h1>Not allowed</h1><div>Ask your grown-up for help.</div><br>'+adminBtn);hook();}
   async function open(r){try{localStorage.setItem('bcb_ok','1');}catch(e){}gate.style.display='none';showAdminLink();window.BCB_DIAG=info=>{try{sb.from('diag').insert({info}).then(()=>{},()=>{});}catch(e){}};
+    window.BCB_SCORE=row=>{try{sb.from('weekly').upsert(Object.assign({uid:me},row),{onConflict:'uid,wk'}).then(()=>{},()=>{});}catch(e){}};
+    window.BCB_BOARD=async wk=>{const{data}=await sb.from('weekly').select('uid,xp,lv,missions').eq('wk',wk).order('xp',{ascending:false}).limit(15);const ids=(data||[]).map(r=>r.uid);if(!ids.length)return{me,rows:[]};
+      const{data:pl}=await sb.from('players').select('id,nick,pic').in('id',ids);const P={};(pl||[]).forEach(p=>P[p.id]=p);return{me,rows:(data||[]).filter(r=>P[r.uid]).map(r=>Object.assign({},r,P[r.uid]))};};
     try{const{data}=await sb.from('settings').select('chat,voice').eq('id',1).maybeSingle();window.BCB_CHAT_OFF=data&&data.chat===false;VOICE.allowed=!(data&&data.voice===false)&&r.voice!==false;}catch(e){}
     try{const s=JSON.parse(localStorage.getItem('bcb_save1'))||{};if(s.name!==r.nick){s.name=r.nick;localStorage.setItem('bcb_save1',JSON.stringify(s));}}catch(e){}
     setInterval(async()=>{try{const x=await myRow();if(!x||x.status!=='approved')location.reload();const{data:st}=await sb.from('settings').select('voice').eq('id',1).maybeSingle();VOICE.setAllowed(x.voice!==false&&!(st&&st.voice===false));}catch(e){}},30000);
@@ -1039,7 +1060,7 @@ function useBuddy(){if(P.dead)return;if(buddyCharges<1){showBanner('🔋 Buddy R
 
 // ---------- effects / pickups ----------
 const partMats={};
-function burst(x,y,z,n,color){const m=partMats[color]||(partMats[color]=glow(color));for(let i=0;i<n;i++){if(parts.length>160){scene.remove(parts[0].m);parts.shift();}
+function burst(x,y,z,n,color){const m=partMats[color]||(partMats[color]=glow(color));if(AQ>=3)n=Math.ceil(n/2);for(let i=0;i<n;i++){if(parts.length>(AQ>=3?60:160)){scene.remove(parts[0].m);parts.shift();}
   const p=new THREE.Mesh(partG,m);p.position.set(x,y,z);scene.add(p);parts.push({m:p,vx:rnd(-7,7),vy:rnd(2,10),vz:rnd(-7,7),life:rnd(.4,.8)});}}
 function dropCoin(x,z,val,y){y=y||0;if(nightAmt>.5)val*=2;const m=shade(new THREE.Mesh(coinG,coinM),1,0);m.rotation.x=Math.PI/2;m.position.set(x,y+1,z);scene.add(m);coins.push({m,x,z,y,val,life:40});}
 const packMat=std('#2ecc40',{roughness:.4}),crossMat=std('#ffffff',{roughness:.4}),apMat=std('#2f7cf6',{roughness:.3,metalness:.4});
@@ -1169,8 +1190,11 @@ function newMission(forced){const t=forced||MTYPES[S.done%MTYPES.length];const L
   else{const at=roadPoint(55,110);const b=spawnBot('boss',at)||spawnBot('boss');if(!b){S.done++;missionWait=1;return;}mission={type:'boss',boss:b,reward:90,target:at};}
   if(mission)mission.reward=Math.round(mission.reward*(1+(L-1)*.15));
   showBanner({bots:'🤖 ROBOT ATTACK!',zombies:'🧟 ZOMBIE HORDE!',deliver:'📦 SPEED DELIVERY!',stars:'⭐ STAR HUNT!',boss:'👾 GIANT ROBOT BOSS!',race:'🏁 STREET RACE!<br><small>Grab a car and drive through the gates!</small>',rescue:'🏢 ROOFTOP RESCUE!<br><small>Someone is stuck on a roof!</small>',defend:'🛡 DEFEND HQ!<br><small>Protect the power core for 60 seconds!</small>',bombs:'💣 BOMB SQUAD!<br><small>Stand on each bomb to defuse it!</small>',coinrush:'🪙 COIN RUSH!<br><small>Grab the coins before time runs out!</small>',turrets:'🚁 ROOFTOP TANKS!<br><small>Take the chopper and blast them!</small>',demo:'💥 DEMOLITION DERBY!<br><small>Smash stuff with a car!</small>',gold:'✨ GOLDEN ROBOT!<br><small>Catch it before it escapes!</small>'}[t]);snd(520,.15,'square',.05,780);}
-function addXP(n,delay){const l0=LV();S.xp=(S.xp||0)+n;if(LV()>l0){const f=()=>{speak('Level up! Level '+LV());showBanner('⬆ LEVEL '+LV()+'!<br><small>Robots, zombies &amp; bosses got tougher!</small>');snd(523,.15,'square',.06);setTimeout(()=>snd(784,.3,'square',.06),150);};if(delay)setTimeout(f,delay);else f();}}
-function completeMission(){speak('Mission complete! Great job!');S.coins+=mission.reward;S.done++;addXP(10,2400);save();showBanner('MISSION COMPLETE!<br>+'+mission.reward+' 🪙');
+function weekKey(){const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function wkCheck(){const k=weekKey();if(S.wk!==k){S.wk=k;S.wkxp=0;S.wkm=0;}}
+let scoreDirty=true;setInterval(()=>{if(!scoreDirty||!window.BCB_SCORE)return;scoreDirty=false;wkCheck();window.BCB_SCORE({wk:S.wk,xp:S.wkxp|0,lv:LV(),missions:S.wkm|0});},45000);
+function addXP(n,delay){wkCheck();S.wkxp=(S.wkxp||0)+n;scoreDirty=true;const l0=LV();S.xp=(S.xp||0)+n;if(LV()>l0){const f=()=>{speak('Level up! Level '+LV());showBanner('⬆ LEVEL '+LV()+'!<br><small>Robots, zombies &amp; bosses got tougher!</small>');snd(523,.15,'square',.06);setTimeout(()=>snd(784,.3,'square',.06),150);};if(delay)setTimeout(f,delay);else f();}}
+function completeMission(){let tm=0;try{MP.each(o=>{if(!o.dead&&Math.hypot(o.x-P.x,o.z-P.z)<60)tm++;});}catch(e){}const tb=tm?Math.round(mission.reward*.5):0;speak(tm?'Mission complete! Team bonus!':'Mission complete! Great job!');S.coins+=mission.reward+tb;wkCheck();S.wkm=(S.wkm||0)+1;if(tb)setTimeout(()=>showBanner('🤝 TEAM BONUS! +'+tb+' 🪙'),2600);S.done++;addXP(10,2400);save();showBanner('MISSION COMPLETE!<br>+'+mission.reward+' 🪙');
   snd(660,.12,'square',.06);setTimeout(()=>snd(880,.12,'square',.06),120);setTimeout(()=>snd(1320,.25,'square',.06),240);
   collect.forEach(c=>scene.remove(c.m));collect.length=0;clearMission(false);mission=null;missionWait=4;addCharge();}
 function failMission(msg){showBanner(msg);speak('Oh no! Mission failed. Try again!');collect.forEach(c=>scene.remove(c.m));collect.length=0;clearMission(true);mission=null;missionWait=3;}
@@ -1329,7 +1353,15 @@ function renderMenu(){$('mcoins').textContent='🪙 '+S.coins;const mb=$('mbody'
   const cb=$('clearB');if(cb)cb.addEventListener('click',()=>{Object.keys(stacks).forEach(key=>{const p=key.split(',');while(stacks[key].length)breakBlock(+p[0],+p[1]);});S.built=[];save();cb.textContent='Done';});
   const th=$('toHelp');if(th)th.addEventListener('click',()=>{$('menu').classList.add('hidden');openHelp();});}
 function flashNo(b){const t=b.textContent;b.textContent='Need more 🪙';setTimeout(()=>{b.textContent=t;},900);}
-$('playBtn').addEventListener('click',()=>{audioInit();speak('Let\'s go! Walk into a glowing circle to start a mission!');started=true;$('start').classList.add('hidden');paused=false;try{const fs=document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();if(fs&&fs.catch)fs.catch(()=>{});}catch(e){}});
+function dailyPrize(){const day=new Date().toDateString();if(S.lastDay===day)return;const y=new Date(Date.now()-864e5).toDateString();S.streak=S.lastDay===y?((S.streak||0)%7)+1:1;S.lastDay=day;
+  const PR=[20,30,40,50,60,80,150],c=PR[S.streak-1];S.coins+=c;save();
+  const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;z-index:60;background:#0009;display:flex;align-items:center;justify-content:center;font-family:system-ui';
+  d.innerHTML='<div style="background:linear-gradient(#3d8bff,#1b3f9e);border:4px solid #ffd400;border-radius:22px;padding:18px 20px;text-align:center;color:#fff;max-width:92vw"><div style="font:900 30px system-ui;color:#ffd400">🎁 DAILY PRIZE!</div><div style="display:flex;gap:6px;justify-content:center;margin:12px 0;flex-wrap:wrap">'+
+    PR.map((p,i)=>'<div style="width:54px;padding:6px 0;border-radius:12px;background:'+(i+1<S.streak?'#2e7d32':i+1===S.streak?'#ffd400':'#ffffff22')+';color:'+(i+1===S.streak?'#222':'#fff')+';font-weight:bold;font-size:13px'+(i+1===S.streak?';transform:scale(1.15)':'')+'"><div style="font-size:24px">'+(i+1<S.streak?'✅':i===6?'💎':'🎁')+'</div>Day '+(i+1)+'<br>'+p+'🪙</div>').join('')+
+    '</div><div style="font-size:20px">Day '+S.streak+': <b>+'+c+' coins!</b><br><small>Come back tomorrow for more!</small></div><button style="margin-top:12px;font:bold 22px system-ui;padding:10px 30px;border-radius:14px;border:0;background:#5cff7a;color:#0b3a17">Yay!</button></div>';
+  document.body.appendChild(d);const close=()=>d.remove();d.querySelector('button').onclick=close;setTimeout(close,7000);
+  speak('Daily prize! Day '+S.streak+'! '+c+' coins! Come back tomorrow for more!');snd(784,.15,'square',.06);setTimeout(()=>snd(1046,.3,'square',.06),160);}
+$('playBtn').addEventListener('click',()=>{audioInit();setTimeout(dailyPrize,1800);speak('Let\'s go! Walk into a glowing circle to start a mission!');started=true;$('start').classList.add('hidden');paused=false;try{const fs=document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();if(fs&&fs.catch)fs.catch(()=>{});}catch(e){}});
 $('shopBtn2').addEventListener('click',()=>{audioInit();$('start').classList.add('hidden');openMenu();});
 $('helpBtn').addEventListener('click',()=>{$('start').classList.add('hidden');openHelp();});
 
@@ -1408,14 +1440,14 @@ const WEV=(function(){
       const u=skyMat.uniforms;gray.setRGB(.32,.35,.4);u.top.value.lerp(gray,W.wf*.75);c2.setRGB(.5,.53,.57);u.hor.value.lerp(c2,W.wf*.7);scene.fog.color.copy(u.hor.value);
       sun.intensity*=1-.65*W.wf;hemi.intensity*=1+.4*W.wf;R.toneMappingExposure*=1-.12*W.wf;scene.fog.near=(AQ>=3?55:80)-30*W.fog-10*W.rain;scene.fog.far=(AQ>=3?230:AQ>=2?330:380)-(AQ>=3?60:110)*W.fog-(AQ>=3?40:60)*W.rain;if(W.fog>.01){c2.setRGB(.42,.47,.55);scene.fog.color.lerp(c2,W.fog*.6);}
       roadMat.roughness=.92-.6*W.rain;roadMat.metalness=.25*W.rain;
-      rain.visible=W.rain>.02;if(rain.visible){rg.setDrawRange(0,AQ>=2?rainN:rainN*2);rainM.opacity=.55*W.rain;const cx=cam.position.x,cz=cam.position.z,cy=cam.position.y;rain.position.set(cx,Math.max(0,cy-20),cz);
+      rain.visible=W.rain>.02;if(rain.visible){rg.setDrawRange(0,AQ>=3?rainN*.6:AQ>=2?rainN:rainN*2);rainM.opacity=.55*W.rain;const cx=cam.position.x,cz=cam.position.z,cy=cam.position.y;rain.position.set(cx,Math.max(0,cy-20),cz);
         for(let i=0;i<rainN;i++){let y=rainPos[i*6+1]-dt*38;if(y<0)y+=40;rainPos[i*6+1]=y;rainPos[i*6+4]=y-.9;}rg.attributes.position.needsUpdate=true;}
       rainSound(W.rain>.05);
       if(W.storm>.5){W.boltT-=dt;if(W.boltT<=0){W.boltT=rnd(7,15);flashEl.style.transition='none';flashEl.style.opacity=.28;setTimeout(()=>{flashEl.style.transition='opacity .4s';flashEl.style.opacity=0;},90);setTimeout(()=>{snd(38,1.6,'sawtooth',.13,18);snd(70,.8,'square',.05,30);},rnd(300,1400));}}
       // landmarks
       lmAnim.forEach(f=>f(dt));lmT-=dt;if(lmT<=0){lmT=.5;S.found=S.found||{};for(const L of LMS){if(!S.found[L.t]&&!P.dead&&Math.hypot(L.x-P.x,L.z-P.z)<L.r){S.found[L.t]=1;S.coins+=50;save();showBanner('🗺 YOU FOUND '+L.name.toUpperCase()+'!<br><small>+50 coins</small>');speak('You discovered '+L.name.toLowerCase()+'! Fifty coins!');snd(784,.15,'square',.06);setTimeout(()=>snd(1046,.3,'square',.06),150);}}}
       // statues
-      for(let i=statues.length-1;i>=0;i--){const st=statues[i];st.g.rotation.y+=dt*.8;if(Math.random()<dt*1.5)burst(st.x+rnd(-.6,.6),st.y+2.2,st.z+rnd(-.6,.6),1,'#fff59d');
+      for(let i=statues.length-1;i>=0;i--){const st=statues[i];st.g.rotation.y+=dt*.8;if(AQ<3&&Math.random()<dt*1.5)burst(st.x+rnd(-.6,.6),st.y+2.2,st.z+rnd(-.6,.6),1,'#fff59d');
         if(!P.dead&&Math.abs(P.y-st.y)<2.6&&Math.hypot(st.x-P.x,st.z-P.z)<2.3){scene.remove(st.g);statues.splice(i,1);S.statues=(S.statues||0)+1;S.coins+=25;save();burst(st.x,st.y+1.5,st.z,30,'#ffd400');
           const unlock=Object.keys(HATS).find(h=>HATS[h].u===S.statues);showBanner('🗿 GOLDEN STATUE! ('+S.statues+')'+(unlock?'<br><small>NEW HAT UNLOCKED: '+HATS[unlock].n+'!</small>':''));speak(unlock?'You found a golden statue, and unlocked a new hat! Check the shop!':'You found a secret golden statue!');snd(988,.15,'square',.06);setTimeout(()=>snd(1318,.35,'square',.06),150);}}
       // events
@@ -1430,7 +1462,7 @@ const WEV=(function(){
           if(A.time<=0){showBanner('🛸 The UFO flew away');endEvent();}}
         else if(A.t==='titan'){if(!A.titan||bots.indexOf(A.titan)<0){EV.active=null;EV.next=170+Math.random()*170;}else if(A.time<=-60){removeBot(A.titan);endEvent();}}
         else if(A.t==='meteor'){A.spawn-=dt;if(A.spawn<=0&&A.time>3){A.spawn=.55;spawnMeteor();}if(A.time<=0&&!meteors.length){showBanner('☄️ The meteor shower is over');EV.active=null;EV.next=170+Math.random()*170;}}}
-      for(let i=meteors.length-1;i>=0;i--){const m=meteors[i];m.t-=dt;const f=Math.max(0,m.t/1.7);m.m.position.set(m.x+(m.sx-m.x)*f,1+110*f,m.z+(m.sz-m.z)*f);m.m.rotation.x+=dt*5;m.ring.material.opacity=.4+.5*Math.abs(Math.sin(time*12));burst(m.m.position.x,m.m.position.y+1,m.m.position.z,1,'#ffb74d');
+      for(let i=meteors.length-1;i>=0;i--){const m=meteors[i];m.t-=dt;const f=Math.max(0,m.t/1.7);m.m.position.set(m.x+(m.sx-m.x)*f,1+110*f,m.z+(m.sz-m.z)*f);m.m.rotation.x+=dt*5;m.ring.material.opacity=.4+.5*Math.abs(Math.sin(time*12));if(AQ<3)burst(m.m.position.x,m.m.position.y+1,m.m.position.z,1,'#ffb74d');
         if(m.t<=0){scene.remove(m.m);scene.remove(m.ring);meteors.splice(i,1);explode(m.x,1,m.z,5,22,false);explode(m.x,1,m.z,5,6,true);const cm=new THREE.Mesh(crG,crM);cm.position.set(m.x,.9,m.z);scene.add(cm);crystals.push({m:cm,x:m.x,z:m.z,life:40});}}
       for(let i=crystals.length-1;i>=0;i--){const c=crystals[i];c.life-=dt;c.m.rotation.y+=dt*3;c.m.position.y=.9+Math.sin(time*4+i)*.25;if(!P.dead&&P.y<4&&Math.hypot(c.x-P.x,c.z-P.z)<(inCar?3.2:2.2)){S.coins+=8;saveT=1;snd(1500,.1,'sine',.05,2400);burst(c.x,1,c.z,10,'#3ff2e0');scene.remove(c.m);crystals.splice(i,1);}else if(c.life<=0){scene.remove(c.m);crystals.splice(i,1);}}
     },
@@ -1472,6 +1504,37 @@ const MP=(function(){let room=null,sendT=0,seq=0,lastShot=null,joinedOnce=false,
         if(o.v===1){if(!o.car){o.car=new THREE.Mesh(carGeo,[std(o.col||'#ff7043',{metalness:.55,roughness:.28})].concat(carShared));o.car.castShadow=true;scene.add(o.car);}o.car.visible=true;o.car.position.set(o.x,0,o.z);o.car.rotation.y=o.f;}else if(o.car)o.car.visible=false;
         if(o.v===2){if(!o.hel){o.hel=new THREE.Mesh(heliGeo,heli.g.material);o.hel.castShadow=true;const rr=new THREE.Group();rr.position.y=3.2;o.hel.add(rr);box(11,.07,.4,bladeM,0,0,0,rr);box(.4,.07,11,bladeM,0,0,0,rr);o.rot=rr;scene.add(o.hel);}o.hel.visible=true;o.hel.position.set(o.x,o.y,o.z);o.hel.rotation.y=o.f;o.rot.rotation.y+=dt*28;}else if(o.hel)o.hel.visible=false;
         o.tag.position.set(o.x,o.y+(o.v===2?6:o.v===1?3.4:3.6),o.z);o.tag.visible=!o.dead;{const tk=window.BCB_SPK&&window.BCB_SPK.has(o.peer);if(tk&&!o.spk){const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');x.font='48px serif';x.textAlign='center';x.textBaseline='middle';x.fillText('🔊',32,34);o.spk=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:false,toneMapped:false}));o.spk.scale.set(1.4,1.4,1);o.spk.renderOrder=7;scene.add(o.spk);}if(o.spk){o.spk.visible=!!tk&&!o.dead;o.spk.position.set(o.x+1.6,o.y+(o.v===2?6:o.v===1?3.4:3.6),o.z);}}if(o.bub){o.bubT-=dt;o.bub.visible=o.bubT>0;o.bub.position.set(o.x,o.y+(o.v===2?8.5:6.2),o.z);}});}};})();
+$('online').style.pointerEvents='auto';$('online').style.cursor='pointer';
+let tpCool=0;setInterval(()=>{tpCool=Math.max(0,tpCool-1);},1000);
+function friendInvite(){const txt='Play Block City Blasters with me! 🎮 '+location.origin+' (a grown-up has to say yes first)';
+  try{if(navigator.share){navigator.share({title:'Block City Blasters',text:txt}).catch(()=>{});return;}}catch(e){}
+  try{navigator.clipboard.writeText(txt);showBanner('📋 Invite copied!<br><small>Paste it in a text</small>');}catch(e){}}
+function goToFriend(o){if(P.dead)return;if(inCar||inHeli){speak('Get out first, then try again!');showBanner('🚗 Get out first!');return;}if(tpCool>0){speak('Wait '+tpCool+' seconds');return;}
+  let spot=null;for(const r of [2.5,3.5,5,7,10])for(let k=0;k<10&&!spot;k++){const a=k/10*6.283,x=o.x+Math.cos(a)*r,z=o.z+Math.sin(a)*r;if(isLand(x,z)&&!blocked(x,z,.7))spot=[x,z];}
+  if(!spot){speak('Can not reach them right now');return;}burst(P.x,1,P.z,20,'#7dff8a');P.x=spot[0];P.z=spot[1];P.y=0;P.vy=0;if('inB' in P)P.inB=null;tpCool=10;burst(P.x,1,P.z,25,'#7dff8a');snd(400,.3,'sine',.06,1400);speak('Zoom! You are with '+o.name+'!');closeFriends();}
+async function openBoard(){if(!window.BCB_BOARD){showBanner('🏆 Leaderboard needs internet');return;}wkCheck();if(window.BCB_SCORE){window.BCB_SCORE({wk:S.wk,xp:S.wkxp|0,lv:LV(),missions:S.wkm|0});scoreDirty=false;}
+  const d=document.createElement('div');d.id='boardP';d.style.cssText='position:fixed;inset:0;z-index:62;background:#0009;display:flex;align-items:center;justify-content:center;font-family:system-ui';
+  d.innerHTML='<div style="background:linear-gradient(#ffb300,#e65100);border:4px solid #fff;border-radius:22px;padding:16px;color:#fff;width:min(440px,92vw);max-height:84vh;overflow:auto;text-align:center"><div style="font:900 30px system-ui;text-shadow:0 3px 0 #7a2e00">🏆 TOP BLASTERS</div><small>This week · new board every Monday</small><div id="bRows" style="margin-top:10px">Loading…</div><button id="bClose" style="width:100%;font:bold 20px system-ui;padding:10px;border-radius:14px;border:0;background:#ffffffcc;color:#7a2e00;margin-top:10px">Close</button></div>';
+  document.body.appendChild(d);d.querySelector('#bClose').onclick=()=>d.remove();d.addEventListener('pointerdown',e=>{if(e.target===d)d.remove();});
+  await new Promise(r=>setTimeout(r,800));
+  try{const B=await window.BCB_BOARD(S.wk);const md=['🥇','🥈','🥉'];const e2=t=>String(t).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
+    d.querySelector('#bRows').innerHTML=B.rows.length?B.rows.map((r,i)=>'<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;margin:6px 0;border-radius:14px;background:'+(r.uid===B.me?'#fff3':'#0002')+(r.uid===B.me?';border:2px solid #fff':'')+'"><b style="width:34px;font-size:'+(i<3?26:18)+'px">'+(md[i]||(i+1))+'</b><span style="font-size:28px">'+e2(r.pic)+'</span><b style="flex:1;text-align:left;font-size:18px">'+e2(r.nick)+(r.uid===B.me?' (you)':'')+'<small style="display:block;font-weight:normal">LV '+r.lv+' · '+r.missions+' missions</small></b><b style="font-size:18px">'+r.xp+' XP</b></div>').join(''):'Nobody yet this week — go be #1!';
+    const myI=B.rows.findIndex(r=>r.uid===B.me);speak(myI===0?'You are number one this week!':myI>0?'You are number '+(myI+1)+' this week!':'Play missions to get on the board!');}
+  catch(e){d.querySelector('#bRows').textContent='Could not load right now';}}
+function closeFriends(){const d=document.getElementById('friendsP');if(d)d.remove();}
+function openFriends(){closeFriends();const d=document.createElement('div');d.id='friendsP';d.style.cssText='position:fixed;inset:0;z-index:40;background:#0008;display:flex;align-items:center;justify-content:center;font-family:system-ui';
+  const list=[];MP.each(o=>list.push(o));const esc2=t=>String(t).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
+  d.innerHTML='<div style="background:linear-gradient(#2a5fd8,#14306f);border:3px solid #fff;border-radius:20px;padding:16px;color:#fff;width:min(420px,92vw);max-height:80vh;overflow:auto"><div style="font:900 26px system-ui;text-align:center">👥 Friends playing</div>'+
+    (list.length?list.map((o,i)=>'<div style="display:flex;align-items:center;gap:10px;background:#ffffff18;border-radius:12px;padding:8px;margin:8px 0"><span style="width:22px;height:22px;border-radius:50%;background:'+esc2(o.col||'#fff')+';border:2px solid #fff"></span><b style="flex:1;font-size:18px">'+esc2(o.name)+'<small style="display:block;font-weight:normal;opacity:.8">'+(o.dead?'💀 respawning':Math.round(Math.hypot(o.x-P.x,o.z-P.z))+' m away')+'</small></b><button data-i="'+i+'" style="font:bold 17px system-ui;padding:8px 12px;border-radius:12px;border:0;background:#5cff7a;color:#0b3a17">🚀 Go</button></div>').join(''):'<p style="text-align:center">No friends online right now</p>')+
+    '<button id="fBoard" style="width:100%;font:bold 18px system-ui;padding:10px;border-radius:12px;border:0;background:#ffd400;color:#5a3a00;margin-top:6px">🏆 Leaderboard</button>'+(window.BCB_NET?'<button id="fInv" style="width:100%;font:bold 18px system-ui;padding:10px;border-radius:12px;border:0;background:#ffb74d;color:#3a1d00;margin-top:6px">📨 Invite a friend</button>':'')+
+    '<button id="fClose" style="width:100%;font:bold 18px system-ui;padding:10px;border-radius:12px;border:0;background:#ffffff33;color:#fff;margin-top:8px">Close</button></div>';
+  document.body.appendChild(d);d.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>goToFriend(list[+b.dataset.i]));d.querySelector('#fClose').onclick=closeFriends;const iv=d.querySelector('#fInv');if(iv)iv.onclick=friendInvite;d.querySelector('#fBoard').onclick=()=>{closeFriends();openBoard();};
+  d.addEventListener('pointerdown',e=>{if(e.target===d)closeFriends();});speak(list.length?'Tap go to zoom to a friend':'No friends online right now');}
+$('online').addEventListener('click',()=>{audioInit();openFriends();});
+if(window.BCB_NET){const row=$('playBtn').parentElement;const b1=document.createElement('button');b1.className='btn';b1.style.fontSize='18px';b1.textContent='🏆 Top Blasters';b1.onclick=()=>{audioInit();openBoard();};row.appendChild(b1);
+  const b2=document.createElement('button');b2.className='btn';b2.style.fontSize='18px';b2.textContent='📨 Invite';b2.onclick=friendInvite;row.appendChild(b2);}
+// keep it full screen like an app (Chrome can drop out of full screen)
+document.addEventListener('pointerdown',()=>{if(!started||paused)return;const de=document.documentElement;if(document.fullscreenElement||matchMedia('(display-mode: fullscreen)').matches||matchMedia('(display-mode: standalone)').matches||!de.requestFullscreen)return;try{const p=de.requestFullscreen({navigationUI:'hide'});if(p&&p.catch)p.catch(()=>{});}catch(e){}},true);
 $('chatBtn').addEventListener('click',()=>{audioInit();$('chatPanel').classList.toggle('hidden');});
 $('chatPanel').innerHTML=CHATS.map((c,i)=>'<button data-ci="'+i+'">'+c[0]+'<small>'+c[1]+'</small></button>').join('');
 $('chatPanel').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{MP.say(+b.dataset.ci);$('chatPanel').classList.add('hidden');}));
@@ -1580,6 +1643,7 @@ function update(dt){
   const L=LV();let want=Math.round(DF.base+stars*DF.per+Math.min(3,(L-1)*.5));if(mission&&mission.type==='bots')want=Math.max(want,DF.base+3);if(mission&&mission.type==='deliver')want=Math.max(want,DF.base+1);
   want+=Math.round(2*nightAmt);let zwant=Math.min(12,DF.z+Math.floor((L-1)/2))+Math.round(5*nightAmt);if(mission&&mission.type==='zombies')zwant+=6;
   if(mission&&mission.type==='defend'){want+=3;zwant+=3;}else if(atHQ){want=Math.min(want,3);zwant=Math.min(zwant,3);}
+  if(AQ>=3){want=Math.ceil(want*.65);zwant=Math.ceil(zwant*.55);}
   let nR=0,nZ=0;for(const b of bots){if(b.friend||b.boss)continue;if(b.zombie)nZ++;else nR++;}
   if(nR<want&&Math.random()<dt*1.5)spawnBot(robotKind());
   if(nZ<zwant&&Math.random()<dt*1.2){const g=spawnBot('zombie');if(g){for(let k=0;k<2&&nZ+k+1<zwant;k++)spawnBot('zombie',{x:g.x,z:g.z});}}
@@ -1722,7 +1786,7 @@ function update(dt){
     if(mission&&['deliver','stars','rescue','coinrush'].indexOf(mission.type)>=0&&tgt){beam.visible=true;beam.position.x=tgt.x;beam.position.z=tgt.z;}else beam.visible=false;
     const st=inCar?'cout':inHeli?'hout':nearHeli()?'heli':(nearestCar()&&!P.dead?'in':'none');if(st!==carBtnState){carBtnState=st;const cb=$('car');cb.style.visibility=st==='none'?'hidden':'visible';cb.textContent={cout:'🚪 Get out',hout:'🚪 Jump out',heli:'🚁 Fly',in:'🚗 Get in'}[st]||'';$('build').style.visibility=inCar?'hidden':'visible';$('build').textContent=inHeli?'⬇ Down':'🧱 Build';$('jump').textContent=inHeli?'⬆ Up':inCar?(S.up.nitro?'🔥 Nitro':'⬆ Jump'):'⬆ Jump';}
     {let bb=null,bd=110;bots.forEach(b=>{if(b.boss&&!b.friend){const d=Math.hypot(b.x-P.x,b.z-P.z);if(d<bd){bd=d;bb=b;}}});const U=WEV.ufo();if(U&&!bb){$('bossbar').classList.remove('hidden');$('bossname').textContent='🛸 UFO · '+Math.ceil(Math.max(0,U.hp))+' HP';$('bossfill').style.width=Math.max(0,U.hp/U.max*100)+'%';}else $('bossbar').classList.toggle('hidden',!bb);if(bb){$('bossname').textContent='👾 BOSS · LV '+LV()+' · '+Math.ceil(Math.max(0,bb.hp))+' HP'+(bb.rage?' 😡':'')+(bb.shield?' 🛡':'');$('bossfill').style.width=Math.max(0,bb.hp/bb.max*100)+'%';}}
-    {const n=MP.count();$('online').classList.toggle('hidden',!n);$('online').textContent='👥 '+(n+1)+' playing';$('chatBtn').classList.toggle('hidden',!n||!!window.BCB_CHAT_OFF);if(!n)$('chatPanel').classList.add('hidden');}
+    {const n=MP.count();$('online').classList.toggle('hidden',!n);$('online').textContent='👥 '+(n+1)+' playing ▸';$('chatBtn').classList.toggle('hidden',!n||!!window.BCB_CHAT_OFF);if(!n)$('chatPanel').classList.add('hidden');}
     drawMini();
     if(saveT>0){saveT=0;save();}}
 }
