@@ -520,12 +520,12 @@ const rnd=(a,b)=>a+Math.random()*(b-a),pick=a=>a[Math.floor(Math.random()*a.leng
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 
 // ---------- renderer ----------
-const HIGH=S.gfx!=='low';const SAFE=S.safe===1;const TOUCH=('ontouchstart' in window)||navigator.maxTouchPoints>0;let AQ=SAFE?3:Math.max(+(S.aq||0),TOUCH?1:0); // auto quality level 0 best .. 3 fastest
+const HIGH=S.gfx!=='low';const SAFE=S.safe===1;const TOUCH=('ontouchstart' in window)||navigator.maxTouchPoints>0;const ULTRA=S.gfx==='ultra'&&!SAFE;let AQ=SAFE?3:ULTRA?0:Math.max(+(S.aq||0),TOUCH?1:0); // auto quality level 0 best .. 3 fastest
 // curvy outskirts: downtown stays a straight grid, the edges of town get winding roads
 const WB={x:0,z:0};const wAmp=(x,z)=>{if(SAFE)return 0;const d=Math.hypot(x-WB.x,z-WB.z);return 12*Math.max(0,Math.min(1,(d-140)/90));};
 const WX=(x,z)=>x+wAmp(x,z)*Math.sin(z/38+.7),WZ=(x,z)=>z+wAmp(x,z)*Math.sin(x/41+1.9);
-const R=new THREE.WebGLRenderer({antialias:!TOUCH,powerPreference:'high-performance'});
-const PR=[2,1,.8,.65];R.setPixelRatio(Math.min(window.devicePixelRatio||1,HIGH?PR[AQ]:Math.min(1,PR[AQ])));
+const R=new THREE.WebGLRenderer({antialias:!TOUCH||ULTRA,powerPreference:'high-performance'});
+const PR=[2,1.25,.85,.65];R.setPixelRatio(Math.min(window.devicePixelRatio||1,ULTRA?2.5:HIGH?PR[AQ]:Math.min(1,PR[AQ])));
 R.outputEncoding=THREE.sRGBEncoding;R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=1.0;
 R.shadowMap.enabled=HIGH;R.shadowMap.type=THREE.PCFSoftShadowMap;
 R.domElement.id='view';document.body.prepend(R.domElement);
@@ -1490,7 +1490,7 @@ function renderMenu(){$('mcoins').textContent='🪙 '+S.coins;const mb=$('mbody'
   else if(tab==='up')mb.innerHTML='<div class="panel">'+Object.keys(UPS).map(k=>{const u=UPS[k],own=S.up[k];return'<div class="item"><div><b>'+u.n+'</b><small>'+u.d+(own?'':' · '+u.p+' coins')+'</small></div><button class="btn" data-up="'+k+'" '+(own?'disabled':'')+'>'+(own?'✔ Got it':'Buy')+'</button></div>';}).join('')+'</div>';
   else mb.innerHTML='<div class="panel"><div class="item"><div><b>Robot difficulty</b><small>Easy = fewer enemies and softer hits · Hard = real challenge</small></div>'+seg('diff',[['easy','Easy'],['normal','Normal'],['hard','Hard']])+'</div>'+
     '<div class="item"><div><b>🔊 Talking helper</b><small>A voice explains missions and important things</small></div>'+seg('voice',[['1','On'],['0','Off']])+'</div>'+
-    '<div class="item"><div><b>Graphics</b><small>Use Fast if the game feels slow (reloads the game)</small></div>'+seg('gfx',[['high','Real'],['low','Fast']])+'</div>'+
+    '<div class="item"><div><b>Graphics</b><small>💎 Ultra = sharpest and prettiest. ⚡ Fast if it feels slow. (reloads the game)</small></div>'+seg('gfx',[['ultra','💎 Ultra'],['high','👍 Normal'],['low','⚡ Fast']])+'</div>'+
     '<div class="item"><div><b>Clear my blocks</b><small>Removes everything you built</small></div><button class="btn" id="clearB">Clear</button></div>'+
     '<div class="item"><div><b>Controls</b><small>See all the buttons</small></div><button class="btn" id="toHelp">🎮 Show</button></div></div>';
   {const pn=$('pname');if(pn)pn.addEventListener('input',()=>{S.name=pn.value.replace(/[^A-Za-z0-9 _-]/g,'').slice(0,12);save();});}
@@ -3075,12 +3075,15 @@ try{FUN.init();FUN.init2();}catch(e){console.error('FUN init',e);}
 requestAnimationFrame(loop);
 if(/[?&]debug=bcb/.test(location.search))window.__bcb={P,cam,get inCar(){return inCar},get inHeli(){return inHeli},WX,WZ,BASE,scene,R,get AQ(){return AQ},get camDist(){return camDist},pointInBox,blocked,isLand};
 // ---- keep it smooth: lower quality automatically on slower devices ----
-function applyAQ(){R.setPixelRatio(Math.min(window.devicePixelRatio||1,HIGH?PR[AQ]:Math.min(1,PR[AQ])));resize();
+function applyAQ(){R.setPixelRatio(Math.min(window.devicePixelRatio||1,ULTRA?2.5:HIGH?PR[AQ]:Math.min(1,PR[AQ])));resize();
+  if(ULTRA&&sun.shadow.mapSize.x<2048){sun.shadow.mapSize.set(2048,2048);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null;}}
   if(AQ>=1&&sun.shadow.mapSize.x>1024){sun.shadow.mapSize.set(1024,1024);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null;}}
-  cam.far=AQ>=3?250:AQ>=2?360:430;cam.updateProjectionMatrix();sky.scale.setScalar((cam.far-25)/600);if(AQ>=2)sun.castShadow=false;}
+  cam.far=ULTRA?620:AQ>=3?250:AQ>=2?360:430;cam.updateProjectionMatrix();sky.scale.setScalar((cam.far-25)/600);if(AQ>=2)sun.castShadow=false;}
 applyAQ();
 if(AQ<2)cv.style.filter='saturate(.86) contrast(1.05)'; // a little grittier, more like a classic city game
-{let fr=0,ft=0,cool=8;const tick=(dt)=>{if(paused||document.hidden)return;fr++;ft+=dt;cool-=dt;if(ft>=4){const fps=fr/ft;fr=0;ft=0;if(cool<=0&&fps<38&&AQ<3){AQ++;S.aq=AQ;save();applyAQ();cool=6;}}};
+{let fr=0,ft=0,cool=8;const tick=(dt)=>{if(paused||document.hidden)return;fr++;ft+=dt;cool-=dt;if(ft>=4){const fps=fr/ft;fr=0;ft=0;if(ULTRA){if(fps<22&&!tick.warned){tick.warned=1;showBanner('💎 Ultra is slow on this device<br><small>Try 👍 Normal in ⚙ Settings</small>');}return;}
+      if(cool<=0&&fps<38&&AQ<3){AQ++;S.aq=AQ;save();applyAQ();cool=6;}
+      else if(cool<=0&&fps>56&&!SAFE&&AQ>(TOUCH?1:0)){tick.good=(tick.good||0)+1;if(tick.good>=3){tick.good=0;AQ--;S.aq=AQ;save();applyAQ();cool=25;}}else tick.good=0;}};
   let lt=performance.now();(function fl(now){requestAnimationFrame(fl);const d=Math.min(.25,(now-lt)/1000);lt=now;if(started)tick(d);})(lt);}
 cv.addEventListener('webglcontextlost',e=>{e.preventDefault();try{S.aq=Math.min(3,AQ+1);save();}catch(_){}const m=document.createElement('div');m.style.cssText='position:fixed;inset:0;z-index:200;background:#0b1638;color:#fff;display:flex;align-items:center;justify-content:center;font:bold 26px system-ui';m.textContent='🔄 Fixing the screen…';document.body.appendChild(m);setTimeout(()=>location.reload(),1200);});
 setInterval(()=>{if(!paused)save();},15000);
